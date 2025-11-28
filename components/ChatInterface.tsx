@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Message, Sender, WidgetType, AppContextState } from '../types';
 import { BusinessProfileCard } from './cards/BusinessProfileCard';
 import { GoalSetupCard } from './cards/GoalSetupCard';
@@ -67,19 +68,11 @@ export const ChatInterface: React.FC<Props> = ({ messages, onSendMessage, isTypi
       case WidgetType.KPI_REPORT:
           return <KPIDashboardCard data={appState.kpiHistory} />;
       case WidgetType.STRATEGY:
-          if(widgetData?.pillars && appState.strategy.length === 0) {
-              setTimeout(() => updateAppState({ strategy: widgetData.pillars }), 0);
-          }
+          // Data is already in appState if auto-updated, or fallback to widgetData for display if stateless
           return <StrategyCard pillars={widgetData?.pillars || appState.strategy} />;
       case WidgetType.PERSONA:
-          if(widgetData?.personas && appState.personas.length === 0) {
-              setTimeout(() => updateAppState({ personas: widgetData.personas }), 0);
-          }
           return <PersonaCard personas={widgetData?.personas || appState.personas} />;
       case WidgetType.COMPETITOR_ANALYSIS:
-          if(widgetData?.competitors && appState.competitors.length === 0) {
-              setTimeout(() => updateAppState({ competitors: widgetData.competitors }), 0);
-          }
           return <CompetitorCard competitors={widgetData?.competitors || appState.competitors} />;
       case WidgetType.BOTTLENECK_ANALYSIS:
           return (
@@ -89,9 +82,6 @@ export const ChatInterface: React.FC<Props> = ({ messages, onSendMessage, isTypi
             />
           );
       case WidgetType.ROADMAP:
-          if(widgetData?.phases && appState.roadmap.length === 0) {
-              setTimeout(() => updateAppState({ roadmap: widgetData.phases }), 0);
-          }
           return <RoadmapCard phases={widgetData?.phases || appState.roadmap} />;
       case WidgetType.LANDING_PAGE_STRUCTURE:
           return <LandingPageCard sections={widgetData?.sections || []} />;
@@ -110,16 +100,18 @@ export const ChatInterface: React.FC<Props> = ({ messages, onSendMessage, isTypi
   ];
 
   return (
-    <div className="flex-1 flex flex-col h-full relative">
+    // Changed from h-full to flex-1 to behave correctly inside a flex column parent
+    <div className="flex-1 flex flex-col min-h-0 w-full relative">
       
       {/* Chat Area */}
       {/* 
-        Layout Fix:
-        - Mobile: pt-20 pushes content below the absolute header (h-16 + spacing).
-        - Desktop: pt-0 because header is in normal flow above this component.
-        - Removed mask-image-gradient to prevent cutting off top content.
+        Layout Adjustment:
+        - Mobile: pt-32 (8rem = 128px) ensures first message clears the absolute header + notch area.
+        - Desktop: pt-4, header is relative above.
+        - Z-index 10 ensures it's above stars (z-0) but below header (z-50) when scrolling.
+        - Added min-h-0 to fix Firefox/Safari nested flex scrolling issues.
       */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-20 md:pt-4 pb-4 space-y-8 scrollbar-hide z-10">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-32 md:pt-4 pb-4 space-y-8 scrollbar-hide z-10 min-h-0">
         {messages.map((msg) => (
           <div 
             key={msg.id} 
@@ -140,7 +132,23 @@ export const ChatInterface: React.FC<Props> = ({ messages, onSendMessage, isTypi
                     <span className="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-white tracking-wide">HOUSTON AI</span>
                  </div>
               )}
-              <p className="whitespace-pre-wrap font-light tracking-wide">{msg.text}</p>
+              {/* Markdown Rendering */}
+              <div className="prose prose-sm prose-invert max-w-none">
+                <ReactMarkdown
+                  components={{
+                    p: ({node, ...props}) => <p className="mb-2 last:mb-0 font-light" {...props} />,
+                    strong: ({node, ...props}) => <strong className="font-bold text-white" {...props} />,
+                    ul: ({node, ...props}) => <ul className="list-disc pl-4 space-y-1 mb-2 text-slate-300" {...props} />,
+                    ol: ({node, ...props}) => <ol className="list-decimal pl-4 space-y-1 mb-2 text-slate-300" {...props} />,
+                    li: ({node, ...props}) => <li className="marker:text-neon-blue" {...props} />,
+                    h1: ({node, ...props}) => <h1 className="text-lg font-bold text-white mb-2" {...props} />,
+                    h2: ({node, ...props}) => <h2 className="text-base font-bold text-white mb-2" {...props} />,
+                    h3: ({node, ...props}) => <h3 className="text-sm font-bold text-neon-blue mb-1" {...props} />,
+                  }}
+                >
+                  {msg.text}
+                </ReactMarkdown>
+              </div>
             </div>
 
             {/* Widget Attachment */}
@@ -169,7 +177,7 @@ export const ChatInterface: React.FC<Props> = ({ messages, onSendMessage, isTypi
       </div>
 
       {/* Input Deck (Floating) */}
-      <div className="p-4 md:p-6 z-20 mt-auto bg-gradient-to-t from-void-900 via-void-900/90 to-transparent">
+      <div className="p-4 md:p-6 z-20 mt-auto bg-gradient-to-t from-void-900 via-void-900/95 to-transparent">
         <div className="max-w-4xl mx-auto">
             {/* Quick Actions Chips */}
             <div className="flex gap-3 mb-4 overflow-x-auto scrollbar-hide pb-2">
@@ -208,7 +216,7 @@ export const ChatInterface: React.FC<Props> = ({ messages, onSendMessage, isTypi
             </div>
             
             <div className="text-center mt-3 text-[10px] text-slate-600 font-mono tracking-widest uppercase">
-                AI Powered Marketing OS v2.4 // Connected to Gemini-3
+                AI Powered Marketing OS v2.5.1 // Connected to Gemini-3
             </div>
         </div>
       </div>

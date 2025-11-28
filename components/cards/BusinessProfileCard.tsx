@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card } from '../ui/Card';
 import { BusinessProfile } from '../../types';
 
@@ -10,6 +11,11 @@ interface Props {
 export const BusinessProfileCard: React.FC<Props> = ({ profile, onSave }) => {
   const [data, setData] = useState(profile);
   const [isEditing, setIsEditing] = useState(true);
+
+  // Sync state when props change (e.g. AI updates the profile)
+  useEffect(() => {
+    setData(profile);
+  }, [profile]);
 
   const handleSave = () => {
     onSave(data);

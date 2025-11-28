@@ -66,12 +66,15 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [isTyping, setIsTyping] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // UX States
   const [showOnboarding, setShowOnboarding] = useState(true);
 
   // Initialize Stars
   useEffect(() => {
     const container = document.getElementById('star-container');
     if (container) {
+       container.innerHTML = ''; // Prevent duplication in strict mode
        for(let i=0; i<70; i++) {
          const star = document.createElement('div');
          star.className = 'star';
@@ -93,6 +96,12 @@ export default function App() {
     setAppState(prev => ({ ...prev, ...updates }));
   };
 
+  const handleReset = () => {
+    if (confirm("Mission wirklich abbrechen? Alle aktuellen Chat-Daten gehen verloren.")) {
+      setMessages(INITIAL_MESSAGES);
+    }
+  };
+
   const handleSendMessage = async (text: string) => {
     const userMsg: Message = {
       id: Date.now().toString(),
@@ -105,6 +114,7 @@ export default function App() {
     setIsTyping(true);
 
     try {
+      // Pass the CURRENT state to the AI
       const response = await sendMessageToGemini(messages, text, appState);
       
       const botMsg: Message = {
@@ -116,6 +126,33 @@ export default function App() {
       };
 
       setMessages(prev => [...prev, botMsg]);
+
+      // Automatically update AppState if the AI provided data for specific widgets
+      if (response.widget && response.widget.data) {
+        const { type, data } = response.widget;
+        switch (type) {
+            case 'STRATEGY':
+                if (data.pillars) updateAppState({ strategy: data.pillars });
+                break;
+            case 'PERSONA':
+                if (data.personas) updateAppState({ personas: data.personas });
+                break;
+            case 'COMPETITOR_ANALYSIS':
+                if (data.competitors) updateAppState({ competitors: data.competitors });
+                break;
+            case 'ROADMAP':
+                if (data.phases) updateAppState({ roadmap: data.phases });
+                break;
+            case 'BOTTLENECK_ANALYSIS':
+                if (data.bottlenecks) updateAppState({ bottlenecks: data.bottlenecks });
+                break;
+            case 'BUSINESS_PROFILE':
+                // Optional: Auto-update profile if AI suggests it, 
+                // but usually we wait for user confirmation via the card.
+                break;
+        }
+      }
+
     } catch (e) {
       console.error(e);
       const errorMsg: Message = {
@@ -130,19 +167,25 @@ export default function App() {
     }
   };
 
+  // Simplified layout classes: No more scale/blur/will-change.
+  const containerClasses = "relative z-10 flex h-full w-full text-slate-100 font-sans overflow-hidden isolation-isolate";
+
   return (
     <>
-      {showOnboarding && <OnboardingOverlay onComplete={() => setShowOnboarding(false)} />}
-      
-      {/* Root Container: Removed bg-void-900 so stars are visible. Added min-h-0 for proper flex nesting. */}
-      <div className="flex h-[100dvh] w-full text-slate-100 font-sans overflow-hidden transition-opacity duration-1000 relative">
-        
-        {/* Dynamic Background */}
-        <div id="star-container" className="stars-container"></div>
-        <div className="ambient-glow top-[-20%] left-[-10%] opacity-50"></div>
-        <div className="ambient-glow bottom-[-20%] right-[-10%] bg-purple-900/20 opacity-50"></div>
+      {/* 
+        Independent Background Layer
+        Kept separate and absolutely positioned to avoid layout interference
+      */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <div id="star-container" className="stars-container"></div>
+          <div className="ambient-glow top-[-20%] left-[-10%] opacity-50"></div>
+          <div className="ambient-glow bottom-[-20%] right-[-10%] bg-purple-900/20 opacity-50"></div>
+      </div>
 
-        {/* Floating Sidebar Navigation (Desktop) */}
+      {/* Main Application Container */}
+      <div className={containerClasses}>
+        
+        {/* Floating Sidebar Navigation (Desktop) - z-30 */}
         <aside className="hidden md:flex flex-col items-center py-6 w-20 z-30 ml-4 my-4 rounded-2xl glass-panel border-white/5 shrink-0">
           <div className="w-10 h-10 bg-gradient-to-br from-neon-blue to-primary-600 rounded-xl flex items-center justify-center text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] mb-8 animate-pulse-slow">
               <Icons.Rocket className="w-5 h-5" />
@@ -161,27 +204,45 @@ export default function App() {
               <button className="p-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all hover:scale-110" title="Planer">
                   <Icons.Calendar className="w-5 h-5" />
               </button>
+              <div className="mt-auto"></div>
+              <button onClick={handleReset} className="p-3 rounded-xl hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-all hover:scale-110" title="Mission Abbrechen (Reset)">
+                  <Icons.X className="w-5 h-5" />
+              </button>
           </nav>
         </aside>
 
-        {/* Main Content Area - Use flex-1 and min-w-0 to prevent flexbox overflow bugs */}
-        <main className="flex-1 flex flex-col h-full min-w-0 relative z-10">
+        {/* Main Content Area - z-10 */}
+        {/* REMOVED h-full here to allow flexbox to manage height without overflow */}
+        <main className="flex-1 flex flex-col min-w-0 min-h-0 relative z-10">
           
-          {/* Mobile Header - Absolute for overlap effect */}
-          <header className="md:hidden h-16 glass-panel border-b border-white/5 flex items-center justify-between px-4 z-50 shrink-0 absolute top-0 left-0 right-0 w-full backdrop-blur-xl bg-void-900/50">
+          {/* Mobile Header - z-50 */}
+          <header 
+            className="md:hidden glass-panel border-b border-white/5 flex items-center justify-between px-4 z-50 shrink-0 absolute top-0 left-0 right-0 w-full backdrop-blur-xl bg-void-900/80"
+            style={{ 
+              paddingTop: 'max(1rem, env(safe-area-inset-top))',
+              paddingBottom: '1rem',
+              height: 'auto',
+              minHeight: '80px' 
+            }}
+          >
             <div className="flex items-center gap-3 font-display font-bold text-lg tracking-wider">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-blue to-primary-600 flex items-center justify-center shadow-lg shadow-neon-blue/20">
                   <Icons.Rocket className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">HOUSTON</span>
             </div>
-            <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-300">
-                  <Icons.Menu className="w-6 h-6" />
-            </button>
+            <div className="flex items-center gap-2">
+               <button onClick={handleReset} className="p-2 text-slate-400 hover:text-red-400">
+                  <Icons.X className="w-5 h-5" />
+               </button>
+               <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-slate-300">
+                     <Icons.Menu className="w-6 h-6" />
+               </button>
+            </div>
           </header>
 
-          {/* Desktop Header */}
-          <header className="hidden md:flex h-20 items-center justify-between px-8 z-40 shrink-0">
+          {/* Desktop Header - z-40 */}
+          <header className="hidden md:flex h-20 items-center justify-between px-8 z-40 shrink-0 bg-transparent">
              <div>
                 <h1 className="text-2xl font-display font-bold text-white tracking-wide">
                   MISSION CONTROL
@@ -210,14 +271,16 @@ export default function App() {
           </div>
         </main>
 
-        {/* Context Panel (Right Sidebar) */}
+        {/* Context Panel (Right Sidebar) - z-50 */}
         <ContextPanel 
           state={appState} 
           isOpenMobile={mobileMenuOpen}
           onCloseMobile={() => setMobileMenuOpen(false)}
         />
-
       </div>
+
+      {/* Onboarding Overlay - Completely independent, Z-Index 9999 */}
+      {showOnboarding && <OnboardingOverlay onComplete={() => setShowOnboarding(false)} />}
     </>
   );
 }

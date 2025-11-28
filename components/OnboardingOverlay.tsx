@@ -8,6 +8,7 @@ interface Props {
 export const OnboardingOverlay: React.FC<Props> = ({ onComplete }) => {
   const [step, setStep] = useState(0);
   const [bootText, setBootText] = useState<string[]>([]);
+  const [isDismounting, setIsDismounting] = useState(false);
 
   useEffect(() => {
     const sequence = [
@@ -33,10 +34,16 @@ export const OnboardingOverlay: React.FC<Props> = ({ onComplete }) => {
     return () => timeouts.forEach(clearTimeout);
   }, []);
 
-  if (step === 2) return null;
+  const handleStart = () => {
+    setStep(2);
+    setIsDismounting(true);
+    setTimeout(onComplete, 1000); // Wait for fade out
+  };
+
+  if (step === 2 && !isDismounting) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 bg-void-950 flex flex-col items-center justify-center transition-opacity duration-1000 ${step === 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+    <div className={`fixed inset-0 z-[9999] bg-void-950 flex flex-col items-center justify-center transition-opacity duration-1000 ${step === 2 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       
       {/* Background Grid & CRT Effects */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,240,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,240,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
@@ -79,10 +86,7 @@ export const OnboardingOverlay: React.FC<Props> = ({ onComplete }) => {
             </p>
 
             <button 
-              onClick={() => {
-                setStep(2);
-                setTimeout(onComplete, 1000);
-              }}
+              onClick={handleStart}
               className="group relative px-8 py-4 bg-transparent overflow-hidden rounded-full"
             >
               <div className="absolute inset-0 w-full h-full bg-neon-blue/10 border border-neon-blue/50 rounded-full group-hover:bg-neon-blue/20 transition-all duration-300"></div>

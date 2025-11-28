@@ -1,16 +1,18 @@
 
-import { GoogleGenAI, Type, Schema } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { Message, Sender, GeminiResponse, WidgetType } from '../types';
 
-// IMPORTANT: In a real app, do not hardcode keys. We use process.env as required.
-const apiKey = process.env.API_KEY || '';
-
-const ai = new GoogleGenAI({ apiKey });
+// IMPORTANT: apiKey must be obtained exclusively from process.env.API_KEY.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const SYSTEM_INSTRUCTION = `
 Du bist "Houston", ein KI-Marketing-Coach für kleine und mittlere Unternehmen (KMUs).
 Deine Persönlichkeit: Freundlich, professionell, ermutigend, strategisch denkend (wie ein erfahrener CMO).
 Sprache: Deutsch.
+
+WICHTIG:
+- Nutze Markdown-Formatierung für deine Antworten (Fettgedrucktes für Betonung, Listen für Aufzählungen).
+- Halte deine Textantworten prägnant und handlungsorientiert.
 
 Deine Aufgabe ist es, den Nutzer durch einen Marketing-Prozess zu führen.
 Du kannst nicht nur Text antworten, sondern auch UI-Widgets anfordern, um dem Nutzer zu helfen.
@@ -47,7 +49,8 @@ Du MUSST ein JSON-Objekt zurückgeben.
 }
 `;
 
-const RESPONSE_SCHEMA: Schema = {
+// Define schema without explicit Type annotation to avoid import issues
+const RESPONSE_SCHEMA = {
   type: Type.OBJECT,
   properties: {
     text: { type: Type.STRING },
@@ -196,7 +199,7 @@ export const sendMessageToGemini = async (
     
     User: ${userMessage}
     
-    Antworte als JSON.
+    Antworte als JSON. Nutze Markdown im Text-Feld.
     `;
 
     const response = await ai.models.generateContent({
@@ -212,13 +215,29 @@ export const sendMessageToGemini = async (
     const responseText = response.text;
     if (!responseText) throw new Error("No response from AI");
 
-    const parsedResponse = JSON.parse(responseText) as GeminiResponse;
-    return parsedResponse;
+    // Robust parsing: Remove markdown code blocks if present
+    let cleanText = responseText.replace(/```json\n?|```/g, '').trim();
+    
+    // Safety check: ensure we start with { and end with }
+    const firstBrace = cleanText.indexOf('{');
+    const lastBrace = cleanText.lastIndexOf('}');
+    
+    if (firstBrace !== -1 && lastBrace !== -1) {
+        cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+    }
+
+    try {
+        const parsedResponse = JSON.parse(cleanText) as GeminiResponse;
+        return parsedResponse;
+    } catch (parseError) {
+        console.error("JSON Parse Error:", parseError, "Raw Text:", responseText);
+        throw new Error("Invalid JSON format from AI");
+    }
 
   } catch (error) {
     console.error("Gemini API Error:", error);
     return {
-      text: "Houston, wir haben ein Problem. Ich konnte leider keine Verbindung herstellen. Bitte versuche es noch einmal.",
+      text: "Houston, wir haben ein Problem. Ich konnte leider keine Verbindung herstellen oder die Daten waren beschädigt.",
       widget: { type: "NONE" }
     };
   }

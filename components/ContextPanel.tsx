@@ -21,7 +21,7 @@ export const ContextPanel: React.FC<Props> = ({ state, className = "", isOpenMob
       bg-void-900/90 backdrop-blur-2xl border-l border-white/10
       shadow-2xl transform transition-transform duration-300 z-50
       ${isOpenMobile ? 'translate-x-0' : 'translate-x-full'}
-      lg:translate-x-0 lg:static lg:shadow-none
+      lg:translate-x-0 lg:static lg:shadow-none lg:transform-none lg:transition-none
       flex flex-col h-full
       ${className}
     `}>

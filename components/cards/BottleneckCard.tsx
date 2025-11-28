@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../ui/Card';
 import { Bottleneck } from '../../types';
 import { Icons } from '../../constants';
@@ -11,7 +11,7 @@ interface Props {
 
 export const BottleneckCard: React.FC<Props> = ({ bottlenecks: initialBottlenecks, onSave }) => {
   // Default values if none provided by AI for demo/initial state
-  const defaultBottlenecks: Bottleneck[] = initialBottlenecks || [
+  const defaultBottlenecks: Bottleneck[] = [
     { id: '1', category: 'Traffic', name: 'Zu wenig Webseiten-Besucher', severity: 'High', selected: false },
     { id: '2', category: 'Conversion', name: 'Besucher kaufen nicht', severity: 'High', selected: false },
     { id: '3', category: 'Offer', name: 'Angebot wird nicht verstanden', severity: 'Medium', selected: false },
@@ -19,7 +19,14 @@ export const BottleneckCard: React.FC<Props> = ({ bottlenecks: initialBottleneck
     { id: '5', category: 'Retention', name: 'Keine Wiederkäufer', severity: 'Low', selected: false },
   ];
 
-  const [items, setItems] = useState(defaultBottlenecks);
+  const [items, setItems] = useState<Bottleneck[]>(initialBottlenecks || defaultBottlenecks);
+
+  // Sync state when props change
+  useEffect(() => {
+    if (initialBottlenecks) {
+        setItems(initialBottlenecks);
+    }
+  }, [initialBottlenecks]);
 
   const toggleItem = (id: string) => {
     setItems(items.map(item => item.id === id ? { ...item, selected: !item.selected } : item));
