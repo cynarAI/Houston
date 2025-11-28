@@ -9,11 +9,11 @@ interface Props {
 
 export const StrategyCard: React.FC<Props> = ({ pillars }) => {
   return (
-    <Card title="Strategic Vectors" className="w-full max-w-2xl mx-auto my-2">
+    <Card title="Strategische Vektoren" className="w-full max-w-2xl mx-auto my-2">
       <div className="grid gap-4 md:grid-cols-3">
         {pillars.length === 0 ? (
           <div className="col-span-3 text-center text-slate-500 py-6 italic border border-dashed border-white/10 rounded-xl">
-            Awaiting strategic calculation...
+            Warte auf strategische Berechnung...
           </div>
         ) : (
           pillars.map((pillar, idx) => (

@@ -9,13 +9,13 @@ interface Props {
 
 export const KPIDashboardCard: React.FC<Props> = ({ data }) => {
   const handleExport = () => {
-    alert("Export startet...");
+    alert("Export Protokoll gestartet...");
   };
 
   const Actions = (
     <button onClick={handleExport} className="text-[10px] uppercase tracking-wider flex items-center gap-1.5 text-neon-blue hover:text-white transition-colors bg-white/5 border border-neon-blue/30 hover:bg-neon-blue/20 px-3 py-1.5 rounded-full shadow-[0_0_10px_rgba(0,240,255,0.1)]">
       <Icons.Briefcase className="w-3 h-3" />
-      Export PDF
+      PDF Export
     </button>
   );
 
@@ -77,11 +77,11 @@ export const KPIDashboardCard: React.FC<Props> = ({ data }) => {
         </div>
         <div className="text-center group cursor-pointer">
             <div className="text-3xl font-display font-bold text-neon-blue group-hover:shadow-[0_0_15px_rgba(0,240,255,0.5)] transition-all">+12%</div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mt-1">Growth</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mt-1">Wachstum</div>
         </div>
         <div className="text-center group cursor-pointer">
             <div className="text-3xl font-display font-bold text-white group-hover:text-neon-purple transition-colors">3.4%</div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mt-1">Conv. Rate</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mt-1">Konversion</div>
         </div>
       </div>
     </Card>

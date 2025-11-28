@@ -9,10 +9,10 @@ interface Props {
 
 export const PersonaCard: React.FC<Props> = ({ personas }) => {
   return (
-    <Card title="Target Profiles" className="w-full max-w-lg mx-auto my-2">
+    <Card title="Zielprofile" className="w-full max-w-lg mx-auto my-2">
       <div className="space-y-4">
         {personas.length === 0 ? (
-           <div className="text-center text-slate-500 py-4 italic">No profiles loaded.</div>
+           <div className="text-center text-slate-500 py-4 italic">Keine Profile geladen.</div>
         ) : (
           personas.map((persona) => (
             <div key={persona.id} className="flex gap-5 p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors">
@@ -31,11 +31,11 @@ export const PersonaCard: React.FC<Props> = ({ personas }) => {
                 
                 <div className="mt-3 text-sm space-y-3">
                   <div className="relative pl-3 border-l-2 border-slate-700">
-                    <span className="font-mono text-[10px] text-slate-500 block uppercase mb-0.5">Primary Directive</span>
+                    <span className="font-mono text-[10px] text-slate-500 block uppercase mb-0.5">Primär-Bedürfnis</span>
                     <p className="text-slate-300 font-light">{persona.needs}</p>
                   </div>
                   <div className="relative pl-3 border-l-2 border-red-900/50">
-                    <span className="font-mono text-[10px] text-red-400 block uppercase mb-0.5">Critical Friction</span>
+                    <span className="font-mono text-[10px] text-red-400 block uppercase mb-0.5">Kritische Reibung (Pain)</span>
                     <p className="text-slate-300 font-light">{persona.painPoints}</p>
                   </div>
                 </div>

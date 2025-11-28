@@ -17,16 +17,16 @@ export const BusinessProfileCard: React.FC<Props> = ({ profile, onSave }) => {
   };
 
   return (
-    <Card title="Entity Configuration" className="w-full max-w-md mx-auto my-2">
+    <Card title="Unternehmensprofil" className="w-full max-w-md mx-auto my-2">
       <div className="space-y-5">
         <div className="group">
-          <label className="block text-[10px] font-bold text-neon-blue uppercase tracking-widest mb-2 font-mono">Entity Name</label>
+          <label className="block text-[10px] font-bold text-neon-blue uppercase tracking-widest mb-2 font-mono">Name der Entity</label>
           {isEditing ? (
             <input 
               className="w-full p-3 rounded-xl border border-white/10 bg-void-950/50 text-white focus:border-neon-blue focus:ring-1 focus:ring-neon-blue outline-none transition-all placeholder-slate-600"
               value={data.name} 
               onChange={e => setData({...data, name: e.target.value})} 
-              placeholder="Enter name..."
+              placeholder="Name eingeben..."
             />
           ) : (
             <p className="text-xl font-display font-medium text-white">{data.name}</p>
@@ -34,7 +34,7 @@ export const BusinessProfileCard: React.FC<Props> = ({ profile, onSave }) => {
         </div>
         
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-mono">Sector</label>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-mono">Sektor / Branche</label>
           {isEditing ? (
             <input 
               className="w-full p-3 rounded-xl border border-white/10 bg-void-950/50 text-white focus:border-neon-blue focus:ring-1 focus:ring-neon-blue outline-none transition-all"
@@ -47,7 +47,7 @@ export const BusinessProfileCard: React.FC<Props> = ({ profile, onSave }) => {
         </div>
 
         <div>
-           <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-mono">Target Coordinates</label>
+           <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-mono">Zielgruppen Koordinaten</label>
            {isEditing ? (
              <input 
                 className="w-full p-3 rounded-xl border border-white/10 bg-void-950/50 text-white focus:border-neon-blue focus:ring-1 focus:ring-neon-blue outline-none transition-all"
@@ -70,14 +70,14 @@ export const BusinessProfileCard: React.FC<Props> = ({ profile, onSave }) => {
             onClick={handleSave}
             className="w-full mt-2 bg-gradient-to-r from-neon-blue to-primary-600 hover:to-primary-500 text-void-900 font-bold py-3 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(0,240,255,0.3)] hover:shadow-[0_0_25px_rgba(0,240,255,0.5)] transform hover:scale-[1.02]"
           >
-            Save Configuration
+            Konfiguration Speichern
           </button>
         ) : (
           <button 
             onClick={() => setIsEditing(true)}
             className="w-full mt-2 text-slate-400 hover:text-white font-medium py-3 px-4 hover:bg-white/5 rounded-xl transition-colors border border-dashed border-white/10 hover:border-white/30"
           >
-            Modify Data
+            Daten Modifizieren
           </button>
         )}
       </div>

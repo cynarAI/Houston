@@ -12,6 +12,10 @@ export enum WidgetType {
   STRATEGY = 'STRATEGY',
   PERSONA = 'PERSONA',
   COMPETITOR_ANALYSIS = 'COMPETITOR_ANALYSIS',
+  BOTTLENECK_ANALYSIS = 'BOTTLENECK_ANALYSIS',
+  ROADMAP = 'ROADMAP',
+  LANDING_PAGE_STRUCTURE = 'LANDING_PAGE_STRUCTURE',
+  VALUE_PROPOSITION = 'VALUE_PROPOSITION',
   NONE = 'NONE'
 }
 
@@ -75,6 +79,40 @@ export interface Competitor {
   weakness: string;
 }
 
+export interface Bottleneck {
+  id: string;
+  category: 'Traffic' | 'Conversion' | 'Offer' | 'Trust' | 'Retention';
+  name: string;
+  severity: 'High' | 'Medium' | 'Low';
+  selected: boolean;
+}
+
+export interface RoadmapPhase {
+  phase: number;
+  title: string;
+  duration: string;
+  tasks: string[];
+}
+
+export interface LandingPageSection {
+  type: 'Hero' | 'SocialProof' | 'Benefits' | 'Features' | 'CTA' | 'FAQ' | 'Footer';
+  title: string;
+  description: string;
+}
+
+export interface ValuePropCanvas {
+  customerProfile: {
+    jobs: string[];
+    pains: string[];
+    gains: string[];
+  };
+  valueMap: {
+    products: string[];
+    painRelievers: string[];
+    gainCreators: string[];
+  };
+}
+
 export interface AppContextState {
   profile: BusinessProfile;
   goals: Goal[];
@@ -82,6 +120,8 @@ export interface AppContextState {
   strategy: StrategyPillar[];
   personas: Persona[];
   competitors: Competitor[];
+  bottlenecks: Bottleneck[];
+  roadmap: RoadmapPhase[];
   kpiHistory: { month: string; value: number }[];
   darkMode: boolean;
 }

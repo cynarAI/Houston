@@ -11,7 +11,7 @@ export const GoalSetupCard: React.FC<Props> = ({ onSave }) => {
     kpi: 'Leads',
     targetValue: 100,
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    unit: 'Units'
+    unit: 'Einheiten'
   });
 
   const handleSubmit = () => {
@@ -28,24 +28,24 @@ export const GoalSetupCard: React.FC<Props> = ({ onSave }) => {
   };
 
   return (
-    <Card title="Define Objective" className="w-full max-w-md mx-auto my-2">
+    <Card title="Zieldefinition" className="w-full max-w-md mx-auto my-2">
       <div className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 mb-2 font-mono uppercase">Metric Type</label>
+            <label className="block text-[10px] font-bold text-slate-400 mb-2 font-mono uppercase">Metrik Typ</label>
             <select 
               className="w-full p-2.5 rounded-lg border border-white/10 bg-void-950/50 text-white focus:border-neon-blue outline-none"
               value={goal.kpi}
               onChange={e => setGoal({...goal, kpi: e.target.value})}
             >
               <option value="Leads">Leads</option>
-              <option value="Revenue">Revenue</option>
+              <option value="Umsatz">Umsatz</option>
               <option value="Traffic">Traffic</option>
-              <option value="Follower">Followers</option>
+              <option value="Follower">Follower</option>
             </select>
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 mb-2 font-mono uppercase">Target Value</label>
+            <label className="block text-[10px] font-bold text-slate-400 mb-2 font-mono uppercase">Zielwert</label>
             <input 
               type="number" 
               className="w-full p-2.5 rounded-lg border border-white/10 bg-void-950/50 text-white focus:border-neon-blue outline-none font-mono"
@@ -56,7 +56,7 @@ export const GoalSetupCard: React.FC<Props> = ({ onSave }) => {
         </div>
 
         <div>
-            <label className="block text-[10px] font-bold text-slate-400 mb-2 font-mono uppercase">Timeline Deadline</label>
+            <label className="block text-[10px] font-bold text-slate-400 mb-2 font-mono uppercase">Deadline</label>
             <input 
               type="date"
               className="w-full p-2.5 rounded-lg border border-white/10 bg-void-950/50 text-white focus:border-neon-blue outline-none [color-scheme:dark]"
@@ -69,7 +69,7 @@ export const GoalSetupCard: React.FC<Props> = ({ onSave }) => {
           onClick={handleSubmit}
           className="w-full bg-neon-blue/10 hover:bg-neon-blue/20 text-neon-blue border border-neon-blue/50 font-medium py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 hover:shadow-[0_0_15px_rgba(0,240,255,0.3)] uppercase tracking-wide text-xs"
         >
-          Activate Protocol
+          Protokoll Aktivieren
         </button>
       </div>
     </Card>

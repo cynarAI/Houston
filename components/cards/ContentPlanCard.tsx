@@ -21,7 +21,7 @@ export const ContentPlanCard: React.FC<Props> = ({ items }) => {
       </div>
       
       {items.length === 0 ? (
-        <div className="text-[10px] text-slate-600 text-center py-4 italic border border-dashed border-white/5 rounded-lg">Empty Slot</div>
+        <div className="text-[10px] text-slate-600 text-center py-4 italic border border-dashed border-white/5 rounded-lg">Leer</div>
       ) : (
         items.map(item => (
           <div key={item.id} className="group bg-white/5 hover:bg-white/10 p-3 rounded-lg border border-white/5 hover:border-white/20 shadow-sm transition-all cursor-pointer">
@@ -39,14 +39,14 @@ export const ContentPlanCard: React.FC<Props> = ({ items }) => {
   return (
     <Card title="Content Matrix" className="w-full max-w-3xl mx-auto my-2">
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-        {renderColumn('Transmission', columns.Idea, 'text-slate-400', 'bg-slate-500')}
-        {renderColumn('Scheduled', columns.Planned, 'text-neon-blue', 'bg-neon-blue')}
-        {renderColumn('Deployed', columns.Done, 'text-green-400', 'bg-green-500')}
+        {renderColumn('Transmission (Idee)', columns.Idea, 'text-slate-400', 'bg-slate-500')}
+        {renderColumn('Geplant', columns.Planned, 'text-neon-blue', 'bg-neon-blue')}
+        {renderColumn('Gesendet', columns.Done, 'text-green-400', 'bg-green-500')}
       </div>
       <div className="mt-4 text-center border-t border-white/5 pt-3">
           <button className="text-xs text-slate-400 hover:text-white font-medium flex items-center justify-center gap-2 mx-auto transition-colors group">
               <span className="w-5 h-5 rounded border border-dashed border-slate-500 flex items-center justify-center group-hover:border-white group-hover:bg-white/10">+</span>
-              <span>Initialize New Item</span>
+              <span>Neues Element Initialisieren</span>
           </button>
       </div>
     </Card>
