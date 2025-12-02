@@ -1,0 +1,356 @@
+import { eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/mysql2";
+import * as schema from "../drizzle/schema";
+import { 
+  InsertUser, users,
+  workspaces, InsertWorkspace,
+  goals, InsertGoal,
+  strategies, InsertStrategy,
+  todos, InsertTodo,
+  chatSessions, InsertChatSession,
+  chatMessages, InsertChatMessage,
+  planLimits, InsertPlanLimit,
+  onboardingData, InsertOnboardingData
+} from "../drizzle/schema";
+import { ENV } from './_core/env';
+
+let _db: ReturnType<typeof drizzle> | null = null;
+
+// Lazily create the drizzle instance so local tooling can run without a DB.
+export async function getDb() {
+  if (!_db && process.env.DATABASE_URL) {
+    try {
+      _db = drizzle(process.env.DATABASE_URL, { schema, mode: 'default' });
+    } catch (error) {
+      console.warn("[Database] Failed to connect:", error);
+      _db = null;
+    }
+  }
+  return _db;
+}
+
+export async function upsertUser(user: InsertUser): Promise<void> {
+  if (!user.openId) {
+    throw new Error("User openId is required for upsert");
+  }
+
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot upsert user: database not available");
+    return;
+  }
+
+  try {
+    const values: InsertUser = {
+      openId: user.openId,
+    };
+    const updateSet: Record<string, unknown> = {};
+
+    const textFields = ["name", "email", "loginMethod"] as const;
+    type TextField = (typeof textFields)[number];
+
+    const assignNullable = (field: TextField) => {
+      const value = user[field];
+      if (value === undefined) return;
+      const normalized = value ?? null;
+      values[field] = normalized;
+      updateSet[field] = normalized;
+    };
+
+    textFields.forEach(assignNullable);
+
+    if (user.lastSignedIn !== undefined) {
+      values.lastSignedIn = user.lastSignedIn;
+      updateSet.lastSignedIn = user.lastSignedIn;
+    }
+    if (user.role !== undefined) {
+      values.role = user.role;
+      updateSet.role = user.role;
+    } else if (user.openId === ENV.ownerOpenId) {
+      values.role = 'admin';
+      updateSet.role = 'admin';
+    }
+
+    if (!values.lastSignedIn) {
+      values.lastSignedIn = new Date();
+    }
+
+    if (Object.keys(updateSet).length === 0) {
+      updateSet.lastSignedIn = new Date();
+    }
+
+    await db.insert(users).values(values).onDuplicateKeyUpdate({
+      set: updateSet,
+    });
+  } catch (error) {
+    console.error("[Database] Failed to upsert user:", error);
+    throw error;
+  }
+}
+
+export async function getUserByOpenId(openId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ Workspace Queries ============
+
+export async function createWorkspace(workspace: InsertWorkspace) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(workspaces).values(workspace);
+  return Number(result[0].insertId);
+}
+
+export async function getWorkspacesByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(workspaces).where(eq(workspaces.userId, userId));
+}
+
+export async function getWorkspaceById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(workspaces).where(eq(workspaces.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateWorkspace(id: number, data: Partial<InsertWorkspace>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(workspaces).set(data).where(eq(workspaces.id, id));
+}
+
+export async function deleteWorkspace(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(workspaces).where(eq(workspaces.id, id));
+}
+
+// ============ Goal Queries ============
+
+export async function createGoal(goal: InsertGoal) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(goals).values(goal);
+  return Number(result[0].insertId);
+}
+
+export async function getGoalsByWorkspaceId(workspaceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(goals).where(eq(goals.workspaceId, workspaceId));
+}
+
+export async function getGoalById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(goals).where(eq(goals.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateGoal(id: number, data: Partial<InsertGoal>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(goals).set(data).where(eq(goals.id, id));
+}
+
+export async function deleteGoal(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(goals).where(eq(goals.id, id));
+}
+
+// ============ Strategy Queries ============
+
+export async function createOrUpdateStrategy(strategy: InsertStrategy) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await db.select().from(strategies).where(eq(strategies.workspaceId, strategy.workspaceId)).limit(1);
+  
+  if (existing.length > 0) {
+    await db.update(strategies).set(strategy).where(eq(strategies.workspaceId, strategy.workspaceId));
+    return existing[0].id;
+  } else {
+    const result = await db.insert(strategies).values(strategy);
+    return Number(result[0].insertId);
+  }
+}
+
+export async function getStrategyByWorkspaceId(workspaceId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(strategies).where(eq(strategies.workspaceId, workspaceId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ Todo Queries ============
+
+export async function createTodo(todo: InsertTodo) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(todos).values(todo);
+  return Number(result[0].insertId);
+}
+
+export async function getTodosByWorkspaceId(workspaceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(todos).where(eq(todos.workspaceId, workspaceId));
+}
+
+export async function getTodoById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(todos).where(eq(todos.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateTodo(id: number, data: Partial<InsertTodo>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(todos).set(data).where(eq(todos.id, id));
+}
+
+export async function deleteTodo(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(todos).where(eq(todos.id, id));
+}
+
+// ============ Chat Session Queries ============
+
+export async function createChatSession(session: InsertChatSession) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(chatSessions).values(session);
+  return Number(result[0].insertId);
+}
+
+export async function getChatSessionsByWorkspaceId(workspaceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(chatSessions).where(eq(chatSessions.workspaceId, workspaceId));
+}
+
+export async function getChatSessionById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(chatSessions).where(eq(chatSessions.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function deleteChatSession(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(chatSessions).where(eq(chatSessions.id, id));
+}
+
+// ============ Chat Message Queries ============
+
+export async function createChatMessage(message: InsertChatMessage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(chatMessages).values(message);
+  return Number(result[0].insertId);
+}
+
+export async function getChatMessagesBySessionId(sessionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId));
+}
+
+// ============ Plan Limit Queries ============
+
+export async function createPlanLimit(limit: InsertPlanLimit) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(planLimits).values(limit);
+  return Number(result[0].insertId);
+}
+
+export async function getPlanLimitByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(planLimits).where(eq(planLimits.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updatePlanLimit(userId: number, data: Partial<InsertPlanLimit>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(planLimits).set(data).where(eq(planLimits.userId, userId));
+}
+
+export async function incrementChatUsage(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const limit = await getPlanLimitByUserId(userId);
+  if (!limit) throw new Error("Plan limit not found");
+  
+  await db.update(planLimits)
+    .set({ chatsUsedThisMonth: limit.chatsUsedThisMonth + 1 })
+    .where(eq(planLimits.userId, userId));
+}
+
+export async function getPlanLimitById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(planLimits).where(eq(planLimits.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function countWorkspacesByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select().from(workspaces).where(eq(workspaces.userId, userId));
+  return result.length;
+}
+
+export async function resetChatCounter(planId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const now = new Date();
+  const periodEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+  
+  await db.update(planLimits)
+    .set({ 
+      chatsUsedThisMonth: 0,
+      periodStart: now,
+      periodEnd: periodEnd
+    })
+    .where(eq(planLimits.id, planId));
+}
+
+// ============= Onboarding Data =============
+
+export async function getOnboardingDataByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(onboardingData).where(eq(onboardingData.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createOnboardingData(data: InsertOnboardingData) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(onboardingData).values(data);
+  return { id: Number((result as any).insertId) };
+}
+
+export async function updateOnboardingData(id: number, data: Partial<InsertOnboardingData>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(onboardingData).set(data).where(eq(onboardingData.id, id));
+}

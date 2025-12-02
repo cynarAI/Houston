@@ -1,0 +1,382 @@
+{
+  "nav": {
+    "features": "Funktionen",
+    "pricing": "Preise",
+    "faq": "FAQ",
+    "login": "Login",
+    "getStarted": "Kostenlos starten",
+    "dashboard": "Dashboard",
+    "chats": "Chats",
+    "goals": "Ziele",
+    "todos": "To-dos",
+    "strategy": "Strategie",
+    "missions": "Missionen",
+    "settings": "Einstellungen",
+    "credits": "Credits",
+    "referrals": "Empfehlungen"
+  },
+  "appName": "Houston",
+  "common": {
+    "loading": "Lädt...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "refresh": "Aktualisieren",
+    "new": "Neu",
+    "all": "Alle",
+    "active": "Aktiv",
+    "completed": "Abgeschlossen",
+    "archived": "Archiviert"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Willkommen zurück",
+    "subtitle": "Hier ist deine Houston Dashboard-Übersicht.",
+    "missionControl": {
+      "title": "Mission Control",
+      "subtitle": "Dein aktueller Missions-Status",
+      "workspaces": "Workspaces",
+      "activeGoals": "Aktive Ziele",
+      "openTodos": "Offene To-dos",
+      "chatSessions": "Chat-Sessions"
+    },
+    "insights": {
+      "title": "Houston's Insights",
+      "subtitle": "KI-gestützte Empfehlungen für dein Marketing",
+      "analyzing": "Analysiere deine Marketing-Daten...",
+      "refresh": "Aktualisieren"
+    },
+    "goalsProgress": {
+      "title": "Ziele & Fortschritt",
+      "subtitle": "Verfolge deine Marketing-Ziele",
+      "defineGoals": "Ziele definieren",
+      "noGoals": "Noch keine Ziele definiert"
+    },
+    "strategy": {
+      "title": "Strategie auf einen Blick",
+      "subtitle": "Deine Marketing-Strategie-Übersicht",
+      "developStrategy": "Strategie entwickeln",
+      "noStrategy": "Noch keine Strategie definiert"
+    },
+    "analytics": {
+      "title": "Credit-Nutzung",
+      "subtitle": "Deine Credit-Statistiken",
+      "totalUsed": "Gesamt verwendet",
+      "thisMonth": "Diesen Monat",
+      "mostUsed": "Meist genutzt",
+      "breakdown": "Top Features"
+    }
+  },
+  "chats": {
+    "title": "Houston",
+    "subtitle": "AI Marketing Assistant",
+    "newChat": "Neuer Chat",
+    "selectChat": "Chat auswählen",
+    "exportPDF": "Als PDF exportieren",
+    "quickActions": {
+      "title": "Schnellaktionen",
+      "goals": "Ziele setzen",
+      "strategy": "Marketing-Strategie",
+      "campaign": "Kampagne planen",
+      "content": "Content-Ideen"
+    },
+    "placeholder": "Stelle Houston eine Frage...",
+    "you": "Du",
+    "houston": "Houston",
+    "thinking": "Houston denkt nach...",
+    "feedback": {
+      "helpful": "Hilfreich",
+      "notHelpful": "Nicht hilfreich",
+      "copy": "Kopieren",
+      "copied": "Kopiert!",
+      "regenerate": "Neu generieren"
+    }
+  },
+  "goals": {
+    "title": "Ziele",
+    "subtitle": "Verwalte deine Marketing-Ziele",
+    "newGoal": "Neues Ziel",
+    "views": {
+      "table": "Tabelle",
+      "board": "Board",
+      "timeline": "Timeline",
+      "calendar": "Kalender"
+    },
+    "filters": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "completed": "Abgeschlossen",
+      "archived": "Archiviert"
+    },
+    "columns": {
+      "title": "Titel",
+      "status": "Status",
+      "priority": "Priorität",
+      "deadline": "Deadline",
+      "progress": "Fortschritt"
+    },
+    "status": {
+      "notStarted": "Nicht gestartet",
+      "inProgress": "In Arbeit",
+      "completed": "Abgeschlossen",
+      "onHold": "Pausiert"
+    },
+    "priority": {
+      "low": "Niedrig",
+      "medium": "Mittel",
+      "high": "Hoch",
+      "urgent": "Dringend"
+    },
+    "exportPDF": "Als PDF exportieren",
+    "noGoals": "Noch keine Ziele definiert"
+  },
+  "todos": {
+    "title": "To-dos",
+    "subtitle": "Verwalte deine Aufgaben",
+    "newTodo": "Neues To-do",
+    "views": {
+      "table": "Tabelle",
+      "board": "Board"
+    },
+    "filters": {
+      "all": "Alle",
+      "open": "Offen",
+      "completed": "Erledigt"
+    },
+    "columns": {
+      "todo": "Zu erledigen",
+      "inProgress": "In Arbeit",
+      "done": "Erledigt"
+    },
+    "noTodos": "Noch keine To-dos erstellt"
+  },
+  "strategy": {
+    "title": "Strategie",
+    "subtitle": "Deine Marketing-Strategie",
+    "sections": {
+      "positioning": "Positionierung",
+      "personas": "Zielgruppen-Personas",
+      "messages": "Kernbotschaften",
+      "channels": "Marketing-Kanäle"
+    },
+    "exportPDF": "Als PDF exportieren",
+    "noStrategy": "Noch keine Strategie definiert"
+  },
+  "credits": {
+    "title": "Credits & Pläne",
+    "subtitle": "Verwalte deine Houston Credits",
+    "balance": {
+      "title": "Aktuelles Guthaben",
+      "credits": "Credits",
+      "low": "Niedrig",
+      "empty": "Leer"
+    },
+    "usage": {
+      "title": "Credit-Nutzung",
+      "lifetime": "Lifetime verwendet",
+      "thisMonth": "Diesen Monat"
+    },
+    "costs": {
+      "title": "Feature-Kosten",
+      "chatBasic": "Chat (Basic)",
+      "chatDeep": "Chat (Deep Analysis)",
+      "pdfExport": "PDF Export",
+      "aiInsights": "AI Insights",
+      "goalsGeneration": "Ziele generieren",
+      "strategyAnalysis": "Strategie-Analyse",
+      "free": "Kostenlos"
+    },
+    "packs": {
+      "title": "Credit Packs",
+      "starter": {
+        "name": "Starter",
+        "price": "Kostenlos",
+        "credits": "50 Credits",
+        "description": "Kostenlose Starter-Credits",
+        "cta": "Kostenlos starten"
+      },
+      "orbit": {
+        "name": "Orbit Pack",
+        "price": "€9.99/Monat",
+        "credits": "100 Credits",
+        "description": "Erneuert sich monatlich",
+        "badge": "Beliebteste",
+        "cta": "Orbit Pack holen"
+      },
+      "galaxy": {
+        "name": "Galaxy Pack",
+        "price": "€39.99/Monat",
+        "credits": "500 Credits",
+        "description": "Für Agenturen & Teams",
+        "cta": "Galaxy Pack holen"
+      }
+    },
+    "boosters": {
+      "title": "Mission Boosters",
+      "subtitle": "Einmalige Top-ups",
+      "small": "50 Credits",
+      "medium": "150 Credits",
+      "large": "300 Credits",
+      "cta": "Kaufen"
+    },
+    "history": {
+      "title": "Transaktions-Historie",
+      "type": "Typ",
+      "amount": "Betrag",
+      "date": "Datum",
+      "description": "Beschreibung",
+      "noHistory": "Noch keine Transaktionen"
+    }
+  },
+  "referrals": {
+    "title": "Empfehlungsprogramm",
+    "subtitle": "Lade Freunde ein und erhalte Bonus-Credits",
+    "stats": {
+      "title": "Deine Statistiken",
+      "totalReferrals": "Gesamt-Empfehlungen",
+      "pendingRewards": "Ausstehende Belohnungen",
+      "earnedCredits": "Verdiente Credits"
+    },
+    "link": {
+      "title": "Dein Empfehlungs-Link",
+      "copy": "Link kopieren",
+      "copied": "Kopiert!",
+      "share": "Teilen"
+    },
+    "howItWorks": {
+      "title": "So funktioniert's",
+      "step1": "Teile deinen einzigartigen Link",
+      "step2": "Freund registriert sich",
+      "step3": "Beide erhalten 25 Bonus-Credits"
+    },
+    "history": {
+      "title": "Empfehlungs-Historie",
+      "name": "Name",
+      "date": "Datum",
+      "status": "Status",
+      "reward": "Belohnung",
+      "noReferrals": "Noch keine Empfehlungen"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Verwalte deine Account-Einstellungen und Präferenzen",
+    "account": {
+      "title": "Account",
+      "subtitle": "Deine persönlichen Informationen",
+      "name": "Name",
+      "email": "E-Mail",
+      "managedBy": "Account-Daten werden über Manus OAuth verwaltet."
+    },
+    "notifications": {
+      "title": "Benachrichtigungen",
+      "subtitle": "Verwalte deine Benachrichtigungseinstellungen",
+      "email": "E-Mail-Benachrichtigungen",
+      "emailDesc": "Erhalte Updates zu deinen Goals und Todos",
+      "marketing": "Marketing-Tipps",
+      "marketingDesc": "Wöchentliche Marketing-Insights von Houston",
+      "enable": "Aktivieren"
+    },
+    "subscription": {
+      "title": "Credits & Abonnement",
+      "subtitle": "Verwalte deine Houston Credits",
+      "currentBalance": "Aktuelles Guthaben",
+      "lifetimeUsed": "Lifetime Credits verwendet",
+      "buyCredits": "Credits kaufen",
+      "viewDetails": "Details anzeigen",
+      "tip": "💡 Kaufe Credit Packs (Orbit Pack, Galaxy Pack) oder Mission Boosters für mehr Flexibilität."
+    },
+    "privacy": {
+      "title": "Datenschutz & Sicherheit",
+      "subtitle": "Verwalte deine Datenschutzeinstellungen",
+      "exportData": "Daten exportieren",
+      "exportDataDesc": "Lade alle deine Houston-Daten herunter",
+      "deleteAccount": "Account löschen",
+      "deleteAccountDesc": "Lösche deinen Account permanent",
+      "export": "Exportieren",
+      "delete": "Löschen"
+    }
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "login": "Login",
+      "dashboard": "Zum Dashboard"
+    },
+    "hero": {
+      "badge": "AI-Powered Marketing Coach",
+      "title": {
+        "part1": "Steigere deine Marketing-Performance um",
+        "highlight": "300%",
+        "part2": "mit KI-gestützter Strategie"
+      },
+      "subtitle": "Schluss mit Trial & Error – Houston analysiert deine Ziele, erstellt datenbasierte Strategien und gibt dir konkrete Handlungsempfehlungen. Spare 10h/Woche und erreiche messbare Ergebnisse.",
+      "cta": {
+        "start": "Kostenlos testen – keine Kreditkarte nötig",
+        "learn": "Siehe Houston in Aktion",
+        "dashboard": "Zum Dashboard"
+      }
+    },
+    "features": {
+      "title": {
+        "part1": "Funktionen, die dich",
+        "highlight": "weiterbringen"
+      },
+      "subtitle": "Konkrete Tools, die dir Zeit sparen und messbare Ergebnisse liefern.",
+      "feature1": {
+        "title": "SMART-Goals in 60 Sekunden",
+        "description": "Erstelle messbare Marketing-Ziele mit KI-Unterstützung – statt 2 Stunden manueller Arbeit. Houston analysiert deine Branche und schlägt konkrete KPIs vor."
+      },
+      "feature2": {
+        "title": "5 Handlungsempfehlungen pro Woche",
+        "description": "Erhalte wöchentlich konkrete Aufgaben basierend auf deinen Zielen. Houston priorisiert automatisch und zeigt dir, was jetzt wichtig ist."
+      },
+      "feature3": {
+        "title": "Tracke 20+ KPIs automatisch",
+        "description": "Kein Excel-Chaos mehr. Houston überwacht deine Marketing-Performance in Echtzeit und warnt dich, wenn Ziele gefährdet sind."
+      }
+    },
+    "pricing": {
+      "title": {
+        "part1": "Wähle deinen",
+        "highlight": "Plan"
+      },
+      "subtitle": "Starte kostenlos oder upgrade für mehr Features.",
+      "satellite": {
+        "price": "Kostenlos",
+        "description": "Perfekt zum Ausprobieren",
+        "feature1": "1 Kampagne oder Produkt",
+        "feature2": "~5 Strategien pro Monat (20 Chats)",
+        "feature3": "Basis-Analytics & Goal-Tracking",
+        "cta": "Kostenlos starten"
+      },
+      "rocket": {
+        "badge": "Spart dir €2.000/Monat",
+        "price": "€49/Monat",
+        "description": "Für ambitionierte Teams",
+        "feature1": "3 Kampagnen parallel",
+        "feature2": "~50 Strategien pro Monat (200 Chats)",
+        "feature3": "Erweiterte Analytics & Priorisierung",
+        "roi": "ROI: 10h/Woche gespart = €2.000/Monat Arbeitszeit",
+        "cta": "14 Tage kostenlos testen"
+      }
+    },
+    "footer": {
+      "rights": "Alle Rechte vorbehalten.",
+      "privacy": "Datenschutz",
+      "terms": "AGB"
+    }
+  }
+}

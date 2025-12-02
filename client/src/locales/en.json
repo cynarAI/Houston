@@ -1,0 +1,88 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "login": "Login",
+    "getStarted": "Get Started Free",
+    "dashboard": "Dashboard",
+    "chats": "Chats",
+    "goals": "Goals",
+    "todos": "To-dos",
+    "strategy": "Strategy",
+    "missions": "Missions",
+    "settings": "Settings"
+  },
+  "appName": "Houston",
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "login": "Login",
+      "dashboard": "Go to Dashboard"
+    },
+    "hero": {
+      "badge": "AI-Powered Marketing Coach",
+      "title": {
+        "part1": "Boost Your Marketing Performance by",
+        "highlight": "300%",
+        "part2": "with AI-Powered Strategy"
+      },
+      "subtitle": "Stop guessing – Houston analyzes your goals, creates data-driven strategies, and gives you concrete action items. Save 10h/week and achieve measurable results.",
+      "cta": {
+        "start": "Start Free – No Credit Card Required",
+        "learn": "See Houston in Action",
+        "dashboard": "Go to Dashboard"
+      }
+    },
+    "features": {
+      "title": {
+        "part1": "Features that",
+        "highlight": "move you forward"
+      },
+      "subtitle": "Concrete tools that save you time and deliver measurable results.",
+      "feature1": {
+        "title": "SMART Goals in 60 Seconds",
+        "description": "Create measurable marketing goals with AI support – instead of 2 hours manual work. Houston analyzes your industry and suggests concrete KPIs."
+      },
+      "feature2": {
+        "title": "5 Action Items Per Week",
+        "description": "Get weekly concrete tasks based on your goals. Houston prioritizes automatically and shows you what matters now."
+      },
+      "feature3": {
+        "title": "Track 20+ KPIs Automatically",
+        "description": "No more Excel chaos. Houston monitors your marketing performance in real-time and alerts you when goals are at risk."
+      }
+    },
+    "pricing": {
+      "title": {
+        "part1": "Choose Your",
+        "highlight": "Plan"
+      },
+      "subtitle": "Start for free or upgrade for more features.",
+      "satellite": {
+        "price": "Free",
+        "description": "Perfect for trying out",
+        "feature1": "1 Campaign or Product",
+        "feature2": "~5 Strategies per month (20 Chats)",
+        "feature3": "Basic Analytics & Goal Tracking",
+        "cta": "Start Free"
+      },
+      "rocket": {
+        "badge": "Saves you $2,000/month",
+        "price": "€49/month",
+        "description": "For ambitious teams",
+        "feature1": "3 Campaigns in parallel",
+        "feature2": "~50 Strategies per month (200 Chats)",
+        "feature3": "Advanced Analytics & Prioritization",
+        "roi": "ROI: 10h/week saved = $2,000/month labor cost",
+        "cta": "Start 14-Day Free Trial"
+      }
+    },
+    "footer": {
+      "rights": "All rights reserved.",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    }
+  }
+}

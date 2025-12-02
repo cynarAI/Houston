@@ -1,0 +1,174 @@
+/* Mobile Display Fixes for OrbitCoach */
+
+/* Fix Sidebar Overlay on Mobile */
+@media (max-width: 768px) {
+  /* Ensure sidebar has proper z-index and backdrop */
+  [data-slot="sidebar-container"] {
+    z-index: 50 !important;
+  }
+  
+  /* Add backdrop when sidebar is open on mobile */
+  [data-state="expanded"] [data-slot="sidebar-container"]::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Prevent text overflow in Dashboard Insights */
+  .dashboard-insight-card {
+    overflow: hidden;
+  }
+  
+  .dashboard-insight-card h3,
+  .dashboard-insight-card p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Fix Chat Header on Mobile */
+  .chat-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .chat-header-title {
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Ensure buttons don't overflow */
+  .chat-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  
+  /* Fix Credit Indicator on Mobile */
+  .credit-indicator-mobile {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Fix Goals Page Cards on Mobile */
+  .goals-card {
+    padding: 1rem;
+  }
+  
+  .goals-card-title {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  /* Fix Strategy Page on Mobile */
+  .strategy-section {
+    padding: 1rem;
+  }
+  
+  .strategy-section-title {
+    font-size: 1.125rem;
+  }
+  
+  /* Fix Credits Page on Mobile */
+  .credits-pack-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .credits-pack-price {
+    font-size: 1.5rem;
+  }
+  
+  /* Fix Referrals Page on Mobile */
+  .referral-link-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .referral-link-input {
+    font-size: 0.875rem;
+  }
+  
+  /* Fix Analytics Widget on Mobile */
+  .analytics-widget {
+    padding: 1rem;
+  }
+  
+  .analytics-stat-card {
+    min-width: 0;
+    flex: 1 1 45%;
+  }
+  
+  /* Fix Landing Page on Mobile */
+  .landing-hero-title {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  
+  .landing-hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  /* Fix Mobile Menu Overlay */
+  .mobile-menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 40;
+  }
+  
+  /* Ensure proper spacing for mobile */
+  .mobile-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Fix table overflow on mobile */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Fix form inputs on mobile */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+  
+  /* Fix button sizes on mobile */
+  button {
+    min-height: 44px; /* iOS touch target size */
+  }
+}
+
+/* Tablet Fixes (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Small Mobile Fixes (< 375px) */
+@media (max-width: 374px) {
+  .landing-hero-title {
+    font-size: 1.75rem;
+  }
+  
+  .credit-indicator {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.625rem;
+  }
+  
+  .sidebar-menu-item {
+    font-size: 0.875rem;
+  }
+}

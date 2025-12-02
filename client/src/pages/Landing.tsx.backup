@@ -1,0 +1,485 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { getLoginUrl } from "@/const";
+import { Rocket, Target, Zap, TrendingUp, MessageSquare, CheckCircle2, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+
+export default function Landing() {
+  const { t } = useTranslation();
+  
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Rocket className="h-6 w-6 text-primary" />
+            <span className="font-bold text-lg">AIstronaut Marketing Coach</span>
+          </div>
+          <nav className="hidden md:flex items-center gap-6">
+            <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">{t('nav.features')}</a>
+            <a href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">{t('nav.pricing')}</a>
+            <a href="#faq" className="text-sm font-medium hover:text-primary transition-colors">{t('nav.faq')}</a>
+          </nav>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <Button variant="ghost" asChild>
+              <a href={getLoginUrl()}>{t('nav.login')}</a>
+            </Button>
+            <Button asChild>
+              <a href={getLoginUrl()}>{t('nav.getStarted')}</a>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        {/* Hero Section */}
+        <section className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30">
+          <div className="container">
+            <div className="max-w-3xl mx-auto text-center space-y-8">
+              <Badge variant="secondary" className="text-sm">
+                <Sparkles className="h-3 w-3 mr-1" />
+                Powered by Manus 1.5 AI
+              </Badge>
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+                Starte deine KI-gestützte Marketing-Mission
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Der AIstronaut Marketing Coach hilft dir, deine Ziele zu definieren, klare Strategien zu entwickeln und jeden Tag die richtigen Schritte zu gehen.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" asChild>
+                  <a href={getLoginUrl()}>
+                    <Rocket className="mr-2 h-5 w-5" />
+                    Kostenlos starten
+                  </a>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <a href="#features">Alle Funktionen entdecken</a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Benefits Section */}
+        <section className="py-20 bg-background">
+          <div className="container">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Warum AIstronaut Marketing Coach?</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Marketing für KMUs muss nicht kompliziert sein. Wir helfen dir, strukturiert und effizient zu arbeiten.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardHeader>
+                  <Zap className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle>Zeit sparen</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Automatisiere Routineaufgaben und fokussiere dich auf das Wesentliche. Dein KI-Coach übernimmt die Planung.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <Target className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle>Klarheit gewinnen</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Definiere SMART-Ziele und behalte den Überblick über deine Marketing-Strategie – immer und überall.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <MessageSquare className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle>Marketing strukturieren</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Von der Positionierung bis zum Content-Plan – dein Coach hilft dir, eine klare Strategie aufzubauen.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <TrendingUp className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle>Umsatzpotenzial heben</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Nutze datenbasierte Empfehlungen, um deine Marketingmaßnahmen zu optimieren und mehr Kunden zu gewinnen.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section id="features" className="py-20 bg-muted/30">
+          <div className="container">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Funktionen, die dich weiterbringen</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Alles, was du brauchst, um dein Marketing auf das nächste Level zu heben.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <CheckCircle2 className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">Onboarding-Chat</h3>
+                    <p className="text-muted-foreground">
+                      Beantworte ein paar Fragen zu deinem Business und erhalte sofort eine maßgeschneiderte Marketing-Roadmap.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <CheckCircle2 className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">Ziele & Roadmap</h3>
+                    <p className="text-muted-foreground">
+                      Setze SMART-Ziele, tracke deinen Fortschritt und feiere deine Erfolge – alles an einem Ort.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <CheckCircle2 className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">To-do-Steuerung</h3>
+                    <p className="text-muted-foreground">
+                      Dein Coach generiert konkrete Aufgaben basierend auf deinen Zielen – du musst sie nur noch umsetzen.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <CheckCircle2 className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">KI-gestützte Empfehlungen</h3>
+                    <p className="text-muted-foreground">
+                      Erhalte personalisierte Tipps und Strategien, die auf deine Branche und Zielgruppe zugeschnitten sind.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-secondary/10 rounded-lg p-8 border-2 border-dashed border-secondary/30">
+                <div className="aspect-video bg-background rounded-lg flex items-center justify-center">
+                  <div className="text-center space-y-2">
+                    <Rocket className="h-16 w-16 text-primary mx-auto" />
+                    <p className="text-sm text-muted-foreground">Screenshot/Mockup kommt hier hin</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="py-20 bg-background">
+          <div className="container">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Wie es funktioniert</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                In drei einfachen Schritten zu deiner Marketing-Strategie.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center space-y-4">
+                <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mx-auto">
+                  1
+                </div>
+                <h3 className="font-semibold text-xl">Account erstellen</h3>
+                <p className="text-muted-foreground">
+                  Melde dich kostenlos an und wähle deinen Plan – Satellite (Free) oder Rocket (Paid).
+                </p>
+              </div>
+
+              <div className="text-center space-y-4">
+                <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mx-auto">
+                  2
+                </div>
+                <h3 className="font-semibold text-xl">Marketing-Coach aktivieren</h3>
+                <p className="text-muted-foreground">
+                  Beantworte ein paar Fragen zu deinem Business und lass den Coach eine Strategie für dich erstellen.
+                </p>
+              </div>
+
+              <div className="text-center space-y-4">
+                <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mx-auto">
+                  3
+                </div>
+                <h3 className="font-semibold text-xl">Mit klarer Roadmap starten</h3>
+                <p className="text-muted-foreground">
+                  Erhalte deine personalisierte Roadmap mit Zielen, To-dos und konkreten nächsten Schritten.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section id="pricing" className="py-20 bg-muted/30">
+          <div className="container">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Pläne & Preise</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Starte kostenlos mit dem Satellite Plan oder upgrade für mehr Features.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Satellite Plan */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">Satellite Plan</CardTitle>
+                  <CardDescription>Perfekt zum Ausprobieren</CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">Kostenlos</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>1 Workspace</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>20 Chats pro Monat</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>3 Ziele</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>10 To-dos</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>Basis-Strategie</span>
+                    </li>
+                  </ul>
+                  <Button className="w-full" variant="outline" asChild>
+                    <a href={getLoginUrl()}>Jetzt starten</a>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Rocket Plan */}
+              <Card className="border-primary shadow-lg">
+                <CardHeader>
+                  <Badge className="w-fit mb-2">Empfohlen</Badge>
+                  <CardTitle className="text-2xl">Rocket Plan</CardTitle>
+                  <CardDescription>Für ambitionierte Teams</CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">€49</span>
+                    <span className="text-muted-foreground">/Monat</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-2">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>3 Workspaces</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>200 Chats pro Monat</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>Unbegrenzte Ziele</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>Unbegrenzte To-dos</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>Erweiterte Strategie-Features</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span>Prioritäts-Support</span>
+                    </li>
+                  </ul>
+                  <Button className="w-full" asChild>
+                    <a href={getLoginUrl()}>Rocket starten</a>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section id="faq" className="py-20 bg-background">
+          <div className="container max-w-3xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Häufig gestellte Fragen</h2>
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>Was macht der Coach genau?</AccordionTrigger>
+                <AccordionContent>
+                  Der AIstronaut Marketing Coach ist ein KI-gestützter Assistent, der dir hilft, deine Marketing-Strategie zu entwickeln, 
+                  SMART-Ziele zu setzen und konkrete To-dos zu generieren. Er beantwortet deine Fragen, gibt dir personalisierte Empfehlungen 
+                  und begleitet dich auf deiner Marketing-Mission.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-2">
+                <AccordionTrigger>Für wen ist der Coach geeignet?</AccordionTrigger>
+                <AccordionContent>
+                  Der Coach ist ideal für Inhaber:innen und Marketingverantwortliche von KMUs, die wenig Zeit haben und ihr Marketing 
+                  strukturierter und effizienter gestalten möchten. Egal ob du gerade erst startest oder bereits Erfahrung hast – 
+                  der Coach passt sich deinem Level an.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-3">
+                <AccordionTrigger>Wie unterscheidet sich der Free- vom Rocket-Plan?</AccordionTrigger>
+                <AccordionContent>
+                  Der Satellite Plan (Free) bietet dir 1 Workspace, 20 Chats pro Monat und limitierte Ziele/To-dos – perfekt zum Ausprobieren. 
+                  Der Rocket Plan (Paid) gibt dir 3 Workspaces, 200 Chats pro Monat und unbegrenzte Ziele/To-dos, plus erweiterte Features 
+                  und Prioritäts-Support.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-4">
+                <AccordionTrigger>Wie werden meine Daten verwendet?</AccordionTrigger>
+                <AccordionContent>
+                  Deine Daten werden ausschließlich genutzt, um dir personalisierte Empfehlungen zu geben. Wir speichern deine Eingaben sicher 
+                  in unserer Datenbank und nutzen sie nicht für andere Zwecke. Die KI-Verarbeitung erfolgt über Manus 1.5, 
+                  das höchste Datenschutzstandards einhält.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-5">
+                <AccordionTrigger>Kann ich jederzeit upgraden oder downgraden?</AccordionTrigger>
+                <AccordionContent>
+                  Ja! Du kannst jederzeit zwischen den Plänen wechseln. Beim Upgrade erhältst du sofort Zugriff auf alle Features. 
+                  Beim Downgrade bleiben deine Daten erhalten, aber du hast wieder die Limits des Free-Plans.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-6">
+                <AccordionTrigger>Brauche ich technische Kenntnisse?</AccordionTrigger>
+                <AccordionContent>
+                  Nein! Der AIstronaut Marketing Coach ist so gestaltet, dass du keine technischen Kenntnisse brauchst. 
+                  Du chattest einfach mit dem Coach, beantwortest ein paar Fragen und erhältst sofort umsetzbare Empfehlungen.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-7">
+                <AccordionTrigger>In welchen Sprachen ist der Coach verfügbar?</AccordionTrigger>
+                <AccordionContent>
+                  Der Coach ist aktuell in Deutsch und Englisch verfügbar. Du kannst die Sprache jederzeit in den Einstellungen wechseln.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-primary text-primary-foreground">
+          <div className="container text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Bereit für deine Marketing-Mission?
+            </h2>
+            <p className="text-lg mb-8 max-w-2xl mx-auto opacity-90">
+              Starte jetzt kostenlos mit dem Satellite Plan und erlebe, wie KI dein Marketing auf das nächste Level hebt.
+            </p>
+            <Button size="lg" variant="secondary" asChild>
+              <a href={getLoginUrl()}>
+                <Rocket className="mr-2 h-5 w-5" />
+                Kostenlos starten
+              </a>
+            </Button>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t bg-muted/30 py-12">
+        <div className="container">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Rocket className="h-5 w-5 text-primary" />
+                <span className="font-bold">AIstronaut</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                KI-gestütztes Marketing für KMUs. Teil des AIstronaut-Ökosystems.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-4">Produkt</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#features" className="hover:text-foreground transition-colors">Funktionen</a></li>
+                <li><a href="#pricing" className="hover:text-foreground transition-colors">Preise</a></li>
+                <li><a href="#faq" className="hover:text-foreground transition-colors">FAQ</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-4">Ressourcen</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="https://www.aistronaut.io" className="hover:text-foreground transition-colors">AIstronaut.io</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Space Navigator</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-4">Rechtliches</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">Datenschutz</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Impressum</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">AGB</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
+            <p>© 2025 AIstronaut. Alle Rechte vorbehalten.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
