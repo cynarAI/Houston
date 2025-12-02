@@ -9,6 +9,12 @@ import { getLoginUrl } from "./const";
 import "./index.css";
 import "./mobile-fixes.css";
 import "./lib/i18n";
+import { initSentry, Sentry } from "./lib/sentry";
+import { initAnalytics } from "./lib/analytics";
+
+// Initialize monitoring & analytics
+initSentry();
+initAnalytics();
 
 const queryClient = new QueryClient();
 

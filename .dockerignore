@@ -1,0 +1,14 @@
+node_modules
+.pnpm-store
+dist
+.git
+.env
+.env.*
+coverage
+playwright-report
+test-results
+e2e
+storybook-static
+*.md
+!README.md
+.DS_Store
