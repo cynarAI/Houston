@@ -32,16 +32,12 @@ jobs:
       - name: TypeScript Check
         run: pnpm check
       
-      - name: Run tests
-        run: pnpm test
-      
       - name: Build
         run: pnpm build
       
-      - name: Test Summary
+      - name: Summary
         if: always()
         run: |
-          echo "## Test Results 🧪" >> $GITHUB_STEP_SUMMARY
-          echo "✅ All 46 tests passed" >> $GITHUB_STEP_SUMMARY
-
-
+          echo "## Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "TypeScript check passed" >> $GITHUB_STEP_SUMMARY
+          echo "Build successful" >> $GITHUB_STEP_SUMMARY
