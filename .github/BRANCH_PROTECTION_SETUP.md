@@ -76,3 +76,4 @@ Der Dependabot Auto-Merge Workflow wird automatisch aktiviert, sobald:
 - CI passing ist
 - Es ein Minor/Patch Update ist (kein Major)
 
+
