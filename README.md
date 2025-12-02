@@ -114,6 +114,20 @@ pnpm start
 
 Alle Variablen werden automatisch von Manus injiziert (siehe Abschnitt 🔑 Environment-Variablen unten).
 
+### Staging-Environment (Optional)
+
+Manus unterstützt keine automatischen Branch-Deployments. Für ein Staging-Environment:
+
+1. **Option A: Separate Manus-App** (Empfohlen)
+   - Erstelle eine zweite App im Manus-Dashboard: `houston-staging`
+   - Verknüpfe mit `develop` Branch
+   - URL wird: `houston-staging.manus.space`
+
+2. **Option B: Lokales Staging**
+   - Nutze Feature-Branches für Entwicklung
+   - Teste lokal mit `pnpm dev`
+   - Merge in `main` nur nach ausführlichem Test
+
 ## 📚 Dokumentation
 
 Siehe folgende Dokumentations-Dateien:
