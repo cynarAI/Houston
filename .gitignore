@@ -4,6 +4,7 @@ node_modules/
 
 # Build outputs
 dist/
+dist-ssr/
 build/
 
 # Environment files
@@ -16,6 +17,10 @@ build/
 .vscode/
 *.swp
 *.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 .DS_Store
 
 # Logs
@@ -25,6 +30,7 @@ npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
 # Testing
 coverage/
@@ -33,4 +39,3 @@ coverage/
 *.tgz
 .cache/
 .turbo/
-
