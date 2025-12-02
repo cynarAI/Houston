@@ -1,6 +1,13 @@
 # 🚀 OrbitCoach – AIstronaut Marketing Coach
 
+[![CI](https://github.com/cynarAI/Houston/actions/workflows/ci.yml/badge.svg)](https://github.com/cynarAI/Houston/actions/workflows/ci.yml)
+[![Live App](https://img.shields.io/badge/Live-houston.manus.space-brightgreen)](https://houston.manus.space)
+[![Tests](https://img.shields.io/badge/tests-46%20passing-success)](./server)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Eine vollständige, produktionsreife Marketing-Coach-Web-App für KMUs mit KI-Integration (Manus 1.5) und Credit-Based Billing System.
+
+🌐 **Live:** [https://houston.manus.space](https://houston.manus.space)
 
 ## 🎯 Features
 
@@ -84,6 +91,17 @@ pnpm dev
 
 ## 🚀 Deployment
 
+### Manus Platform (Production)
+
+Die App ist produktiv deployed auf: **[https://houston.manus.space](https://houston.manus.space)**
+
+**Deployment erfolgt automatisch über die Manus-Plattform:**
+1. Code zu GitHub pushen: `git push origin main`
+2. Manus erkennt automatisch Änderungen
+3. Build & Deploy läuft automatisch auf `houston.manus.space`
+
+**Manuelle Deployment-Befehle (lokal testen):**
+
 ```bash
 # Build erstellen
 pnpm build
@@ -91,6 +109,10 @@ pnpm build
 # Production-Server starten
 pnpm start
 ```
+
+### Environment-Variablen
+
+Alle Variablen werden automatisch von Manus injiziert (siehe Abschnitt 🔑 Environment-Variablen unten).
 
 ## 📚 Dokumentation
 
