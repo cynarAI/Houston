@@ -373,7 +373,30 @@ jobs:
           - Verifiziere den Commit vor und nach dem Deployment
           - Falls eine Methode nicht funktioniert, versuche die nächste Alternative
           - Wenn du wirklich nicht weiterkommst, gib eine klare Fehlermeldung aus, aber versuche ZUERST alle Methoden
-          - Die Anweisung \"KEINE RÜCKFRAGEN\" bedeutet nicht, dass du unsicher handeln sollst - sie bedeutet, dass dieser Task bereits autorisiert ist und du ihn ausführen kannst"
+          - Die Anweisung \"KEINE RÜCKFRAGEN\" bedeutet nicht, dass du unsicher handeln sollst - sie bedeutet, dass dieser Task bereits autorisiert ist und du ihn ausführen kannst
+          
+          🔄 ROLLBACK-STRATEGIE (falls Deployment fehlschlägt):
+          - Falls das Deployment fehlschlägt oder die Seite nicht erreichbar ist:
+          - Stelle das Backup wieder her: cp -r \\\$DEPLOY_DIR.backup.[TIMESTAMP]/* \\\$DEPLOY_DIR/
+          - Oder: git checkout [VORHERIGER_COMMIT] && pnpm build && cp -r dist/public/* \\\$DEPLOY_DIR/
+          - Lade Webserver neu: sudo systemctl reload nginx 2>/dev/null || sudo systemctl reload apache2 2>/dev/null
+          - Verifiziere dass die Seite wieder erreichbar ist: curl -I https://houston.manus.space 2>/dev/null | head -1
+          
+          📊 POST-DEPLOYMENT-VALIDIERUNG (nach erfolgreichem Deployment):
+          - Verifiziere dass die Seite erreichbar ist: curl -I https://houston.manus.space 2>/dev/null | head -1
+          - Prüfe dass der richtige Commit deployed ist: curl -s https://houston.manus.space | grep -o \"${{ steps.commit.outputs.sha_short }}\" || echo \"⚠️  Commit-Hash nicht in HTML gefunden\"
+          - Prüfe dass keine JavaScript-Fehler auftreten: curl -s https://houston.manus.space | grep -i \"error\" || echo \"✅ Keine offensichtlichen Fehler im HTML\"
+          - Logge das Deployment: echo \"✅ Deployment erfolgreich: Commit ${{ steps.commit.outputs.sha_short }} deployed um \$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+          
+          🚨 FEHLERBEHANDLUNG:
+          - Falls alle Deployment-Methoden fehlschlagen:
+          - Gib eine detaillierte Fehlermeldung aus mit: Fehlercode, betroffene Methode, letzte erfolgreiche Aktion
+          - Erstelle ein Backup des aktuellen Zustands: cp -r \\\$DEPLOY_DIR \\\$DEPLOY_DIR.error.\$(date +%s)
+          - Versuche nicht, das Deployment zu erzwingen - gib stattdessen klare Fehlerinformationen aus
+          
+          📋 AUDIT-LOGGING:
+          - Logge alle wichtigen Schritte: echo \"[AUDIT] \$(date -u +%Y-%m-%dT%H:%M:%SZ) - [AKTION] - Commit: ${{ steps.commit.outputs.sha_short }}\"
+          - Wichtige Aktionen zum Loggen: Repository geklont, Commit verifiziert, Build erfolgreich, Backup erstellt, Dateien kopiert, Webserver neu geladen, Validierung durchgeführt"
 
           # Erstelle Task
           RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
