@@ -1,0 +1,89 @@
+name: Deploy to Manus
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Ermöglicht manuelles Triggern
+
+jobs:
+  deploy:
+    name: Deploy to houston.manus.space
+    runs-on: ubuntu-latest
+    # Nur deployen wenn CI erfolgreich war
+    needs: []
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Get commit info
+        id: commit
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+      
+      - name: Trigger Manus Deployment
+        id: deploy
+        run: |
+          # Prüfe ob API Key vorhanden
+          if [ -z "${{ secrets.MANUS_API_KEY }}" ]; then
+            echo "::error::MANUS_API_KEY secret is not set!"
+            echo "Please add your Manus API key as a repository secret."
+            echo "Get your API key from: https://manus.im → Settings → API"
+            exit 1
+          fi
+          
+          # Erstelle Deployment-Task mit Project-ID
+          RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
+            --url https://api.manus.ai/v1/tasks \
+            --header "API_KEY: ${{ secrets.MANUS_API_KEY }}" \
+            --header "Content-Type: application/json" \
+            --data '{
+              "prompt": "Redeploye die Houston App auf houston.manus.space mit dem neuesten Code vom GitHub Repository cynarAI/Houston (main branch, commit ${{ steps.commit.outputs.sha_short }}). Führe einen vollständigen Build und Deploy durch.",
+              "agentProfile": "manus-1.5",
+              "projectId": "bbb0df76-66bd-4a24-ae4f-2aac4750d90b"
+            }')
+          
+          # Extrahiere HTTP Status und Body
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Manus API request failed with status $HTTP_CODE"
+            exit 1
+          fi
+          
+          # Extrahiere Task-URL
+          TASK_URL=$(echo "$BODY" | jq -r '.task_url // empty')
+          TASK_ID=$(echo "$BODY" | jq -r '.task_id // empty')
+          
+          if [ -n "$TASK_URL" ]; then
+            echo "task_url=$TASK_URL" >> $GITHUB_OUTPUT
+            echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
+            echo "✅ Deployment task created successfully!"
+            echo "Task URL: $TASK_URL"
+          else
+            echo "::warning::Could not extract task URL from response"
+          fi
+      
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "## 🚀 Deployment to Manus" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ steps.commit.outputs.sha_short }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Message:** ${{ steps.commit.outputs.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target:** houston.manus.space" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ steps.deploy.outputs.task_url }}" ]; then
+            echo "### ✅ Deployment Triggered" >> $GITHUB_STEP_SUMMARY
+            echo "- **Task URL:** ${{ steps.deploy.outputs.task_url }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "> Note: Deployment may take a few minutes to complete." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+            echo "Check the logs for details." >> $GITHUB_STEP_SUMMARY
+          fi
