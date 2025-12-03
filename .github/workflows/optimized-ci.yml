@@ -209,16 +209,20 @@ jobs:
             sed "s|CHANGED_FILES|$(echo '${{ steps.commit.outputs.changed_files }}' | sed 's/"/\\"/g')|g")
           
           # Alte PROMPT-Definition entfernt - jetzt aus Datei geladen
+          # Erstelle JSON-Payload mit jq (robust gegen Sonderzeichen)
+          JSON_PAYLOAD=$(jq -n \
+            --arg prompt "$PROMPT" \
+            '{
+              "prompt": $prompt,
+              "agentProfile": "manus-1.5",
+              "projectId": "9Ye7dFtLEUdP6ojxHpkQhu"
+            }')
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
             --url https://api.manus.ai/v1/tasks \
             --header "API_KEY: $MANUS_API_KEY" \
             --header "Content-Type: application/json" \
-            --data "$(jq -n \
-              --arg prompt "$PROMPT" \
-              '{
-                "prompt": $prompt,
-                "agentProfile": "manus-1.5",
-                "projectId": "9Ye7dFtLEUdP6ojxHpkQhu"
-              }')")
+            --data "$JSON_PAYLOAD")
           
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
           BODY=$(echo "$RESPONSE" | sed '$d')
