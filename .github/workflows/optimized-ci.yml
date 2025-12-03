@@ -256,6 +256,10 @@ jobs:
           - Parameter: deployment_type=\"static\" oder \"website\" (je nach verfügbarer Option)
           - Parameter: local_directory=\"dist/public\"
           - Parameter: target_url=\"houston.manus.space\"
+          - Parameter: permanent=\"true\" (WICHTIG: Dieses Deployment muss PERMANENT sein, nicht temporär!)
+          - ⚠️ KRITISCH: Stelle sicher, dass das Deployment PERMANENT ist - die App wird von echten Nutzern verwendet!
+          - ⚠️ KRITISCH: Stelle sicher, dass die DATABASE_URL Umgebungsvariable erhalten bleibt und nicht überschrieben wird!
+          - ⚠️ KRITISCH: KEINE Daten dürfen verloren gehen - die MySQL-Datenbank muss weiterhin erreichbar sein!
           - Verwende den bereitgestellten API Key: ${{ secrets.MANUS_API_KEY }}
           - FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
           

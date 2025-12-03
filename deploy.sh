@@ -129,6 +129,10 @@ DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
 - Parameter: deployment_type=\"static\" oder \"website\" (je nach verfügbarer Option)
 - Parameter: local_directory=\"dist/public\"
 - Parameter: target_url=\"houston.manus.space\"
+- Parameter: permanent=\"true\" (WICHTIG: Dieses Deployment muss PERMANENT sein, nicht temporär!)
+- ⚠️ KRITISCH: Stelle sicher, dass das Deployment PERMANENT ist - die App wird von echten Nutzern verwendet!
+- ⚠️ KRITISCH: Stelle sicher, dass die DATABASE_URL Umgebungsvariable erhalten bleibt und nicht überschrieben wird!
+- ⚠️ KRITISCH: KEINE Daten dürfen verloren gehen - die MySQL-Datenbank muss weiterhin erreichbar sein!
 - Der API Key wurde bereits im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung
 - FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
 
@@ -152,6 +156,14 @@ NACH dem Deployment:
 - Die App verwendet vite-plugin-manus-runtime
 - Manus API Key: $MANUS_API_KEY (AUTORISIERT - VERWENDEN!)
 - Ziel-URL: houston.manus.space
+
+🗄️ DATENBANK-SICHERHEIT (KRITISCH!):
+- Die App verwendet eine MySQL-Datenbank über die DATABASE_URL Umgebungsvariable
+- ⚠️ WICHTIG: Die DATABASE_URL muss bei diesem Deployment ERHALTEN BLEIBEN!
+- ⚠️ WICHTIG: KEINE Umgebungsvariablen überschreiben - insbesondere nicht DATABASE_URL!
+- ⚠️ WICHTIG: Die Datenbank enthält Nutzerdaten, Credits, Chats, Goals, Todos - ALLES muss erhalten bleiben!
+- ⚠️ WICHTIG: Wenn du Umgebungsvariablen setzen musst, verwende MERGE/UPDATE, nicht REPLACE!
+- ⚠️ WICHTIG: Stelle sicher, dass die bestehende Datenbankverbindung weiterhin funktioniert!
 
 🚨 KRITISCH: KEINE Rückfragen - einfach ausführen und den AKTUELLEN STAND deployen! Verifiziere den Commit vor und nach dem Deployment!"
 
