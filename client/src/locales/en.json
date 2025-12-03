@@ -83,6 +83,79 @@
       "rights": "All rights reserved.",
       "privacy": "Privacy",
       "terms": "Terms"
+    },
+    "faq": {
+      "title": {
+        "part1": "Frequently Asked",
+        "highlight": "Questions"
+      },
+      "subtitle": "Everything you need to know about Houston",
+      "whatIs": {
+        "question": "What is Houston and how does it work?",
+        "answer": "Houston is your AI-powered marketing assistant that helps you plan, execute, and optimize your marketing strategies. Houston analyzes your business goals, suggests actionable strategies, and provides data-driven recommendations to improve your marketing performance."
+      },
+      "credits": {
+        "question": "How does the credit system work?",
+        "answer": "Houston uses a flexible credit system. You get 50 free starter credits when you sign up. Basic chat messages are free, while premium features like Deep Analysis (3 credits), AI Insights (3 credits), or Strategy Analysis (8 credits) cost credits. With the Orbit Pack (€9.99/month) you get 100 credits, with the Galaxy Pack (€39.99/month) 500 credits monthly."
+      },
+      "security": {
+        "question": "Is my data secure with Houston?",
+        "answer": "Yes! We take security seriously. Houston uses enterprise-grade encryption for all data transmission and storage. Your marketing data, strategies, and conversations are protected with industry-standard security measures. We're GDPR compliant and never share your data with third parties."
+      },
+      "cancel": {
+        "question": "Can I cancel my subscription anytime?",
+        "answer": "Absolutely! You can cancel your credit pack subscription (Orbit or Galaxy) at any time with no questions asked. Your subscription will remain active until the end of your billing period, and you can export all your data. No hidden fees or cancellation charges. Unused credits from one-time purchases (Mission Boosters) never expire."
+      },
+      "strategies": {
+        "question": "What kind of marketing strategies can Houston help with?",
+        "answer": "Houston supports all major marketing strategies including content marketing, social media campaigns, email marketing, SEO optimization, paid advertising, and brand positioning. The AI analyzes your specific business context and provides tailored recommendations for your industry and target audience."
+      },
+      "technical": {
+        "question": "Do I need technical knowledge to use Houston?",
+        "answer": "Not at all! Houston is designed for marketers, not developers. The interface is intuitive and conversational - just chat with Houston like you would with a human marketing consultant. No coding, no complex setup, no technical jargon. If you can use a chat app, you can use Houston."
+      },
+      "creditUsage": {
+        "question": "How are credits consumed?",
+        "answer": "Credits are charged differently per feature: Basic chat messages are free. Deep Analysis (strategy, audit, competitor) costs 3 credits, PDF Export 2 credits, AI Insights 3 credits, Goals Generation 5 credits, and Strategy Analysis 8 credits. You'll always see how many credits an action costs before you proceed. You'll be notified when your balance is low (<20 credits)."
+      }
+    },
+    "testimonials": {
+      "title": {
+        "part1": "Loved by",
+        "highlight": "Marketing Teams"
+      },
+      "subtitle": "See what our users say about Houston",
+      "testimonial1": {
+        "name": "Sarah Miller",
+        "role": "Marketing Director",
+        "quote": "Houston transformed our marketing strategy. We increased our conversion rate by 300% in just 3 months!"
+      },
+      "testimonial2": {
+        "name": "James Davis",
+        "role": "Startup Founder",
+        "quote": "The AI insights are incredible. Houston helps me make data-driven decisions without spending hours on analysis."
+      },
+      "testimonial3": {
+        "name": "Lisa Wang",
+        "role": "Growth Marketer",
+        "quote": "Best marketing tool I've ever used. The goal tracking and AI recommendations are game-changers!"
+      }
+    },
+    "stats": {
+      "activeUsers": "Active Users",
+      "marketingGoals": "Marketing Goals",
+      "successRate": "Success Rate",
+      "aiSupport": "AI Support"
+    },
+    "trust": {
+      "security": "🔒 Enterprise-Grade Security",
+      "uptime": "⚡ 99.9% Uptime"
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "subtitle": "Get the latest marketing insights and AI tips.",
+      "placeholder": "Enter your email",
+      "cta": "Subscribe"
     }
   }
 }

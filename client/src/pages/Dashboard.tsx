@@ -2,16 +2,27 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { Sparkles, Target, CheckSquare, MessageSquare, TrendingUp, ArrowRight, Brain, RefreshCw } from "lucide-react";
 import { CircularProgress } from "@/components/CircularProgress";
-
-
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import Onboarding from "@/components/Onboarding";
+import type { Goal, Todo } from "@shared/types";
+
+// Type for AI Insights recommendations
+interface InsightRecommendation {
+  title: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  action: string;
+  link: string;
+}
+
+interface InsightsResult {
+  recommendations: InsightRecommendation[];
+}
 
 
 export default function Dashboard() {
@@ -33,13 +44,13 @@ export default function Dashboard() {
     { enabled: !!currentWorkspace?.id }
   );
   
-  const activeGoals = goals?.filter((g: any) => g.status === "active").length || 0;
-  const openTodos = todos?.filter((t: any) => t.status !== "done").length || 0;
+  const activeGoals = goals?.filter((g: Goal) => g.status === "active").length || 0;
+  const openTodos = todos?.filter((t: Todo) => t.status !== "done").length || 0;
   const totalChatSessions = chatSessions?.length || 0;
   
   // AI Insights
   const [insightsLoading, setInsightsLoading] = useState(false);
-  const [insights, setInsights] = useState<any>(null);
+  const [insights, setInsights] = useState<InsightsResult | null>(null);
   const generateInsightsMutation = trpc.insights.generateRecommendations.useMutation();
   
   const loadInsights = async () => {
@@ -167,7 +178,7 @@ export default function Dashboard() {
                 </div>
               )}
               
-              {!insightsLoading && insights?.recommendations?.map((rec: any, idx: number) => (
+              {!insightsLoading && insights?.recommendations?.map((rec: InsightRecommendation, idx: number) => (
                 <Card
                   key={idx}
                   className={`dashboard-insight-card glass border-white/10 backdrop-blur-xl hover:border-white/20 transition-all hover:shadow-[0_8px_32px_rgba(0,0,0,0.4)] group ${

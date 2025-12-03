@@ -377,6 +377,79 @@
       "rights": "Alle Rechte vorbehalten.",
       "privacy": "Datenschutz",
       "terms": "AGB"
+    },
+    "faq": {
+      "title": {
+        "part1": "Häufig gestellte",
+        "highlight": "Fragen"
+      },
+      "subtitle": "Alles, was du über Houston wissen musst",
+      "whatIs": {
+        "question": "Was ist Houston und wie funktioniert es?",
+        "answer": "Houston ist dein KI-gestützter Marketing-Assistent, der dir hilft, Marketing-Strategien zu planen, umzusetzen und zu optimieren. Houston analysiert deine Geschäftsziele, schlägt umsetzbare Strategien vor und gibt dir datenbasierte Empfehlungen zur Verbesserung deiner Marketing-Performance."
+      },
+      "credits": {
+        "question": "Wie funktioniert das Credit-System?",
+        "answer": "Houston nutzt ein flexibles Credit-System. Du erhältst 50 kostenlose Starter-Credits bei der Registrierung. Einfache Chat-Nachrichten sind kostenlos, während Premium-Features wie Deep Analysis (3 Credits), AI Insights (3 Credits) oder Strategie-Analyse (8 Credits) Credits kosten. Mit dem Orbit Pack (€9.99/Monat) erhältst du 100 Credits, mit dem Galaxy Pack (€39.99/Monat) 500 Credits monatlich."
+      },
+      "security": {
+        "question": "Sind meine Daten bei Houston sicher?",
+        "answer": "Ja! Wir nehmen Sicherheit ernst. Houston verwendet Enterprise-Grade-Verschlüsselung für alle Datenübertragungen und Speicherungen. Deine Marketing-Daten, Strategien und Gespräche sind mit branchenüblichen Sicherheitsmaßnahmen geschützt. Wir sind DSGVO-konform und teilen deine Daten niemals mit Dritten."
+      },
+      "cancel": {
+        "question": "Kann ich mein Abonnement jederzeit kündigen?",
+        "answer": "Absolut! Du kannst dein Credit-Pack-Abonnement (Orbit oder Galaxy) jederzeit ohne Angabe von Gründen kündigen. Dein Abonnement bleibt bis zum Ende des Abrechnungszeitraums aktiv, und du kannst alle deine Daten exportieren. Keine versteckten Gebühren oder Kündigungskosten. Nicht genutzte Credits aus Einmal-Käufen (Mission Boosters) verfallen nicht."
+      },
+      "strategies": {
+        "question": "Bei welchen Marketing-Strategien kann Houston helfen?",
+        "answer": "Houston unterstützt alle wichtigen Marketing-Strategien, einschließlich Content-Marketing, Social-Media-Kampagnen, E-Mail-Marketing, SEO-Optimierung, bezahlte Werbung und Markenpositionierung. Die KI analysiert deinen spezifischen Geschäftskontext und liefert maßgeschneiderte Empfehlungen für deine Branche und Zielgruppe."
+      },
+      "technical": {
+        "question": "Brauche ich technisches Wissen, um Houston zu nutzen?",
+        "answer": "Überhaupt nicht! Houston ist für Marketer entwickelt, nicht für Entwickler. Die Oberfläche ist intuitiv und konversationell – chatte einfach mit Houston wie mit einem menschlichen Marketing-Berater. Kein Programmieren, keine komplexe Einrichtung, kein Fachjargon. Wenn du eine Chat-App bedienen kannst, kannst du auch Houston nutzen."
+      },
+      "creditUsage": {
+        "question": "Wie werden Credits verbraucht?",
+        "answer": "Credits werden je nach Feature unterschiedlich berechnet: Einfache Chat-Nachrichten sind kostenlos. Deep Analysis (Strategie, Audit, Wettbewerb) kostet 3 Credits, PDF-Export 2 Credits, AI Insights 3 Credits, Ziele-Generierung 5 Credits und Strategie-Analyse 8 Credits. Du siehst immer vor einer Aktion, wie viele Credits sie kostet. Bei niedrigem Guthaben (<20 Credits) wirst du benachrichtigt."
+      }
+    },
+    "testimonials": {
+      "title": {
+        "part1": "Beliebt bei",
+        "highlight": "Marketing-Teams"
+      },
+      "subtitle": "Das sagen unsere Nutzer über Houston",
+      "testimonial1": {
+        "name": "Sarah Müller",
+        "role": "Marketing-Leiterin",
+        "quote": "Houston hat unsere Marketing-Strategie transformiert. Wir haben unsere Conversion-Rate in nur 3 Monaten um 300% gesteigert!"
+      },
+      "testimonial2": {
+        "name": "Jan Weber",
+        "role": "Startup-Gründer",
+        "quote": "Die KI-Insights sind unglaublich. Houston hilft mir, datengestützte Entscheidungen zu treffen, ohne stundenlang zu analysieren."
+      },
+      "testimonial3": {
+        "name": "Lisa Schmidt",
+        "role": "Growth Marketerin",
+        "quote": "Das beste Marketing-Tool, das ich je benutzt habe. Das Goal-Tracking und die KI-Empfehlungen sind echte Game-Changer!"
+      }
+    },
+    "stats": {
+      "activeUsers": "Aktive Nutzer",
+      "marketingGoals": "Marketing-Ziele",
+      "successRate": "Erfolgsrate",
+      "aiSupport": "KI-Support"
+    },
+    "trust": {
+      "security": "🔒 Enterprise-Sicherheit",
+      "uptime": "⚡ 99.9% Verfügbarkeit"
+    },
+    "newsletter": {
+      "title": "Bleib auf dem Laufenden",
+      "subtitle": "Erhalte die neuesten Marketing-Insights und KI-Tipps.",
+      "placeholder": "Deine E-Mail-Adresse",
+      "cta": "Abonnieren"
     }
   }
 }

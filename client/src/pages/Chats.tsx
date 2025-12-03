@@ -78,54 +78,30 @@ export default function Chats() {
     setStreamingMessage("");
 
     try {
-      await sendMessageMutation.mutateAsync({
+      // sendMessage already generates and saves the coach response
+      const result = await sendMessageMutation.mutateAsync({
         sessionId: activeSessionId,
         content: userMessage,
       });
 
-      await refetchMessages();
-
-      const response = await fetch("/api/trpc/chat.streamResponse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: activeSessionId,
-          userMessage,
-        }),
-      });
-
-      if (!response.ok || !response.body) throw new Error("Stream failed");
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.content) {
-                accumulatedText += data.content;
-                setStreamingMessage(accumulatedText);
-              }
-            } catch (e) {
-              // Ignore parse errors
-            }
-          }
+      // Simulate typing effect with the response
+      if (result.content) {
+        const words = result.content.split(' ');
+        let accumulated = '';
+        for (let i = 0; i < words.length; i++) {
+          accumulated += (i === 0 ? '' : ' ') + words[i];
+          setStreamingMessage(accumulated);
+          // Small delay for typing effect (faster for longer responses)
+          await new Promise(resolve => setTimeout(resolve, Math.min(30, 500 / words.length)));
         }
       }
 
+      // Refresh messages to show the saved response
       await refetchMessages();
       setStreamingMessage("");
-    } catch (error) {
-      toast.error("Nachricht konnte nicht gesendet werden");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Nachricht konnte nicht gesendet werden";
+      toast.error(errorMessage);
       setStreamingMessage("");
     } finally {
       setIsStreaming(false);
@@ -291,7 +267,7 @@ export default function Chats() {
                         </div>
                       </Card>
                       
-                      {msg.role === "assistant" && (
+                      {msg.role === "coach" && (
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
@@ -364,22 +340,6 @@ export default function Chats() {
                   </div>
                 )}
 
-                {isStreaming && !streamingMessage && (
-                  <div className="flex gap-3 items-start">
-                    <Avatar className="w-9 h-9 shrink-0">
-                      <AvatarFallback className="bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white">
-                        <Brain className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex items-center gap-2 p-4 rounded-lg bg-card border-border">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <div className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <div className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce" style={{ animationDelay: "300ms" }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>

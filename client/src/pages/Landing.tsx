@@ -574,14 +574,14 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="relative z-10 section-padding">
+      <section id="faq" className="relative z-10 section-padding">
         <div className="container-premium mx-auto max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="mb-4 text-white">
-              Frequently Asked <span className="gradient-text-aistronaut">Questions</span>
+              {t('landing.faq.title.part1')} <span className="gradient-text-aistronaut">{t('landing.faq.title.highlight')}</span>
             </h2>
             <p className="lead text-white/80">
-              Everything you need to know about Houston
+              {t('landing.faq.subtitle')}
             </p>
           </div>
 
@@ -589,91 +589,91 @@ export default function Home() {
             {/* FAQ Item 1 */}
             <details className="glass-card p-6 group">
               <summary className="flex items-center justify-between cursor-pointer list-none">
-                <h3 className="text-lg font-semibold text-white">What is Houston and how does it work?</h3>
+                <h3 className="text-lg font-semibold text-white">{t('landing.faq.whatIs.question')}</h3>
                 <svg className="w-5 h-5 text-white/60 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-white/70 leading-relaxed">
-                Houston is your AI-powered marketing assistant that helps you plan, execute, and optimize your marketing strategies. Houston analyzes your business goals, suggests actionable strategies, and provides data-driven recommendations to improve your marketing performance.
+                {t('landing.faq.whatIs.answer')}
               </p>
             </details>
 
             {/* FAQ Item 2 */}
             <details className="glass-card p-6 group">
               <summary className="flex items-center justify-between cursor-pointer list-none">
-                <h3 className="text-lg font-semibold text-white">What's the difference between Houston Free and Houston Pro?</h3>
+                <h3 className="text-lg font-semibold text-white">{t('landing.faq.credits.question')}</h3>
                 <svg className="w-5 h-5 text-white/60 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-white/70 leading-relaxed">
-                Houston Free includes 1 workspace and 20 AI chats per month, perfect for trying out the platform. Houston Pro offers 3 workspaces and 200 chats per month, ideal for ambitious teams with higher demands. Both plans include all core features like goal tracking, strategy planning, and AI-powered insights.
+                {t('landing.faq.credits.answer')}
               </p>
             </details>
 
             {/* FAQ Item 3 */}
             <details className="glass-card p-6 group">
               <summary className="flex items-center justify-between cursor-pointer list-none">
-                <h3 className="text-lg font-semibold text-white">Is my data secure with Houston?</h3>
+                <h3 className="text-lg font-semibold text-white">{t('landing.faq.security.question')}</h3>
                 <svg className="w-5 h-5 text-white/60 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-white/70 leading-relaxed">
-                Yes! We take security seriously. Houston uses enterprise-grade encryption for all data transmission and storage. Your marketing data, strategies, and conversations are protected with industry-standard security measures. We're GDPR compliant and never share your data with third parties.
+                {t('landing.faq.security.answer')}
               </p>
             </details>
 
             {/* FAQ Item 4 */}
             <details className="glass-card p-6 group">
               <summary className="flex items-center justify-between cursor-pointer list-none">
-                <h3 className="text-lg font-semibold text-white">Can I cancel my subscription anytime?</h3>
+                <h3 className="text-lg font-semibold text-white">{t('landing.faq.cancel.question')}</h3>
                 <svg className="w-5 h-5 text-white/60 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-white/70 leading-relaxed">
-                Absolutely! You can cancel your Houston Pro subscription at any time with no questions asked. Your subscription will remain active until the end of your billing period, and you can export all your data before canceling. No hidden fees or cancellation charges.
+                {t('landing.faq.cancel.answer')}
               </p>
             </details>
 
             {/* FAQ Item 5 */}
             <details className="glass-card p-6 group">
               <summary className="flex items-center justify-between cursor-pointer list-none">
-                <h3 className="text-lg font-semibold text-white">What kind of marketing strategies can Houston help with?</h3>
+                <h3 className="text-lg font-semibold text-white">{t('landing.faq.strategies.question')}</h3>
                 <svg className="w-5 h-5 text-white/60 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-white/70 leading-relaxed">
-                Houston supports all major marketing strategies including content marketing, social media campaigns, email marketing, SEO optimization, paid advertising, and brand positioning. The AI analyzes your specific business context and provides tailored recommendations for your industry and target audience.
+                {t('landing.faq.strategies.answer')}
               </p>
             </details>
 
             {/* FAQ Item 6 */}
             <details className="glass-card p-6 group">
               <summary className="flex items-center justify-between cursor-pointer list-none">
-                <h3 className="text-lg font-semibold text-white">Do I need technical knowledge to use Houston?</h3>
+                <h3 className="text-lg font-semibold text-white">{t('landing.faq.technical.question')}</h3>
                 <svg className="w-5 h-5 text-white/60 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-white/70 leading-relaxed">
-                Not at all! Houston is designed for marketers, not developers. The interface is intuitive and conversational - just chat with Houston like you would with a human marketing consultant. No coding, no complex setup, no technical jargon. If you can use a chat app, you can use Houston.
+                {t('landing.faq.technical.answer')}
               </p>
             </details>
 
             {/* FAQ Item 7 */}
             <details className="glass-card p-6 group">
               <summary className="flex items-center justify-between cursor-pointer list-none">
-                <h3 className="text-lg font-semibold text-white">How does the AI chat limit work?</h3>
+                <h3 className="text-lg font-semibold text-white">{t('landing.faq.creditUsage.question')}</h3>
                 <svg className="w-5 h-5 text-white/60 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-white/70 leading-relaxed">
-                Each chat session counts as one chat, regardless of how many messages you exchange within that session. Your chat limit resets monthly. Houston Free includes 20 chats per month, while Houston Pro offers 200 chats per month. You'll receive notifications when approaching your limit.
+                {t('landing.faq.creditUsage.answer')}
               </p>
             </details>
           </div>
@@ -681,35 +681,35 @@ export default function Home() {
       </section>
 
       {/* Trust / Social Proof Section */}
-      <section className="relative z-10 section-padding bg-gradient-to-b from-transparent to-black/20">
+      <section id="testimonials" className="relative z-10 section-padding bg-gradient-to-b from-transparent to-black/20">
         <div className="container-premium mx-auto">
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
             <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold gradient-text-aistronaut mb-2">10K+</div>
-              <div className="text-sm md:text-base text-white/60">Active Users</div>
+              <div className="text-sm md:text-base text-white/60">{t('landing.stats.activeUsers')}</div>
             </div>
             <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold gradient-text-aistronaut mb-2">50K+</div>
-              <div className="text-sm md:text-base text-white/60">Marketing Goals</div>
+              <div className="text-sm md:text-base text-white/60">{t('landing.stats.marketingGoals')}</div>
             </div>
             <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold gradient-text-aistronaut mb-2">95%</div>
-              <div className="text-sm md:text-base text-white/60">Success Rate</div>
+              <div className="text-sm md:text-base text-white/60">{t('landing.stats.successRate')}</div>
             </div>
             <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold gradient-text-aistronaut mb-2">24/7</div>
-              <div className="text-sm md:text-base text-white/60">AI Support</div>
+              <div className="text-sm md:text-base text-white/60">{t('landing.stats.aiSupport')}</div>
             </div>
           </div>
 
           {/* Testimonials */}
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Loved by <span className="gradient-text-aistronaut">Marketing Teams</span>
+              {t('landing.testimonials.title.part1')} <span className="gradient-text-aistronaut">{t('landing.testimonials.title.highlight')}</span>
             </h2>
             <p className="text-lg text-white/60 max-w-2xl mx-auto">
-              See what our users say about Houston
+              {t('landing.testimonials.subtitle')}
             </p>
           </div>
 
@@ -721,12 +721,12 @@ export default function Home() {
                   SM
                 </div>
                 <div>
-                  <div className="font-bold text-white">Sarah Miller</div>
-                  <div className="text-sm text-white/60">Marketing Director</div>
+                  <div className="font-bold text-white">{t('landing.testimonials.testimonial1.name')}</div>
+                  <div className="text-sm text-white/60">{t('landing.testimonials.testimonial1.role')}</div>
                 </div>
               </div>
               <p className="text-white/80 leading-relaxed">
-                "Houston transformed our marketing strategy. We increased our conversion rate by 300% in just 3 months!"
+                "{t('landing.testimonials.testimonial1.quote')}"
               </p>
             </div>
 
@@ -737,12 +737,12 @@ export default function Home() {
                   JD
                 </div>
                 <div>
-                  <div className="font-bold text-white">James Davis</div>
-                  <div className="text-sm text-white/60">Startup Founder</div>
+                  <div className="font-bold text-white">{t('landing.testimonials.testimonial2.name')}</div>
+                  <div className="text-sm text-white/60">{t('landing.testimonials.testimonial2.role')}</div>
                 </div>
               </div>
               <p className="text-white/80 leading-relaxed">
-                "The AI insights are incredible. Houston helps me make data-driven decisions without spending hours on analysis."
+                "{t('landing.testimonials.testimonial2.quote')}"
               </p>
             </div>
 
@@ -753,12 +753,12 @@ export default function Home() {
                   LW
                 </div>
                 <div>
-                  <div className="font-bold text-white">Lisa Wang</div>
-                  <div className="text-sm text-white/60">Growth Marketer</div>
+                  <div className="font-bold text-white">{t('landing.testimonials.testimonial3.name')}</div>
+                  <div className="text-sm text-white/60">{t('landing.testimonials.testimonial3.role')}</div>
                 </div>
               </div>
               <p className="text-white/80 leading-relaxed">
-                "Best marketing tool I've ever used. The goal tracking and AI recommendations are game-changers!"
+                "{t('landing.testimonials.testimonial3.quote')}"
               </p>
             </div>
           </div>
@@ -766,14 +766,10 @@ export default function Home() {
           {/* Trust Badges */}
           <div className="mt-16 flex flex-wrap justify-center items-center gap-8">
             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 backdrop-blur-sm">
-              <Sparkles className="w-5 h-5 text-[#00D4FF]" />
-
+              <span className="text-sm text-white/80 font-medium">{t('landing.trust.security')}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 backdrop-blur-sm">
-              <span className="text-sm text-white/80 font-medium">🔒 Enterprise-Grade Security</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 backdrop-blur-sm">
-              <span className="text-sm text-white/80 font-medium">⚡ 99.9% Uptime</span>
+              <span className="text-sm text-white/80 font-medium">{t('landing.trust.uptime')}</span>
             </div>
           </div>
         </div>
@@ -836,19 +832,19 @@ export default function Home() {
 
             {/* Newsletter Column */}
             <div>
-              <h4 className="text-sm font-semibold text-white mb-4">Stay Updated</h4>
-              <p className="text-sm text-white/60 mb-4">Get the latest marketing insights and AI tips.</p>
+              <h4 className="text-sm font-semibold text-white mb-4">{t('landing.newsletter.title')}</h4>
+              <p className="text-sm text-white/60 mb-4">{t('landing.newsletter.subtitle')}</p>
               <form className="flex flex-col gap-2">
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t('landing.newsletter.placeholder')}
                   className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
                 />
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FF6B9D] to-[#8B5CF6] text-white font-medium hover:shadow-lg transition-shadow"
                 >
-                  Subscribe
+                  {t('landing.newsletter.cta')}
                 </button>
               </form>
             </div>

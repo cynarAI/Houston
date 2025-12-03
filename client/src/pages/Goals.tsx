@@ -17,10 +17,11 @@ import TimelineView from "@/components/views/TimelineView";
 import CalendarView from "@/components/views/CalendarView";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import type { Goal } from "@shared/types";
 
 export default function Goals() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingGoal, setEditingGoal] = useState<any>(null);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("created");
   const [currentView, setCurrentView] = useState<ViewType>("table");
@@ -52,11 +53,11 @@ export default function Goals() {
     // Filter
     let filtered = goalsData;
     if (filterStatus !== "all") {
-      filtered = goalsData.filter((g: any) => g.status === filterStatus);
+      filtered = goalsData.filter((g: Goal) => g.status === filterStatus);
     }
     
     // Sort
-    const sorted = [...filtered].sort((a: any, b: any) => {
+    const sorted = [...filtered].sort((a: Goal, b: Goal) => {
       switch (sortBy) {
         case "title":
           return a.title.localeCompare(b.title);
@@ -145,7 +146,7 @@ export default function Goals() {
     }
   };
 
-  const handleEdit = (goal: any) => {
+  const handleEdit = (goal: Goal) => {
     setFormData({
       title: goal.title || "",
       description: goal.description || "",
@@ -352,7 +353,7 @@ export default function Goals() {
         {/* Original Card View (hidden) */}
         {false && goals && goals.length > 0 ? (
           <div className="grid gap-6">
-            {goals.map((goal: any, index: number) => (
+            {goals.map((goal: Goal, index: number) => (
               <Card key={goal.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">

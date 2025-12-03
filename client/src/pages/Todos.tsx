@@ -17,6 +17,7 @@ import BoardView from "@/components/views/BoardView";
 import TimelineView from "@/components/views/TimelineView";
 import CalendarView from "@/components/views/CalendarView";
 import { toast } from "sonner";
+import type { Todo } from "@shared/types";
 
 export default function Todos() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -55,9 +56,9 @@ export default function Todos() {
     if (!todosData) return [];
     let filtered = todosData;
     if (filterStatus !== "all") {
-      filtered = todosData.filter((t: any) => t.status === filterStatus);
+      filtered = todosData.filter((t: Todo) => t.status === filterStatus);
     }
-    const sorted = [...filtered].sort((a: any, b: any) => {
+    const sorted = [...filtered].sort((a: Todo, b: Todo) => {
       if (sortBy === "title") return a.title.localeCompare(b.title);
       if (sortBy === "priority") {
         const priorityOrder = { high: 0, medium: 1, low: 2 };
@@ -305,7 +306,7 @@ export default function Todos() {
             </h2>
             {openTodos.length > 0 ? (
               <div className="space-y-3">
-                {openTodos.map((todo: any) => (
+                {openTodos.map((todo: Todo) => (
                   <Card key={todo.id}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -368,7 +369,7 @@ export default function Todos() {
             </h2>
             {completedTodos.length > 0 ? (
               <div className="space-y-3">
-                {completedTodos.map((todo: any) => (
+                {completedTodos.map((todo: Todo) => (
                   <Card key={todo.id} className="opacity-60">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">

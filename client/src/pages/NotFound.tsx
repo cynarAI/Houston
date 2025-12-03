@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Rocket, Home, MessageSquare, Sparkles } from "lucide-react";
 import { useLocation, Link } from "wouter";
+import { useMemo } from "react";
 
 export default function NotFound() {
   const [, setLocation] = useLocation();
@@ -10,6 +11,17 @@ export default function NotFound() {
     setLocation("/");
   };
 
+  // Generate star positions once and cache them
+  const stars = useMemo(() => 
+    [...Array(50)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 2,
+      opacity: Math.random() * 0.7 + 0.3,
+    })), 
+  []);
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden">
       {/* Space Background */}
@@ -17,15 +29,15 @@ export default function NotFound() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f] via-[#1a1a2e] to-[#0a0a0f]"></div>
         {/* Stars */}
         <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
+          {stars.map((star) => (
             <div
-              key={i}
+              key={star.id}
               className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                opacity: Math.random() * 0.7 + 0.3,
+                left: `${star.left}%`,
+                top: `${star.top}%`,
+                animationDelay: `${star.delay}s`,
+                opacity: star.opacity,
               }}
             />
           ))}

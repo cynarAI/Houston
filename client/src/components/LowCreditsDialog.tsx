@@ -102,6 +102,11 @@ export function LowCreditsDialog({
               Nach der Aktion: <strong>{currentCredits - creditsNeeded} Credits</strong> übrig
             </p>
           )}
+          {!isEmpty && !canAfford && (
+            <p className="text-sm text-red-400 mt-3 text-center">
+              ⚠️ Du brauchst noch <strong>{creditsNeeded - currentCredits} Credits</strong> mehr für diese Aktion.
+            </p>
+          )}
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
@@ -134,7 +139,15 @@ export function LowCreditsDialog({
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
-              {isLow && (
+              {!canAfford && (
+                <Link href="/app/credits" className="sm:flex-1">
+                  <Button className="w-full bg-gradient-to-r from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)]">
+                    <Zap className="mr-2 h-4 w-4" />
+                    Credits aufladen
+                  </Button>
+                </Link>
+              )}
+              {canAfford && isLow && (
                 <Link href="/app/credits" className="sm:flex-1">
                   <Button variant="outline" className="w-full border-orange-500/50 text-orange-400 hover:bg-orange-500/10">
                     <Zap className="mr-2 h-4 w-4" />
