@@ -10,7 +10,7 @@ on:
       skip_deploy:
         description: 'Skip deployment (build only)'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 env:
@@ -35,20 +35,33 @@ jobs:
           cache: 'pnpm'
 
       - name: 📋 Get pnpm store directory
+        id: pnpm-store
         shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          STORE_PATH=$(pnpm store path --silent)
+          echo "STORE_PATH=$STORE_PATH" >> $GITHUB_ENV
+          echo "path=$STORE_PATH" >> $GITHUB_OUTPUT
 
       - name: 🗄️ Cache pnpm store
         uses: actions/cache@v4
         with:
-          path: ${{ env.STORE_PATH }}
+          path: ${{ steps.pnpm-store.outputs.path }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: 🗄️ Cache Vite build
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.vite
+            dist
+          key: ${{ runner.os }}-vite-${{ hashFiles('**/*.{ts,tsx,js,jsx,css,json}') }}
+          restore-keys: |
+            ${{ runner.os }}-vite-
 
       - name: 🔍 TypeScript Check
         run: pnpm check
@@ -127,27 +140,37 @@ jobs:
             exit 1
           fi
           
-          # Sehr präziser Prompt ohne Rückfragen
+          # Erstelle einen präzisen Prompt der die bereits gebauten Artefakte verwendet
+          # Der Agent wird die Artefakte direkt verwenden statt nochmal zu bauen
           PROMPT="WICHTIG: Führe diese Schritte AUTOMATISCH aus, ohne Rückfragen!
 
           AUFGABE: Aktualisiere die Houston App auf houston.manus.space
 
-          SCHRITT 1: Klone das Repository
+          SCHRITT 1: Klone das Repository und wechsle zum korrekten Commit
           git clone https://github.com/cynarAI/Houston.git /home/ubuntu/houston-deploy
           cd /home/ubuntu/houston-deploy
           git checkout ${{ steps.commit.outputs.sha_full }}
 
-          SCHRITT 2: Installiere Dependencies und baue die App
-          pnpm install
-          pnpm build
+          SCHRITT 2: Verwende die bereits gebauten Artefakte
+          Die App wurde bereits in GitHub Actions gebaut und getestet. 
+          OPTION A (BEVORZUGT): Lade die Build-Artefakte direkt von GitHub Actions herunter:
+          - Öffne: https://github.com/cynarAI/Houston/actions/runs/${{ github.run_id }}
+          - Lade das Artefakt 'dist-${{ github.sha }}' herunter
+          - Entpacke es in das dist/ Verzeichnis: mkdir -p dist && unzip -q dist-${{ github.sha }}.zip -d dist/
+          OPTION B (FALLBACK): Falls Download nicht möglich ist, baue lokal: pnpm install --frozen-lockfile && pnpm build
+          
+          WICHTIG: Stelle sicher, dass das dist/ Verzeichnis die gebauten Dateien enthält bevor du fortfährst!
 
           SCHRITT 3: Veröffentliche die App
-          Verwende die Manus Publish-Funktion um die gebaute App auf houston.manus.space zu veröffentlichen.
+          Verwende die Manus Publish-Funktion um die gebaute App (aus dist/) auf houston.manus.space zu veröffentlichen.
+          Das dist/ Verzeichnis muss die vollständig gebauten Dateien enthalten.
 
           WICHTIGE INFOS:
-          - Commit: ${{ steps.commit.outputs.sha_short }}
+          - Commit: ${{ steps.commit.outputs.sha_short }} (${{ steps.commit.outputs.sha_full }})
           - Geänderte Dateien: ${{ steps.commit.outputs.changed_files }}
+          - Die App wurde bereits gebaut und getestet in GitHub Actions (Run: ${{ github.run_id }})
           - Die App verwendet vite-plugin-manus-runtime
+          - Build-Artefakte: https://github.com/cynarAI/Houston/actions/runs/${{ github.run_id }}
           - Keine Rückfragen - einfach ausführen!"
 
           # Erstelle Task
