@@ -1,10 +1,11 @@
 name: Deploy to Manus (DEAKTIVIERT)
 
 # DEAKTIVIERT: Verwende stattdessen deploy-vercel.yml (kostenlos)
-on:
-  # workflow_dispatch:  # DEAKTIVIERT - Benötigt Credits
+on: # Deaktiviert weil Credits notwendig, siehe deploy-vercel.yml
+  workflow_dispatch: {}  # Minimaler Trigger für Syntax - Workflow ist deaktiviert (if: false)
   # push:
   #   branches: [ main ]
+
 
 jobs:
   deploy:
