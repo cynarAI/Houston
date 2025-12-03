@@ -11,17 +11,17 @@ AI-powered marketing coach for SMBs with credit-based billing.
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
+| Layer    | Technology                                                  |
+| -------- | ----------------------------------------------------------- |
 | Frontend | React 19, Tailwind CSS 4, shadcn/ui, Wouter, TanStack Query |
-| Backend | Express 4, tRPC 11, Drizzle ORM |
-| Database | MySQL / TiDB |
-| Auth | Manus OAuth |
-| AI | Manus 1.5 LLM |
-| Payments | Stripe |
-| i18n | i18next (DE/EN) |
-| Build | Vite 7, TypeScript 5.9, esbuild |
-| Testing | Vitest, Playwright |
+| Backend  | Express 4, tRPC 11, Drizzle ORM                             |
+| Database | MySQL / TiDB                                                |
+| Auth     | Manus OAuth                                                 |
+| AI       | Manus 1.5 LLM                                               |
+| Payments | Stripe                                                      |
+| i18n     | i18next (DE/EN)                                             |
+| Build    | Vite 7, TypeScript 5.9, esbuild                             |
+| Testing  | Vitest, Playwright                                          |
 
 ---
 
@@ -47,17 +47,17 @@ App runs at `http://localhost:3000`
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development server (hot reload) |
-| `pnpm build` | Build for production |
-| `pnpm start` | Run production server |
-| `pnpm check` | TypeScript type check |
-| `pnpm lint` | ESLint check |
-| `pnpm test` | Run unit tests (Vitest) |
-| `pnpm e2e` | Run E2E tests (Playwright) |
-| `pnpm db:push` | Generate and run DB migrations |
-| `pnpm storybook` | Start Storybook on port 6006 |
+| Command          | Description                           |
+| ---------------- | ------------------------------------- |
+| `pnpm dev`       | Start development server (hot reload) |
+| `pnpm build`     | Build for production                  |
+| `pnpm start`     | Run production server                 |
+| `pnpm check`     | TypeScript type check                 |
+| `pnpm lint`      | ESLint check                          |
+| `pnpm test`      | Run unit tests (Vitest)               |
+| `pnpm e2e`       | Run E2E tests (Playwright)            |
+| `pnpm db:push`   | Generate and run DB migrations        |
+| `pnpm storybook` | Start Storybook on port 6006          |
 
 ---
 
@@ -65,19 +65,19 @@ App runs at `http://localhost:3000`
 
 Copy `env.example` to `.env` and configure:
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | MySQL connection string |
-| `JWT_SECRET` | Yes | Session cookie signing |
-| `VITE_APP_ID` | Yes | Manus OAuth App ID |
-| `OAUTH_SERVER_URL` | Yes | Manus OAuth backend URL |
-| `BUILT_IN_FORGE_API_URL` | Yes | Manus LLM API endpoint |
-| `BUILT_IN_FORGE_API_KEY` | Yes | Manus API key |
-| `STRIPE_SECRET_KEY` | Yes | Stripe secret key |
-| `STRIPE_WEBHOOK_SECRET` | Yes | Stripe webhook secret |
-| `VITE_STRIPE_PUBLISHABLE_KEY` | Yes | Stripe public key (frontend) |
-| `SENTRY_DSN` | No | Sentry error tracking |
-| `VITE_PLAUSIBLE_DOMAIN` | No | Plausible analytics domain |
+| Variable                      | Required | Description                  |
+| ----------------------------- | -------- | ---------------------------- |
+| `DATABASE_URL`                | Yes      | MySQL connection string      |
+| `JWT_SECRET`                  | Yes      | Session cookie signing       |
+| `VITE_APP_ID`                 | Yes      | Manus OAuth App ID           |
+| `OAUTH_SERVER_URL`            | Yes      | Manus OAuth backend URL      |
+| `BUILT_IN_FORGE_API_URL`      | Yes      | Manus LLM API endpoint       |
+| `BUILT_IN_FORGE_API_KEY`      | Yes      | Manus API key                |
+| `STRIPE_SECRET_KEY`           | Yes      | Stripe secret key            |
+| `STRIPE_WEBHOOK_SECRET`       | Yes      | Stripe webhook secret        |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Yes      | Stripe public key (frontend) |
+| `SENTRY_DSN`                  | No       | Sentry error tracking        |
+| `VITE_PLAUSIBLE_DOMAIN`       | No       | Plausible analytics domain   |
 
 > On Manus Platform: All required variables are auto-injected.
 
@@ -113,15 +113,65 @@ Copy `env.example` to `.env` and configure:
 
 ## Deployment
 
-### Production (Manus Platform)
+Das Deployment-System ist darauf ausgelegt, Deployments schneller, ressourcenschonender und flexibler zu gestalten. Der rechenintensive Build-Prozess findet in GitHub Actions oder lokal statt, nicht mehr auf dem Manus-Agenten.
+
+### Automatisches Deployment (GitHub Actions)
+
+Jeder Push auf den `main`-Branch löst automatisch einen Build- und Deployment-Prozess über GitHub Actions aus.
+
+**Funktionsweise:**
+
+1. **Build-Job**: Dependencies werden aus dem Cache geladen, die App wird gebaut
+2. **Deploy-Job**: Die gebauten Artefakte werden an die Manus-Plattform gesendet
+
+**Setup:**
+
+1. Gehen Sie zu Ihrem GitHub-Repository
+2. Navigieren Sie zu `Settings` > `Secrets and variables` > `Actions`
+3. Erstellen Sie ein neues Secret: `MANUS_API_KEY`
+4. Fügen Sie Ihren Manus API-Schlüssel als Wert ein
+
+Der Workflow wird durch `.github/workflows/optimized-ci.yml` gesteuert.
+
+### Manuelles Deployment (Lokal)
+
+Für schnelle Deployments direkt aus Ihrer Entwicklungsumgebung können Sie das `deploy.sh`-Skript verwenden.
+
+**Setup:**
+
+1. **API-Schlüssel als Umgebungsvariable setzen:**
+
+   Temporär (für die aktuelle Terminalsitzung):
+
+   ```bash
+   export MANUS_API_KEY='ihr-api-schluessel'
+   ```
+
+   Permanent (empfohlen):
+
+   ```bash
+   echo 'export MANUS_API_KEY="ihr-api-schluessel"' >> ~/.zshrc
+   source ~/.zshrc
+   ```
+
+2. **Skript ausführbar machen:**
+   ```bash
+   chmod +x deploy.sh
+   ```
+
+**Verwendung:**
 
 ```bash
-git push origin main
+./deploy.sh
 ```
 
-Manus auto-deploys to `houston.manus.space`.
+Das Skript führt automatisch aus:
 
-### Manual Build
+- Installation der Dependencies (`pnpm install`)
+- Build der Anwendung (`pnpm build`)
+- Start eines Deployment-Tasks über die Manus API
+
+### Manual Build (ohne Deployment)
 
 ```bash
 pnpm build    # Creates dist/
@@ -134,16 +184,17 @@ pnpm start    # Runs production server
 
 All documentation is organized in the `docs/` folder:
 
-| Folder | Contents |
-|--------|----------|
-| [docs/architecture/](./docs/architecture/) | Technical architecture, performance docs |
-| [docs/design/](./docs/design/) | Design analysis, UX guidelines, space theme |
-| [docs/features/](./docs/features/) | Feature specs (credit system, Stripe, referrals) |
-| [docs/planning/](./docs/planning/) | TODOs, roadmaps, redesign plans |
-| [docs/qa/](./docs/qa/) | QA reports, test results, accessibility |
-| [docs/releases/](./docs/releases/) | Release notes, summaries |
+| Folder                                     | Contents                                         |
+| ------------------------------------------ | ------------------------------------------------ |
+| [docs/architecture/](./docs/architecture/) | Technical architecture, performance docs         |
+| [docs/design/](./docs/design/)             | Design analysis, UX guidelines, space theme      |
+| [docs/features/](./docs/features/)         | Feature specs (credit system, Stripe, referrals) |
+| [docs/planning/](./docs/planning/)         | TODOs, roadmaps, redesign plans                  |
+| [docs/qa/](./docs/qa/)                     | QA reports, test results, accessibility          |
+| [docs/releases/](./docs/releases/)         | Release notes, summaries                         |
 
 **Key documents:**
+
 - [Product Vision & Principles](./docs/product_principles_houston.md) - Steve-Jobs-level product focus
 - [Architecture Overview](./docs/architecture/architecture.md)
 - [Credit System Design](./docs/features/CREDIT_SYSTEM_DESIGN.md)
@@ -183,23 +234,24 @@ export DATABASE_URL="mysql://user:password@localhost:3306/houston_test"
 
 ### Test Coverage
 
-| Test File | Module | Tests |
-|-----------|--------|-------|
-| `creditService.test.ts` | Credit system (charge, grant, balance) | 28 |
-| `referralService.test.ts` | Referral codes, bonus credits | 12 |
-| `goals.test.ts` | SMART goals CRUD, progress updates | 8 |
-| `todos.test.ts` | Todo CRUD, status changes | 3 |
-| `notifications.test.ts` | Notification system | 15 |
-| `chat.test.ts` | Chat sessions, AI messaging | 2 |
-| `chat.feedback.test.ts` | Message feedback | 4 |
-| `workspaces.test.ts` | Workspace management | 3 |
-| `auth.logout.test.ts` | Authentication logout | 1 |
+| Test File                 | Module                                 | Tests |
+| ------------------------- | -------------------------------------- | ----- |
+| `creditService.test.ts`   | Credit system (charge, grant, balance) | 28    |
+| `referralService.test.ts` | Referral codes, bonus credits          | 12    |
+| `goals.test.ts`           | SMART goals CRUD, progress updates     | 8     |
+| `todos.test.ts`           | Todo CRUD, status changes              | 3     |
+| `notifications.test.ts`   | Notification system                    | 15    |
+| `chat.test.ts`            | Chat sessions, AI messaging            | 2     |
+| `chat.feedback.test.ts`   | Message feedback                       | 4     |
+| `workspaces.test.ts`      | Workspace management                   | 3     |
+| `auth.logout.test.ts`     | Authentication logout                  | 1     |
 
 **Total: ~76 unit tests**
 
 ### E2E Tests
 
 Located in `e2e/`:
+
 - `landing.spec.ts` - Landing page visibility, navigation, responsive design
 
 ### CI/CD
