@@ -57,6 +57,37 @@ gh secret set VERCEL_ORG_ID --body "team_xxx..."
 gh secret set VERCEL_PROJECT_ID --body "prj_xxx..."
 ```
 
+### 2.5. Domain konfigurieren
+
+**WICHTIG:** Domain `houston.manus.space` muss in Vercel konfiguriert werden!
+
+**Im Vercel Dashboard → Project Settings → Domains:**
+
+1. **Domain hinzufügen:**
+   - Domain: `houston.manus.space`
+   - Typ: Production (oder Preview)
+
+2. **DNS-Konfiguration:**
+   - Vercel zeigt DNS-Records an (CNAME oder A-Record)
+   - Diese müssen im DNS-Provider für `manus.space` konfiguriert werden
+   - Oder: Domain-Inhaber muss DNS-Records bei Manus setzen lassen
+
+**DNS-Records (Beispiel):**
+
+```
+Type: CNAME
+Name: houston
+Value: cname.vercel-dns.com
+```
+
+**Oder:**
+
+```
+Type: A
+Name: houston
+Value: 76.76.21.21 (Vercel IP)
+```
+
 ### 3. Environment Variables in Vercel
 
 **Im Vercel Dashboard → Project Settings → Environment Variables:**
