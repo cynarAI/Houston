@@ -33,14 +33,15 @@ jobs:
             exit 1
           fi
           
-          # Erstelle Deployment-Task
+          # Erstelle Deployment-Task mit korrekter Project-ID
           RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
             --url https://api.manus.ai/v1/tasks \
             --header "API_KEY: ${{ secrets.MANUS_API_KEY }}" \
             --header "Content-Type: application/json" \
             --data '{
-              "prompt": "Bitte redeploye die Houston Marketing App. Die App ist deployed auf houston.manus.space. Ziehe den neuesten Code vom GitHub Repository https://github.com/cynarAI/Houston (main branch, commit ${{ steps.commit.outputs.sha_short }}). Die App verwendet vite-plugin-manus-runtime und React/Vite. Führe pnpm install, pnpm build aus und deploye die App.",
-              "agentProfile": "manus-1.5"
+              "prompt": "Redeploye die Houston App auf houston.manus.space. Ziehe den neuesten Code vom GitHub Repository https://github.com/cynarAI/Houston (main branch, commit ${{ steps.commit.outputs.sha_short }}). Führe pnpm install und pnpm build aus, dann deploye die App.",
+              "agentProfile": "manus-1.5",
+              "projectId": "9Ye7dFtLEUdP6ojxHpkQhu"
             }')
           
           # Extrahiere HTTP Status und Body
