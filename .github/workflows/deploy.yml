@@ -9,42 +9,70 @@ jobs:
   deploy:
     name: Deploy to houston.manus.space
     runs-on: ubuntu-latest
-    # Nur deployen wenn CI erfolgreich war
-    needs: []
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Letzte 2 Commits für Diff
       
-      - name: Get commit info
+      - name: Get commit info and changed files
         id: commit
         run: |
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+          
+          # Liste geänderter Dateien (nur relevante)
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -E '\.(tsx?|json|css)$' | head -20 | tr '\n' ', ' || echo "")
+          echo "changed_files=$CHANGED" >> $GITHUB_OUTPUT
       
       - name: Trigger Manus Deployment
         id: deploy
+        env:
+          MANUS_API_KEY: ${{ secrets.MANUS_API_KEY }}
         run: |
-          # Prüfe ob API Key vorhanden
-          if [ -z "${{ secrets.MANUS_API_KEY }}" ]; then
+          if [ -z "$MANUS_API_KEY" ]; then
             echo "::error::MANUS_API_KEY secret is not set!"
-            echo "Please add your Manus API key as a repository secret."
-            echo "Get your API key from: https://manus.im → Settings → API"
             exit 1
           fi
           
-          # Erstelle Deployment-Task mit korrekter Project-ID
+          # Sehr präziser Prompt ohne Rückfragen
+          PROMPT="WICHTIG: Führe diese Schritte AUTOMATISCH aus, ohne Rückfragen!
+
+          AUFGABE: Aktualisiere die Houston App auf houston.manus.space
+
+          SCHRITT 1: Klone das Repository
+          git clone https://github.com/cynarAI/Houston.git /home/ubuntu/houston-deploy
+          cd /home/ubuntu/houston-deploy
+          git checkout main
+
+          SCHRITT 2: Installiere Dependencies und baue die App
+          pnpm install
+          pnpm build
+
+          SCHRITT 3: Veröffentliche die App
+          Verwende die Manus Publish-Funktion um die gebaute App auf houston.manus.space zu veröffentlichen.
+
+          WICHTIGE INFOS:
+          - Commit: ${{ steps.commit.outputs.sha_short }}
+          - Geänderte Dateien: ${{ steps.commit.outputs.changed_files }}
+          - Die App verwendet vite-plugin-manus-runtime
+          - Keine Rückfragen - einfach ausführen!"
+
+          # Erstelle Task
           RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
             --url https://api.manus.ai/v1/tasks \
-            --header "API_KEY: ${{ secrets.MANUS_API_KEY }}" \
+            --header "API_KEY: $MANUS_API_KEY" \
             --header "Content-Type: application/json" \
-            --data '{
-              "prompt": "Redeploye die Houston App auf houston.manus.space. Ziehe den neuesten Code vom GitHub Repository https://github.com/cynarAI/Houston (main branch, commit ${{ steps.commit.outputs.sha_short }}). Führe pnpm install und pnpm build aus, dann deploye die App.",
-              "agentProfile": "manus-1.5",
-              "projectId": "9Ye7dFtLEUdP6ojxHpkQhu"
-            }')
+            --data "$(jq -n \
+              --arg prompt "$PROMPT" \
+              '{
+                "prompt": $prompt,
+                "agentProfile": "manus-1.5",
+                "projectId": "9Ye7dFtLEUdP6ojxHpkQhu"
+              }')")
           
-          # Extrahiere HTTP Status und Body
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
           BODY=$(echo "$RESPONSE" | sed '$d')
           
@@ -56,34 +84,76 @@ jobs:
             exit 1
           fi
           
-          # Extrahiere Task-URL
           TASK_URL=$(echo "$BODY" | jq -r '.task_url // empty')
           TASK_ID=$(echo "$BODY" | jq -r '.task_id // empty')
           
-          if [ -n "$TASK_URL" ]; then
-            echo "task_url=$TASK_URL" >> $GITHUB_OUTPUT
-            echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
-            echo "✅ Deployment task created successfully!"
-            echo "Task URL: $TASK_URL"
-          else
-            echo "::warning::Could not extract task URL from response"
-          fi
+          echo "task_url=$TASK_URL" >> $GITHUB_OUTPUT
+          echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
+          echo "✅ Deployment task created: $TASK_URL"
+      
+      - name: Wait and Monitor Task
+        id: monitor
+        env:
+          MANUS_API_KEY: ${{ secrets.MANUS_API_KEY }}
+        run: |
+          TASK_ID="${{ steps.deploy.outputs.task_id }}"
+          MAX_WAIT=300  # 5 Minuten
+          INTERVAL=30
+          ELAPSED=0
+          
+          echo "⏳ Monitoring task $TASK_ID..."
+          
+          while [ $ELAPSED -lt $MAX_WAIT ]; do
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+            
+            STATUS_RESPONSE=$(curl -s --request GET \
+              --url "https://api.manus.ai/v1/tasks/$TASK_ID" \
+              --header "API_KEY: $MANUS_API_KEY")
+            
+            STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.status // "unknown"')
+            echo "[$ELAPSED s] Task status: $STATUS"
+            
+            if [ "$STATUS" = "completed" ]; then
+              echo "✅ Task completed successfully!"
+              echo "status=completed" >> $GITHUB_OUTPUT
+              exit 0
+            elif [ "$STATUS" = "failed" ] || [ "$STATUS" = "cancelled" ]; then
+              echo "❌ Task failed or cancelled"
+              echo "status=failed" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            
+            # Wenn Task auf Eingabe wartet, sende Fortsetzungsbefehl
+            if [ "$STATUS" = "pending" ]; then
+              LAST_MSG=$(echo "$STATUS_RESPONSE" | jq -r '.output[-1].content[0].text // ""' | tail -c 500)
+              if echo "$LAST_MSG" | grep -qi "frag\|information\|benötige\|question\|authentif"; then
+                echo "📝 Task wartet auf Eingabe, sende Fortsetzung..."
+                curl -s --request POST \
+                  --url "https://api.manus.ai/v1/tasks" \
+                  --header "API_KEY: $MANUS_API_KEY" \
+                  --header "Content-Type: application/json" \
+                  --data "{
+                    \"prompt\": \"Führe die Schritte einfach aus. Du bist auf der Manus-Plattform, nutze die eingebaute Publish-Funktion. Keine weitere Authentifizierung nötig.\",
+                    \"agentProfile\": \"manus-1.5\",
+                    \"taskId\": \"$TASK_ID\"
+                  }" > /dev/null
+              fi
+            fi
+          done
+          
+          echo "⚠️ Timeout reached, task still running"
+          echo "status=timeout" >> $GITHUB_OUTPUT
       
       - name: Deployment Summary
         if: always()
         run: |
           echo "## 🚀 Deployment to Manus" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** \`${{ steps.commit.outputs.sha_short }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Message:** ${{ steps.commit.outputs.message }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Target:** houston.manus.space" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ steps.deploy.outputs.task_url }}" ]; then
-            echo "### ✅ Deployment Triggered" >> $GITHUB_STEP_SUMMARY
-            echo "- **Task URL:** ${{ steps.deploy.outputs.task_url }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "> Note: Deployment may take a few minutes to complete." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
-            echo "Check the logs for details." >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "| Info | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ steps.commit.outputs.sha_short }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Message | ${{ steps.commit.outputs.message }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | houston.manus.space |" >> $GITHUB_STEP_SUMMARY
+          echo "| Task | ${{ steps.deploy.outputs.task_url }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ steps.monitor.outputs.status || 'triggered' }} |" >> $GITHUB_STEP_SUMMARY
