@@ -36,16 +36,16 @@ export function useAuth(options?: UseAuthOptions) {
       }
       throw error;
     } finally {
+      // GDPR: Clear any legacy user data from localStorage
+      localStorage.removeItem("manus-runtime-user-info");
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
     }
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
+    // GDPR: Don't store personal user data in localStorage
+    // User data is managed via server session only
     return {
       user: meQuery.data ?? null,
       loading: meQuery.isLoading || logoutMutation.isPending,

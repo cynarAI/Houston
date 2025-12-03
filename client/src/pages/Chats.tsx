@@ -9,10 +9,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { Brain, Send, Loader2, Plus, MessageSquare, Sparkles, ThumbsUp, ThumbsDown, Copy, RotateCcw, Check, Download } from "lucide-react";
+import { Brain, Send, Loader2, Plus, MessageSquare, Sparkles, ThumbsUp, ThumbsDown, Copy, RotateCcw, Check, Download, BookOpen, Rocket } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { toast } from "sonner";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { handleMutationError, ErrorMessages } from "@/lib/errorHandling";
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
+import { celebrations } from "@/lib/celebrations";
 
 export default function Chats() {
   const { user } = useAuth();
@@ -22,17 +27,21 @@ export default function Chats() {
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { data: workspaces } = trpc.workspaces.list.useQuery();
-  const { data: sessions, refetch: refetchSessions } = trpc.chat.listSessions.useQuery(
+  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
+  const { data: sessions, isLoading: sessionsLoading, isError: sessionsError, refetch: refetchSessions } = trpc.chat.listSessions.useQuery(
     { workspaceId: workspaces?.[0]?.id || 0 },
     { enabled: !!workspaces?.[0]?.id }
   );
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
 
-  const { data: sessionData, refetch: refetchMessages } = trpc.chat.getSession.useQuery(
+  const { data: sessionData, isLoading: messagesLoading, isError: messagesError, refetch: refetchMessages } = trpc.chat.getSession.useQuery(
     { sessionId: activeSessionId || 0 },
     { enabled: !!activeSessionId }
   );
+  
+  // Combined states
+  const isInitialLoading = workspacesLoading || (workspaces?.[0]?.id && sessionsLoading);
+  const hasError = workspacesError || sessionsError;
 
   const messages = sessionData?.messages || [];
 
@@ -59,13 +68,18 @@ export default function Chats() {
     try {
       const newSession = await createSessionMutation.mutateAsync({
         workspaceId: workspaces?.[0]?.id || 0,
-        title: `New Chat ${new Date().toLocaleDateString("en-US")}`,
+        title: `Neuer Chat ${new Date().toLocaleDateString("de-DE")}`,
       });
+      
+      // Track chat creation
+      const isFirstChat = !sessions || sessions.length === 0;
+      trackEvent(AnalyticsEvents.CHAT_STARTED, { is_first_chat: isFirstChat });
+      
       setActiveSessionId(newSession.id);
       await refetchSessions();
-      toast.success("New chat created");
+      toast.success("Neuer Chat erstellt");
     } catch (error) {
-      toast.error("Failed to create new chat");
+      handleMutationError(error, ErrorMessages.chatCreate);
     }
   };
 
@@ -73,59 +87,43 @@ export default function Chats() {
     if (!message.trim() || isStreaming || !activeSessionId) return;
 
     const userMessage = message;
+    const isFirstMessage = messages.length === 0;
     setMessage("");
     setIsStreaming(true);
     setStreamingMessage("");
 
     try {
-      await sendMessageMutation.mutateAsync({
+      // Track message sent
+      trackEvent(AnalyticsEvents.MESSAGE_SENT, { message_length: userMessage.length, session_id: activeSessionId });
+      
+      // sendMessage already generates and saves the coach response
+      const result = await sendMessageMutation.mutateAsync({
         sessionId: activeSessionId,
         content: userMessage,
       });
 
-      await refetchMessages();
-
-      const response = await fetch("/api/trpc/chat.streamResponse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: activeSessionId,
-          userMessage,
-        }),
-      });
-
-      if (!response.ok || !response.body) throw new Error("Stream failed");
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.content) {
-                accumulatedText += data.content;
-                setStreamingMessage(accumulatedText);
-              }
-            } catch (e) {
-              // Ignore parse errors
-            }
-          }
+      // Simulate typing effect with the response
+      if (result.content) {
+        const words = result.content.split(' ');
+        let accumulated = '';
+        for (let i = 0; i < words.length; i++) {
+          accumulated += (i === 0 ? '' : ' ') + words[i];
+          setStreamingMessage(accumulated);
+          // Small delay for typing effect (faster for longer responses)
+          await new Promise(resolve => setTimeout(resolve, Math.min(30, 500 / words.length)));
         }
       }
 
+      // Refresh messages to show the saved response
       await refetchMessages();
       setStreamingMessage("");
+      
+      // Celebrate first chat if this was the first message
+      if (isFirstMessage) {
+        celebrations.firstChat();
+      }
     } catch (error) {
-      toast.error("Failed to send message");
+      handleMutationError(error, ErrorMessages.chatSend);
       setStreamingMessage("");
     } finally {
       setIsStreaming(false);
@@ -135,9 +133,13 @@ export default function Chats() {
   const handleFeedback = async (messageId: number, feedback: "positive" | "negative") => {
     try {
       await sendFeedbackMutation.mutateAsync({ messageId, feedback });
-      toast.success("Feedback sent");
+      
+      // Track feedback
+      trackEvent(AnalyticsEvents.MESSAGE_FEEDBACK, { feedback_type: feedback, message_id: messageId });
+      
+      toast.success("Feedback gesendet");
     } catch (error) {
-      toast.error("Failed to send feedback");
+      toast.error("Feedback konnte nicht gesendet werden");
     }
   };
 
@@ -145,7 +147,11 @@ export default function Chats() {
     navigator.clipboard.writeText(content);
     setCopiedMessageId(messageId);
     setTimeout(() => setCopiedMessageId(null), 2000);
-    toast.success("Copied to clipboard");
+    
+    // Track copy action
+    trackEvent(AnalyticsEvents.MESSAGE_COPIED, { message_id: messageId });
+    
+    toast.success("In Zwischenablage kopiert");
   };
 
   const handleRegenerate = async (messageId: number) => {
@@ -153,10 +159,14 @@ export default function Chats() {
       setIsStreaming(true);
       if (!activeSessionId) return;
       await regenerateResponseMutation.mutateAsync({ sessionId: activeSessionId, messageId });
+      
+      // Track regeneration
+      trackEvent(AnalyticsEvents.MESSAGE_REGENERATED, { message_id: messageId });
+      
       await refetchMessages();
-      toast.success("Response regenerated");
+      toast.success("Antwort neu generiert");
     } catch (error) {
-      toast.error("Failed to regenerate response");
+      handleMutationError(error, ErrorMessages.chatRegenerate);
     } finally {
       setIsStreaming(false);
     }
@@ -173,16 +183,52 @@ export default function Chats() {
       a.download = `chat-${activeSessionId}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("PDF exported");
+      
+      // Track PDF export
+      trackEvent(AnalyticsEvents.PDF_EXPORTED, { type: "chat" });
+      
+      toast.success("PDF exportiert");
     } catch (error) {
-      toast.error("Failed to export PDF");
+      handleMutationError(error, ErrorMessages.pdfExport);
     }
   };
 
   const quickActions = [
-    { icon: MessageSquare, label: "Marketing Strategy", prompt: "Help me create a marketing strategy" },
-    { icon: Sparkles, label: "Content Ideas", prompt: "Give me content ideas for social media" },
+    { icon: BookOpen, label: "Welches Playbook passt zu mir?", prompt: "Welches Marketing-Playbook würdest du mir empfehlen? Analysiere meine Situation und schlage das passendste vor." },
+    { icon: Rocket, label: "Lead-Magnet erstellen", prompt: "Hilf mir, einen Lead-Magneten zu erstellen. Welche Ideen hast du für meine Branche?" },
+    { icon: MessageSquare, label: "Newsletter-Strategie", prompt: "Ich möchte eine E-Mail-Newsletter-Serie aufbauen. Wie sollte ich vorgehen?" },
+    { icon: Sparkles, label: "Content-Ideen generieren", prompt: "Gib mir 10 Content-Ideen für Social Media basierend auf meinem Business" },
+    { icon: Brain, label: "Zielgruppen-Analyse", prompt: "Analysiere meine Zielgruppe und erstelle detaillierte Personas mit Pain Points und Bedürfnissen" },
+    { icon: Send, label: "Launch-Kampagne planen", prompt: "Ich plane einen Produkt-Launch. Welche Schritte empfiehlst du für eine erfolgreiche Launch-Kampagne?" },
   ];
+
+  // Show loading state
+  if (isInitialLoading) {
+    return (
+      <DashboardLayout>
+        <LoadingState message="Lade deine Chats..." fullPage />
+      </DashboardLayout>
+    );
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <DashboardLayout>
+        <div className="container py-8">
+          <ErrorState
+            title="Chats konnten nicht geladen werden"
+            message="Es gab ein Problem beim Laden deiner Chat-Sessions. Bitte versuche es erneut."
+            onRetry={() => {
+              refetchWorkspaces();
+              refetchSessions();
+            }}
+            fullPage
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -196,7 +242,7 @@ export default function Chats() {
                 <h1 className="text-lg font-semibold">Houston</h1>
               </div>
               <Badge variant="secondary" className="text-xs">
-                AI Marketing Assistant
+                KI Marketing-Assistent
               </Badge>
             </div>
             
@@ -204,7 +250,7 @@ export default function Chats() {
               {sessions && sessions.length > 0 && (
                 <Select value={activeSessionId?.toString()} onValueChange={(val) => setActiveSessionId(parseInt(val))}>
                   <SelectTrigger className="w-[200px] hidden md:flex">
-                    <SelectValue placeholder="Select chat" />
+                    <SelectValue placeholder="Chat auswählen" />
                   </SelectTrigger>
                   <SelectContent>
                     {sessions.map((session) => (
@@ -218,7 +264,7 @@ export default function Chats() {
               
               <Button variant="outline" size="sm" onClick={handleNewChat}>
                 <Plus className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">New Chat</span>
+                <span className="hidden md:inline">Neuer Chat</span>
               </Button>
               
               {messages.length > 0 && (
@@ -236,12 +282,12 @@ export default function Chats() {
             {messages.length === 0 && !streamingMessage && (
               <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
                 <div className="text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] mb-4">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] mb-4">
                     <Brain className="w-8 h-8 text-white" />
                   </div>
-                  <h2 className="text-2xl font-semibold">What can I help you with?</h2>
+                  <h2 className="text-2xl font-semibold">Womit kann ich dir helfen?</h2>
                   <p className="text-muted-foreground max-w-md">
-                    I'm your AI marketing assistant. Ask me anything about marketing strategy, content creation, or campaign optimization.
+                    Ich bin dein KI Marketing-Assistent. Frag mich alles zu Marketing-Strategien, Content-Erstellung oder Kampagnen-Optimierung.
                   </p>
                 </div>
                 
@@ -252,7 +298,7 @@ export default function Chats() {
                       onClick={() => setMessage(action.prompt)}
                       className="flex items-center gap-3 p-4 rounded-lg border border-white/10 hover:border-white/20 hover:bg-accent/50 transition-all text-left group"
                     >
-                      <action.icon className="w-5 h-5 text-[var(--accent-primary)] shrink-0" />
+                      <action.icon className="w-5 h-5 text-[var(--color-gradient-pink)] shrink-0" />
                       <span className="text-sm font-medium">{action.label}</span>
                     </button>
                   ))}
@@ -276,7 +322,7 @@ export default function Chats() {
                     
                     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                       <div className="text-xs font-medium text-muted-foreground">
-                        {msg.role === "user" ? "You" : "Houston"}
+                        {msg.role === "user" ? "Du" : "Houston"}
                       </div>
                       
                       <Card className={`p-4 ${
@@ -289,7 +335,7 @@ export default function Chats() {
                         </div>
                       </Card>
                       
-                      {msg.role === "assistant" && (
+                      {msg.role === "coach" && (
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
@@ -362,22 +408,6 @@ export default function Chats() {
                   </div>
                 )}
 
-                {isStreaming && !streamingMessage && (
-                  <div className="flex gap-3 items-start">
-                    <Avatar className="w-9 h-9 shrink-0">
-                      <AvatarFallback className="bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white">
-                        <Brain className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex items-center gap-2 p-4 rounded-lg bg-card border-border">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <div className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <div className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-bounce" style={{ animationDelay: "300ms" }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -396,7 +426,7 @@ export default function Chats() {
                     handleSend();
                   }
                 }}
-                placeholder="Ask Houston anything about marketing..."
+                placeholder="Stelle Houston eine Frage zum Marketing..."
                 disabled={isStreaming || !activeSessionId}
                 className="flex-1"
               />

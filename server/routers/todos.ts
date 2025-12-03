@@ -1,17 +1,22 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import * as db from "../db";
+import { verifyWorkspaceOwnership, verifyTodoOwnership, verifyGoalOwnership } from "../_core/ownership";
 
 export const todosRouter = router({
   listByWorkspace: protectedProcedure
     .input(z.object({ workspaceId: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
+      // Verify user owns the workspace
+      await verifyWorkspaceOwnership(input.workspaceId, ctx.user.id);
       return await db.getTodosByWorkspaceId(input.workspaceId);
     }),
 
   getById: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
+      // Verify user has access to this todo
+      await verifyTodoOwnership(input.id, ctx.user.id);
       return await db.getTodoById(input.id);
     }),
 
@@ -26,7 +31,13 @@ export const todosRouter = router({
         dueDate: z.date().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verify user owns the workspace
+      await verifyWorkspaceOwnership(input.workspaceId, ctx.user.id);
+      // If goalId is provided, verify user has access to that goal too
+      if (input.goalId) {
+        await verifyGoalOwnership(input.goalId, ctx.user.id);
+      }
       const id = await db.createTodo(input);
       return { id };
     }),
@@ -42,7 +53,9 @@ export const todosRouter = router({
         dueDate: z.date().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verify user has access to this todo
+      await verifyTodoOwnership(input.id, ctx.user.id);
       const { id, ...data } = input;
       await db.updateTodo(id, data);
       return { success: true };
@@ -50,7 +63,9 @@ export const todosRouter = router({
 
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verify user has access to this todo before deleting
+      await verifyTodoOwnership(input.id, ctx.user.id);
       await db.deleteTodo(input.id);
       return { success: true };
     }),

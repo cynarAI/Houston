@@ -92,12 +92,32 @@ export async function getUserByOpenId(openId: string) {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot get user: database not available");
-    return undefined;
+    return null;
   }
 
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
+}
+
+/**
+ * Delete a user and all associated data (GDPR Art. 17 - Right to Erasure)
+ * CASCADE constraints handle: workspaces, goals, todos, chatSessions, chatMessages,
+ * planLimits, onboardingData, creditTransactions, userSubscriptions, stripePayments,
+ * referrals, notifications
+ */
+export async function deleteUser(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  try {
+    await db.delete(users).where(eq(users.id, userId));
+  } catch (error) {
+    console.error("[Database] Failed to delete user:", error);
+    throw error;
+  }
 }
 
 // ============ Workspace Queries ============
@@ -117,9 +137,9 @@ export async function getWorkspacesByUserId(userId: number) {
 
 export async function getWorkspaceById(id: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(workspaces).where(eq(workspaces.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function updateWorkspace(id: number, data: Partial<InsertWorkspace>) {
@@ -151,9 +171,9 @@ export async function getGoalsByWorkspaceId(workspaceId: number) {
 
 export async function getGoalById(id: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(goals).where(eq(goals.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function updateGoal(id: number, data: Partial<InsertGoal>) {
@@ -187,9 +207,9 @@ export async function createOrUpdateStrategy(strategy: InsertStrategy) {
 
 export async function getStrategyByWorkspaceId(workspaceId: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(strategies).where(eq(strategies.workspaceId, workspaceId)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 // ============ Todo Queries ============
@@ -209,9 +229,9 @@ export async function getTodosByWorkspaceId(workspaceId: number) {
 
 export async function getTodoById(id: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(todos).where(eq(todos.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function updateTodo(id: number, data: Partial<InsertTodo>) {
@@ -243,9 +263,9 @@ export async function getChatSessionsByWorkspaceId(workspaceId: number) {
 
 export async function getChatSessionById(id: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(chatSessions).where(eq(chatSessions.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function deleteChatSession(id: number) {
@@ -280,9 +300,9 @@ export async function createPlanLimit(limit: InsertPlanLimit) {
 
 export async function getPlanLimitByUserId(userId: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(planLimits).where(eq(planLimits.userId, userId)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function updatePlanLimit(userId: number, data: Partial<InsertPlanLimit>) {
@@ -305,9 +325,9 @@ export async function incrementChatUsage(userId: number) {
 
 export async function getPlanLimitById(id: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(planLimits).where(eq(planLimits.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function countWorkspacesByUserId(userId: number) {
@@ -337,9 +357,9 @@ export async function resetChatCounter(planId: number) {
 
 export async function getOnboardingDataByUserId(userId: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(onboardingData).where(eq(onboardingData.userId, userId)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function createOnboardingData(data: InsertOnboardingData) {

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,18 +9,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { CheckSquare, Plus, Target, Edit, Trash2, Sparkles, Filter, ArrowUpDown, Download } from "lucide-react";
+import { CheckSquare, Plus, Target, Edit, Trash2, Sparkles, Filter, ArrowUpDown, Download, Loader2 } from "lucide-react";
 import ViewSwitcher, { ViewType } from "@/components/ViewSwitcher";
 import TableView from "@/components/views/TableView";
-import BoardView from "@/components/views/BoardView";
 import TimelineView from "@/components/views/TimelineView";
-import CalendarView from "@/components/views/CalendarView";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import type { Goal } from "@shared/types";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { handleMutationError, ErrorMessages } from "@/lib/errorHandling";
+import { PageHeader } from "@/components/ui/page-header";
+import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
+import { GradientIcon } from "@/components/ui/gradient-icon";
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
+import { celebrations } from "@/lib/celebrations";
+
+// Lazy load heavy view components (BoardView uses @dnd-kit, CalendarView uses react-day-picker)
+const BoardView = lazy(() => import("@/components/views/BoardView"));
+const CalendarView = lazy(() => import("@/components/views/CalendarView"));
+
+// Loading fallback for lazy-loaded views
+function ViewLoader() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
 
 export default function Goals() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingGoal, setEditingGoal] = useState<any>(null);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("created");
   const [currentView, setCurrentView] = useState<ViewType>("table");
@@ -39,11 +59,15 @@ export default function Goals() {
     localStorage.setItem("goals-view", view);
   };
 
-  const { data: workspaces } = trpc.workspaces.list.useQuery();
-  const { data: goalsData, refetch } = trpc.goals.listByWorkspace.useQuery(
+  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
+  const { data: goalsData, isLoading: goalsLoading, isError: goalsError, refetch } = trpc.goals.listByWorkspace.useQuery(
     { workspaceId: workspaces?.[0]?.id || 0 },
     { enabled: !!workspaces?.[0]?.id }
   );
+  
+  // Combined states
+  const isLoading = workspacesLoading || (workspaces?.[0]?.id && goalsLoading);
+  const hasError = workspacesError || goalsError;
 
   // Filter and sort goals
   const goals = useMemo(() => {
@@ -52,11 +76,11 @@ export default function Goals() {
     // Filter
     let filtered = goalsData;
     if (filterStatus !== "all") {
-      filtered = goalsData.filter((g: any) => g.status === filterStatus);
+      filtered = goalsData.filter((g: Goal) => g.status === filterStatus);
     }
     
     // Sort
-    const sorted = [...filtered].sort((a: any, b: any) => {
+    const sorted = [...filtered].sort((a: Goal, b: Goal) => {
       switch (sortBy) {
         case "title":
           return a.title.localeCompare(b.title);
@@ -102,17 +126,30 @@ export default function Goals() {
   const handleCreate = async () => {
     if (!workspaces?.[0]?.id || !formData.title) return;
 
+    const isFirstGoal = !goalsData || goalsData.length === 0;
+    
     try {
       await createGoalMutation.mutateAsync({
         workspaceId: workspaces[0].id,
         ...formData,
       });
+      
+      // Track goal creation
+      const isFirstGoal = !goalsData || goalsData.length === 0;
+      const hasSmartFields = !!(formData.specific || formData.measurable || formData.achievable || formData.relevant || formData.timeBound);
+      trackEvent(AnalyticsEvents.GOAL_CREATED, { is_first_goal: isFirstGoal, has_smart_fields: hasSmartFields });
+      
       toast.success("Ziel erfolgreich erstellt!");
       setIsCreateDialogOpen(false);
       resetForm();
       refetch();
+      
+      // Celebrate first goal
+      if (isFirstGoal) {
+        celebrations.firstGoal();
+      }
     } catch (error) {
-      toast.error("Fehler beim Erstellen des Ziels");
+      handleMutationError(error, ErrorMessages.goalCreate);
     }
   };
 
@@ -124,12 +161,16 @@ export default function Goals() {
         id: editingGoal.id,
         ...formData,
       });
+      
+      // Track goal update
+      trackEvent(AnalyticsEvents.GOAL_UPDATED, { goal_id: editingGoal.id });
+      
       toast.success("Ziel erfolgreich aktualisiert!");
       setEditingGoal(null);
       resetForm();
       refetch();
     } catch (error) {
-      toast.error("Fehler beim Aktualisieren des Ziels");
+      handleMutationError(error, ErrorMessages.goalUpdate);
     }
   };
 
@@ -138,14 +179,18 @@ export default function Goals() {
 
     try {
       await deleteGoalMutation.mutateAsync({ id });
+      
+      // Track goal deletion
+      trackEvent(AnalyticsEvents.GOAL_DELETED, { goal_id: id });
+      
       toast.success("Ziel erfolgreich gelöscht!");
       refetch();
     } catch (error) {
-      toast.error("Fehler beim Löschen des Ziels");
+      handleMutationError(error, ErrorMessages.goalDelete);
     }
   };
 
-  const handleEdit = (goal: any) => {
+  const handleEdit = (goal: Goal) => {
     setFormData({
       title: goal.title || "",
       description: goal.description || "",
@@ -182,11 +227,42 @@ export default function Goals() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
+      // Track PDF export
+      trackEvent(AnalyticsEvents.PDF_EXPORTED, { type: "goals" });
+      
       toast.success("PDF erfolgreich heruntergeladen!");
     } catch (error) {
-      toast.error("Fehler beim Exportieren des PDFs");
+      handleMutationError(error, ErrorMessages.pdfExport);
     }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <LoadingState message="Lade deine Ziele..." fullPage />
+      </DashboardLayout>
+    );
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <DashboardLayout>
+        <div className="container py-8">
+          <ErrorState
+            title="Ziele konnten nicht geladen werden"
+            message="Es gab ein Problem beim Laden deiner Ziele. Bitte versuche es erneut."
+            onRetry={() => {
+              refetchWorkspaces();
+              refetch();
+            }}
+            fullPage
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -194,12 +270,11 @@ export default function Goals() {
         {/* Header */}
         <div className="space-y-6">
           {/* Title & Description */}
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Ziele & Fortschritt</h1>
-            <p className="text-muted-foreground text-base">
-              Verfolge deine SMART-Ziele und messe deinen Erfolg.
-            </p>
-          </div>
+          <PageHeader
+            title="Ziele & Fortschritt"
+            description="Verfolge deine SMART-Ziele und messe deinen Erfolg."
+            className="mb-0"
+          />
           
           {/* Controls */}
           <div className="flex items-center justify-between gap-4">
@@ -215,10 +290,10 @@ export default function Goals() {
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                  <SelectItem value="all">Alle Status</SelectItem>
+                  <SelectItem value="active">Aktiv</SelectItem>
+                  <SelectItem value="completed">Abgeschlossen</SelectItem>
+                  <SelectItem value="archived">Archiviert</SelectItem>
                 </SelectContent>
               </Select>
               
@@ -226,12 +301,12 @@ export default function Goals() {
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[150px]">
                   <ArrowUpDown className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Sort" />
+                  <SelectValue placeholder="Sortierung" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="created">Newest First</SelectItem>
-                  <SelectItem value="title">Title A-Z</SelectItem>
-                  <SelectItem value="progress">Progress</SelectItem>
+                  <SelectItem value="created">Neueste zuerst</SelectItem>
+                  <SelectItem value="title">Titel A-Z</SelectItem>
+                  <SelectItem value="progress">Fortschritt</SelectItem>
                 </SelectContent>
               </Select>
               
@@ -340,19 +415,23 @@ export default function Goals() {
           <TableView items={goals || []} type="goals" onEdit={handleEdit} onDelete={(id) => deleteGoalMutation.mutate({ id })} />
         )}
         {currentView === "board" && (
-          <BoardView items={goals || []} type="goals" />
+          <Suspense fallback={<ViewLoader />}>
+            <BoardView items={goals || []} type="goals" />
+          </Suspense>
         )}
         {currentView === "timeline" && (
           <TimelineView items={goals || []} type="goals" />
         )}
         {currentView === "calendar" && (
-          <CalendarView items={goals || []} type="goals" />
+          <Suspense fallback={<ViewLoader />}>
+            <CalendarView items={goals || []} type="goals" />
+          </Suspense>
         )}
 
         {/* Original Card View (hidden) */}
         {false && goals && goals.length > 0 ? (
           <div className="grid gap-6">
-            {goals.map((goal: any, index: number) => (
+            {goals.map((goal: Goal, index: number) => (
               <Card key={goal.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -503,34 +582,32 @@ export default function Goals() {
             ))}
           </div>
         ) : (
-          <Card className="glass border-white/10">
-            <CardContent className="py-16 text-center">
+          <GlassCard variant="elevated">
+            <GlassCardContent className="py-16 text-center">
               <div className="flex justify-center mb-6">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)] rounded-full blur-2xl opacity-20 animate-pulse"></div>
-                  <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)]">
-                    <Target className="h-10 w-10 text-white" />
-                  </div>
+                  <GradientIcon icon={Target} gradient="blue-purple" size="xl" className="relative" />
                 </div>
               </div>
               <h3 className="font-semibold text-xl mb-2">
-                Create your first <span className="gradient-text">SMART goal</span>
+                Erstelle dein erstes <span className="gradient-text">SMART-Ziel</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-8 max-w-md mx-auto">
-                Set specific, measurable, achievable, relevant, and time-bound goals with Houston's help.
+                Definiere spezifische, messbare, erreichbare, relevante und zeitgebundene Ziele mit Houstons Hilfe.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
-                <Button onClick={() => setIsCreateDialogOpen(true)} className="btn-gradient">
+                <Button onClick={() => setIsCreateDialogOpen(true)} variant="gradient">
                   <Plus className="mr-2 h-4 w-4" />
-                  Create Goal
+                  Ziel erstellen
                 </Button>
                 <Button variant="outline" className="glass hover:bg-white/10">
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Ask Houston for help
+                  Houston um Hilfe fragen
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </GlassCardContent>
+          </GlassCard>
         )}
       </div>
     </DashboardLayout>

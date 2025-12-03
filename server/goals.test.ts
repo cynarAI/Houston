@@ -138,4 +138,126 @@ describe("goals router", () => {
     const deletedGoal = goals.find((g: any) => g.id === goal.id);
     expect(deletedGoal).toBeUndefined();
   });
+
+  describe("progress updates", () => {
+    it("should update progress from 0 to 50", async () => {
+      const { ctx } = createAuthContext();
+      const caller = appRouter.createCaller(ctx);
+
+      // Create goal with default progress (0)
+      const goal = await caller.goals.create({
+        workspaceId: testWorkspaceId,
+        title: "Progress Test Goal",
+        description: "Testing progress updates",
+        specific: "Test",
+        measurable: "Test",
+        achievable: "Test",
+        relevant: "Test",
+        timeBound: "Test",
+        priority: "medium",
+        status: "active",
+      });
+
+      // Initial progress should be 0
+      const initial = await caller.goals.getById({ id: goal.id });
+      expect(initial?.progress).toBe(0);
+
+      // Update progress to 50
+      await caller.goals.update({
+        id: goal.id,
+        progress: 50,
+      });
+
+      // Verify progress update
+      const updated = await caller.goals.getById({ id: goal.id });
+      expect(updated?.progress).toBe(50);
+    });
+
+    it("should update progress to 100", async () => {
+      const { ctx } = createAuthContext();
+      const caller = appRouter.createCaller(ctx);
+
+      const goal = await caller.goals.create({
+        workspaceId: testWorkspaceId,
+        title: "Complete Goal Test",
+        description: "Testing 100% progress",
+        specific: "Test",
+        measurable: "Test",
+        achievable: "Test",
+        relevant: "Test",
+        timeBound: "Test",
+        priority: "high",
+        status: "active",
+      });
+
+      // Update progress to 100
+      await caller.goals.update({
+        id: goal.id,
+        progress: 100,
+      });
+
+      const updated = await caller.goals.getById({ id: goal.id });
+      expect(updated?.progress).toBe(100);
+    });
+
+    it("should allow status change to completed", async () => {
+      const { ctx } = createAuthContext();
+      const caller = appRouter.createCaller(ctx);
+
+      const goal = await caller.goals.create({
+        workspaceId: testWorkspaceId,
+        title: "Status Change Test",
+        description: "Testing status change",
+        specific: "Test",
+        measurable: "Test",
+        achievable: "Test",
+        relevant: "Test",
+        timeBound: "Test",
+        priority: "medium",
+        status: "active",
+      });
+
+      // Update status to completed along with 100% progress
+      await caller.goals.update({
+        id: goal.id,
+        progress: 100,
+        status: "completed",
+      });
+
+      const updated = await caller.goals.getById({ id: goal.id });
+      expect(updated?.status).toBe("completed");
+      expect(updated?.progress).toBe(100);
+    });
+
+    it("should track incremental progress updates", async () => {
+      const { ctx } = createAuthContext();
+      const caller = appRouter.createCaller(ctx);
+
+      const goal = await caller.goals.create({
+        workspaceId: testWorkspaceId,
+        title: "Incremental Progress Test",
+        description: "Testing incremental updates",
+        specific: "Test",
+        measurable: "Test",
+        achievable: "Test",
+        relevant: "Test",
+        timeBound: "Test",
+        priority: "low",
+        status: "active",
+      });
+
+      // Update progress incrementally: 0 -> 25 -> 50 -> 75 -> 100
+      const progressSteps = [25, 50, 75, 100];
+
+      for (const progress of progressSteps) {
+        await caller.goals.update({
+          id: goal.id,
+          progress,
+        });
+
+        const current = await caller.goals.getById({ id: goal.id });
+        expect(current?.progress).toBe(progress);
+      }
+    });
+  });
 });

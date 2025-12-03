@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,12 +11,14 @@ import { trpc } from "@/lib/trpc";
 import { Brain, ArrowRight, ArrowLeft, Loader2, CheckCircle2, Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
 import { Streamdown } from "streamdown";
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
 
 export default function Onboarding() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const onboardingStartTime = useRef(Date.now());
 
   // Form data
   const [formData, setFormData] = useState({
@@ -44,6 +46,12 @@ export default function Onboarding() {
   const progress = (step / totalSteps) * 100;
 
   const handleNext = async () => {
+    // Track step completion
+    if (step === 1) {
+      trackEvent(AnalyticsEvents.ONBOARDING_STARTED);
+    }
+    trackEvent(AnalyticsEvents.ONBOARDING_STEP_COMPLETED, { step, step_name: getStepName(step) });
+    
     if (step === 2) {
       // Generate summary after questions
       setLoading(true);
@@ -94,6 +102,10 @@ export default function Onboarding() {
           goals: smartGoals,
         });
 
+        // Track onboarding completion
+        const durationSeconds = Math.round((Date.now() - onboardingStartTime.current) / 1000);
+        trackEvent(AnalyticsEvents.ONBOARDING_COMPLETED, { duration_seconds: durationSeconds });
+
         setStep(5);
       } catch (error) {
         console.error("Failed to complete onboarding:", error);
@@ -111,6 +123,17 @@ export default function Onboarding() {
 
   const updateFormData = (key: string, value: string) => {
     setFormData({ ...formData, [key]: value });
+  };
+
+  const getStepName = (s: number) => {
+    const names: Record<number, string> = {
+      1: "welcome",
+      2: "questions",
+      3: "summary",
+      4: "goals",
+      5: "complete"
+    };
+    return names[s] || "unknown";
   };
 
   const canProceed = () => {

@@ -1,18 +1,73 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Settings as SettingsIcon, User, Bell, CreditCard, Shield, Sparkles } from "lucide-react";
+import { User, Bell, CreditCard, Shield, Sparkles, Download, Trash2, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data: creditBalance } = trpc.credits.getBalance.useQuery();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Notification settings state
+  const [emailNotifications, setEmailNotifications] = useState(false);
+  const [marketingTips, setMarketingTips] = useState(false);
+
+  const exportDataMutation = trpc.account.exportAllData.useMutation();
+  const deleteAccountMutation = trpc.account.deleteAccount.useMutation();
+
+  const handleExportData = async () => {
+    setIsExporting(true);
+    try {
+      const result = await exportDataMutation.mutateAsync();
+      // Create and download JSON file
+      const blob = new Blob([result.data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteAccountMutation.mutateAsync();
+      // Clear local storage and redirect to home
+      localStorage.clear();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Delete failed:", error);
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -83,8 +138,13 @@ export default function Settings() {
                 <p className="font-medium">E-Mail-Benachrichtigungen</p>
                 <p className="text-sm text-muted-foreground">Erhalte Updates zu deinen Goals und Todos</p>
               </div>
-              <Button variant="outline" size="sm">
-                Aktivieren
+              <Button 
+                variant={emailNotifications ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setEmailNotifications(!emailNotifications)}
+                className={emailNotifications ? "bg-green-600 hover:bg-green-700" : ""}
+              >
+                {emailNotifications ? "Aktiviert ✓" : "Aktivieren"}
               </Button>
             </div>
             <div className="flex items-center justify-between">
@@ -92,8 +152,13 @@ export default function Settings() {
                 <p className="font-medium">Marketing-Tipps</p>
                 <p className="text-sm text-muted-foreground">Wöchentliche Marketing-Insights von Houston</p>
               </div>
-              <Button variant="outline" size="sm">
-                Aktivieren
+              <Button 
+                variant={marketingTips ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setMarketingTips(!marketingTips)}
+                className={marketingTips ? "bg-green-600 hover:bg-green-700" : ""}
+              >
+                {marketingTips ? "Aktiviert ✓" : "Aktivieren"}
               </Button>
             </div>
           </div>
@@ -144,7 +209,7 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Lifetime Credits verwendet</p>
-                <p className="text-sm text-muted-foreground">{user?.lifetimeCreditsUsed || 0} Credits</p>
+                <p className="text-sm text-muted-foreground">{(user as any)?.lifetimeCreditsUsed || 0} Credits</p>
               </div>
               <Link href="/app/credits">
                 <Button variant="ghost" size="sm">
@@ -163,7 +228,7 @@ export default function Settings() {
             </div>
             <div>
               <h2 className="text-xl font-semibold">Datenschutz & Sicherheit</h2>
-              <p className="text-sm text-muted-foreground">Verwalte deine Datenschutzeinstellungen</p>
+              <p className="text-sm text-muted-foreground">Verwalte deine Datenschutzeinstellungen (DSGVO Art. 17 & 20)</p>
             </div>
           </div>
           <Separator className="my-4 bg-white/10" />
@@ -171,24 +236,82 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Daten exportieren</p>
-                <p className="text-sm text-muted-foreground">Lade alle deine Houston-Daten herunter</p>
+                <p className="text-sm text-muted-foreground">Lade alle deine Houston-Daten als JSON herunter</p>
               </div>
-              <Button variant="outline" size="sm">
-                Exportieren
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleExportData}
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Exportiere...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Exportieren
+                  </>
+                )}
               </Button>
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Account löschen</p>
-                <p className="text-sm text-muted-foreground">Lösche deinen Account permanent</p>
+                <p className="text-sm text-muted-foreground">Lösche deinen Account und alle Daten permanent</p>
               </div>
-              <Button variant="outline" size="sm" className="text-red-400 border-red-400/50 hover:bg-red-500/10">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-red-400 border-red-400/50 hover:bg-red-500/10"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
                 Löschen
               </Button>
             </div>
           </div>
         </Card>
       </div>
+
+      {/* Delete Account Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-400">Account wirklich löschen?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Diese Aktion kann nicht rückgängig gemacht werden. Es werden permanent gelöscht:</p>
+              <ul className="list-disc list-inside text-sm space-y-1 mt-2">
+                <li>Dein Profil (Name, E-Mail)</li>
+                <li>Alle Workspaces und deren Daten</li>
+                <li>Alle Goals, Todos und Strategien</li>
+                <li>Dein gesamter Chat-Verlauf</li>
+                <li>Alle Credit-Transaktionen</li>
+              </ul>
+              <p className="mt-4 font-medium">Empfehlung: Exportiere zuerst deine Daten!</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Lösche...
+                </>
+              ) : (
+                "Account permanent löschen"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }

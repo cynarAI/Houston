@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 import { users, creditTransactions, creditPlans, userSubscriptions } from "../drizzle/schema";
-import { eq, and, desc, gte } from "drizzle-orm";
+import { eq, and, desc, gte, sql } from "drizzle-orm";
 
 /**
  * Credit System Errors
@@ -68,6 +68,11 @@ export class CreditService {
 
   /**
    * Charge credits from user (atomic operation with logging)
+   * 
+   * Uses atomic UPDATE with WHERE condition to prevent race conditions:
+   * UPDATE users SET credits = credits - amount WHERE id = userId AND credits >= amount
+   * 
+   * This ensures that concurrent requests cannot overdraw the balance.
    */
   static async charge(
     userId: number,
@@ -102,14 +107,14 @@ export class CreditService {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       
-      // Get current balance
-      const userResult = await db
+      // First check if user exists and get current balance for logging
+      const userBefore = await db
         .select({ credits: users.credits, lifetimeCreditsUsed: users.lifetimeCreditsUsed })
         .from(users)
         .where(eq(users.id, userId))
         .limit(1);
 
-      if (userResult.length === 0) {
+      if (userBefore.length === 0) {
         return {
           success: false,
           newBalance: 0,
@@ -117,31 +122,54 @@ export class CreditService {
         };
       }
 
-      const user = userResult[0];
-      const balanceBefore = user.credits;
+      const balanceBefore = userBefore[0].credits;
 
-      // Check if user can afford
-      if (balanceBefore < amount) {
+      // ATOMIC UPDATE with condition: Only deduct if user has enough credits
+      // The WHERE clause ensures this is atomic - MySQL will only update rows
+      // where credits >= amount, preventing overdraft even with concurrent requests
+      //
+      // We use sql.raw to get access to the ResultSetHeader with affectedRows
+      const updateQuery = sql`
+        UPDATE ${users}
+        SET 
+          credits = credits - ${amount},
+          lifetimeCreditsUsed = lifetimeCreditsUsed + ${amount},
+          updatedAt = NOW()
+        WHERE id = ${userId} AND credits >= ${amount}
+      `;
+      
+      const result = await db.execute(updateQuery);
+      
+      // Check if any row was actually updated (affectedRows > 0 means success)
+      // MySQL returns affectedRows in the result when using execute()
+      const affectedRows = (result as any)[0]?.affectedRows ?? 0;
+      
+      if (affectedRows === 0) {
+        // No rows updated - either user not found or insufficient credits
+        // Re-read to get current balance for error response
+        const currentUser = await db
+          .select({ credits: users.credits })
+          .from(users)
+          .where(eq(users.id, userId))
+          .limit(1);
+        
         return {
           success: false,
-          newBalance: balanceBefore,
+          newBalance: currentUser[0]?.credits ?? 0,
           error: CreditError.INSUFFICIENT_CREDITS,
         };
       }
 
-      const balanceAfter = balanceBefore - amount;
+      // Update was successful - read the new balance
+      const userAfter = await db
+        .select({ credits: users.credits })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
 
-      // Atomic update: deduct credits and update lifetime usage
-      await db
-        .update(users)
-        .set({
-          credits: balanceAfter,
-          lifetimeCreditsUsed: user.lifetimeCreditsUsed + amount,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.id, userId));
+      const balanceAfter = userAfter[0]?.credits ?? (balanceBefore - amount);
 
-      // Log transaction
+      // Log transaction with actual before/after values
       const [transaction] = await db.insert(creditTransactions).values({
         userId,
         featureKey,
@@ -184,6 +212,8 @@ export class CreditService {
 
   /**
    * Grant credits to user (top-up, subscription renewal, admin)
+   * 
+   * Uses atomic UPDATE to add credits safely.
    */
   static async grant(
     userId: number,
@@ -209,14 +239,14 @@ export class CreditService {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       
-      // Get current balance
-      const userResult = await db
+      // Get current balance for logging
+      const userBefore = await db
         .select({ credits: users.credits })
         .from(users)
         .where(eq(users.id, userId))
         .limit(1);
 
-      if (userResult.length === 0) {
+      if (userBefore.length === 0) {
         return {
           success: false,
           newBalance: 0,
@@ -224,19 +254,26 @@ export class CreditService {
         };
       }
 
-      const user = userResult[0];
-      const balanceBefore = user.credits;
-      const balanceAfter = balanceBefore + amount;
+      const balanceBefore = userBefore[0].credits;
 
-      // Atomic update: add credits
+      // ATOMIC UPDATE: Add credits using SQL expression
       await db
         .update(users)
         .set({
-          credits: balanceAfter,
+          credits: sql`${users.credits} + ${amount}`,
           lastTopupAt: new Date(),
           updatedAt: new Date(),
         })
         .where(eq(users.id, userId));
+
+      // Read new balance for logging and response
+      const userAfter = await db
+        .select({ credits: users.credits })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      const balanceAfter = userAfter[0]?.credits ?? balanceBefore + amount;
 
       // Log transaction
       const [transaction] = await db.insert(creditTransactions).values({

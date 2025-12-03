@@ -21,6 +21,7 @@ const Strategy = lazy(() => import("./pages/Strategy"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Credits = lazy(() => import("./pages/Credits"));
 const Referrals = lazy(() => import("./pages/Referrals"));
+const Playbooks = lazy(() => import("./pages/Playbooks"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Loading fallback component
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/app/settings" component={Settings} />
       <Route path="/app/credits" component={Credits} />
       <Route path="/app/referrals" component={Referrals} />
+      <Route path="/app/playbooks" component={Playbooks} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

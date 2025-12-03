@@ -1,0 +1,81 @@
+---
+name: Houston Instructions
+description: Index aller Cursor Rules und globale AI-Verhaltensregeln
+ruleType: Always
+---
+
+# Houston AI Marketing Coach - Cursor Rules
+
+Dieses Repository enthält **Houston**, einen KI-gestützten Marketing-Coach für KMUs.
+Die Cursor Rules in diesem Verzeichnis kodifizieren Architektur, Konventionen und Domänenwissen.
+
+## Rule-Dateien Übersicht
+
+| Datei | Zweck | Aktivierung |
+|-------|-------|-------------|
+| `001-core-houston.mdc` | Projekt-Kern, Tech Stack, Domänen | Always |
+| `010-frontend.mdc` | React/Vite/shadcn/ui Patterns | Auto: `client/**` |
+| `020-backend.mdc` | tRPC/Drizzle/CreditService | Auto: `server/**`, `drizzle/**` |
+| `030-testing.mdc` | Vitest/Playwright Guidelines | Auto: `**/*.test.ts`, `e2e/**` |
+| `040-ux-copy.mdc` | i18n, Houston Persona, Copy | Auto: `locales/**`, `pages/**` |
+
+## Globale AI-Verhaltensregeln
+
+### Minimale Änderungen
+- Bevorzuge kleine, fokussierte Edits gegenüber großen Refactorings
+- Ändere nur, was für die aktuelle Aufgabe notwendig ist
+- Behalte bestehenden Code-Stil und Formatierung bei
+
+### Keine Placeholders
+- Implementiere Funktionen vollständig - keine `// TODO: implement` Kommentare
+- Wenn eine Implementierung unklar ist, frage nach statt Platzhalter zu hinterlassen
+- Jeder Edit sollte lauffähigen Code produzieren
+
+### Bestehende Patterns respektieren
+- Scanne relevanten Code vor Änderungen
+- Nutze vorhandene Utilities, Hooks und Komponenten
+- Erfinde keine neuen Abstraktionen für einmalige Operationen
+
+### Typsicherheit
+- TypeScript ist Pflicht - kein `any` ohne guten Grund
+- Nutze Drizzle-generierte Typen für DB-Entitäten
+- tRPC Typen für API-Aufrufe
+
+## Schlüssel-Dateien
+
+### Architektur
+- @docs/architecture/architecture.md - Technische Übersicht
+- @server/routers.ts - Alle tRPC Router
+- @drizzle/schema.ts - Datenbank-Schema
+
+### Business Logic
+- @server/creditService.ts - Credit-System (KRITISCH)
+- @server/referralService.ts - Referral-Programm
+- @server/_core/llm.ts - LLM Integration
+
+### Frontend
+- @client/src/App.tsx - Router & Providers
+- @client/src/components/DashboardLayout.tsx - Layout mit Sidebar
+- @client/src/index.css - Design Tokens
+
+### Konfiguration
+- @package.json - Scripts: `dev`, `build`, `test`, `lint`
+- @tailwind.config.js - Tailwind Konfiguration
+- @drizzle.config.ts - Drizzle Konfiguration
+
+## Wichtige Befehle
+
+```bash
+pnpm dev          # Development Server
+pnpm build        # Production Build
+pnpm test         # Unit Tests (Vitest)
+pnpm e2e          # E2E Tests (Playwright)
+pnpm lint         # ESLint
+pnpm db:push      # DB Migrationen
+```
+
+## Sprache
+
+- **Code**: Englisch (Variablen, Funktionen, Kommentare)
+- **UI-Text**: Deutsch als Standard (Du-Form), Englisch als Fallback
+- **Dokumentation**: Deutsch oder Englisch je nach Kontext

@@ -33,6 +33,29 @@
     --color-gradient-orange: #FFD489;
     --color-gradient-pink: #D88AD5;
     --color-gradient-purple: #5C70D1;
+    --color-gradient-blue: #3B82F6;
+    --color-gradient-indigo: #6366F1;
+    --color-gradient-cyan: #00D4FF;
+    --color-gradient-red: #EF4444;
+    --color-gradient-green: #22C55E;
+    --color-gradient-emerald: #10B981;
+    
+    /* Houston Design System - Gradient Presets */
+    --gradient-orange-pink: linear-gradient(135deg, var(--color-gradient-orange) 0%, var(--color-gradient-pink) 100%);
+    --gradient-pink-purple: linear-gradient(135deg, var(--color-gradient-pink) 0%, var(--color-gradient-purple) 100%);
+    --gradient-blue-purple: linear-gradient(135deg, var(--color-gradient-blue) 0%, var(--color-gradient-purple) 100%);
+    --gradient-purple-indigo: linear-gradient(135deg, var(--color-gradient-purple) 0%, var(--color-gradient-indigo) 100%);
+    --gradient-cyan-purple: linear-gradient(135deg, var(--color-gradient-cyan) 0%, var(--color-gradient-purple) 100%);
+    --gradient-red-orange: linear-gradient(135deg, var(--color-gradient-red) 0%, var(--color-gradient-orange) 100%);
+    --gradient-green-emerald: linear-gradient(135deg, var(--color-gradient-green) 0%, var(--color-gradient-emerald) 100%);
+    --gradient-aistronaut: linear-gradient(135deg, #FF6B9D 0%, #8B5CF6 50%, #00D4FF 100%);
+    --gradient-aistronaut-cta: linear-gradient(90deg, #FF6B9D 0%, #8B5CF6 100%);
+    
+    /* Glass Effects */
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-bg-hover: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(255, 255, 255, 0.25);
   }
   
   .dark {
@@ -47,7 +70,7 @@
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted-foreground: 0 0% 70%; /* WCAG AA: erhöht von 65% für besseren Kontrast */
     --accent: 0 0% 15%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
@@ -55,6 +78,12 @@
     --border: 0 0% 20%;
     --input: 0 0% 20%;
     --ring: 217 91% 60%;
+    
+    /* Dark Mode Glass Effects */
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-bg-hover: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(255, 255, 255, 0.2);
   }
   
   * {
@@ -68,6 +97,58 @@
     font-size: 14px;
     line-height: 1.5;
   }
+}
+
+/* ===========================================
+   ACCESSIBILITY: Focus States & Skip Links
+   =========================================== */
+
+/* Skip Link - für Keyboard-Navigation */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 1rem 2rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Global Focus Styles für alle interaktiven Elemente */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible:not([tabindex="-1"]),
+details > summary:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Focus-Ring für Custom Interactive Elements */
+.focus-ring:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Verbesserte Text-Kontraste für Landing Page */
+.text-white\/60 {
+  color: rgba(255, 255, 255, 0.75) !important; /* erhöht von 60% für WCAG AA */
+}
+
+.text-white\/70 {
+  color: rgba(255, 255, 255, 0.80) !important; /* erhöht von 70% für WCAG AA */
 }
 
 /* AIstronaut Gradient Utilities */
@@ -133,6 +214,11 @@
   box-shadow: 0 10px 25px rgba(255, 107, 157, 0.3), 0 5px 15px rgba(139, 92, 246, 0.2);
 }
 
+.btn-aistronaut:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
 /* Smooth Transitions */
 * {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -161,12 +247,11 @@ button:active, .btn:active {
   transform: translateY(0);
 }
 
-/* Input Focus Effects */
-input:focus, textarea:focus, select:focus {
-  outline: none;
-  ring: 2px;
-  ring-offset: 2px;
-  transition: all 0.2s ease;
+/* Input Focus Effects - WCAG compliant */
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  transition: outline-color 0.2s ease;
 }
 
 /* Smooth Scrolling */
@@ -176,19 +261,30 @@ html {
 
 /* Landing Page Glassmorphism Effects */
 .glass-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--glass-border);
   border-radius: 1rem;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
   box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+}
+
+.glass-card:focus-within {
+  border-color: hsl(var(--ring));
+}
+
+/* Glass utility class for inline usage */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 /* Landing Page Container */
@@ -290,6 +386,11 @@ h3 {
 .btn-outline:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-outline:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
 }
 
 /* Text Color Utilities for Landing Page */

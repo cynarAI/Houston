@@ -12,7 +12,7 @@ import {
 } from "recharts";
 
 export function CreditUsageChart() {
-  const { data, isLoading } = trpc.credits.getDailyUsageHistory.useQuery({
+  const { data, isLoading, isError } = trpc.credits.getDailyUsageHistory.useQuery({
     days: 30,
   });
 
@@ -20,11 +20,25 @@ export function CreditUsageChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Credit Usage (Last 30 Days)</CardTitle>
-          <CardDescription>Daily credit consumption</CardDescription>
+          <CardTitle>Credit-Verbrauch (Letzte 30 Tage)</CardTitle>
+          <CardDescription>Täglicher Credit-Verbrauch</CardDescription>
         </CardHeader>
         <CardContent className="h-[300px] flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Credit-Verbrauch (Letzte 30 Tage)</CardTitle>
+          <CardDescription>Täglicher Credit-Verbrauch</CardDescription>
+        </CardHeader>
+        <CardContent className="h-[300px] flex flex-col items-center justify-center">
+          <p className="text-sm text-muted-foreground">Daten konnten nicht geladen werden</p>
         </CardContent>
       </Card>
     );
@@ -34,12 +48,12 @@ export function CreditUsageChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Credit Usage (Last 30 Days)</CardTitle>
-          <CardDescription>Daily credit consumption</CardDescription>
+          <CardTitle>Credit-Verbrauch (Letzte 30 Tage)</CardTitle>
+          <CardDescription>Täglicher Credit-Verbrauch</CardDescription>
         </CardHeader>
         <CardContent className="h-[300px] flex flex-col items-center justify-center">
           <TrendingDown className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-sm text-muted-foreground">No usage data yet</p>
+          <p className="text-sm text-muted-foreground">Noch keine Nutzungsdaten</p>
         </CardContent>
       </Card>
     );
@@ -47,9 +61,9 @@ export function CreditUsageChart() {
 
   // Format data for chart
   const chartData = data.map((item) => ({
-    date: new Date(item.date).toLocaleDateString("en-US", {
-      month: "short",
+    date: new Date(item.date).toLocaleDateString("de-DE", {
       day: "numeric",
+      month: "short",
     }),
     credits: item.credits,
   }));
@@ -57,8 +71,8 @@ export function CreditUsageChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Credit Usage (Last 30 Days)</CardTitle>
-        <CardDescription>Daily credit consumption</CardDescription>
+        <CardTitle>Credit-Verbrauch (Letzte 30 Tage)</CardTitle>
+        <CardDescription>Täglicher Credit-Verbrauch</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -80,6 +94,7 @@ export function CreditUsageChart() {
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "hsl(var(--popover-foreground))" }}
+              formatter={(value: number) => [`${value} Credits`, "Verbrauch"]}
             />
             <Line
               type="monotone"

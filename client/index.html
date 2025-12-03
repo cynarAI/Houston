@@ -54,7 +54,7 @@
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#ffb606" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Houston" />
     
@@ -75,10 +75,8 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <!-- Analytics script - only loaded if VITE_ANALYTICS_ENDPOINT is configured in .env -->
+    <!-- See docs/analytics_events.md for Plausible integration which handles analytics -->
   </body>
 
 </html>

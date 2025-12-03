@@ -1,13 +1,27 @@
 import Stripe from "stripe";
 import { ENV } from "./env";
 
-if (!ENV.stripeSecretKey) {
-  throw new Error("STRIPE_SECRET_KEY is not set");
+// Lazy initialization of Stripe client to allow tests to run without STRIPE_SECRET_KEY
+let _stripe: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!ENV.stripeSecretKey) {
+      throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+    _stripe = new Stripe(ENV.stripeSecretKey, {
+      apiVersion: "2025-11-17.clover",
+      typescript: true,
+    });
+  }
+  return _stripe;
 }
 
-export const stripe = new Stripe(ENV.stripeSecretKey, {
-  apiVersion: "2025-11-17.clover",
-  typescript: true,
+// Export a proxy that lazily initializes Stripe
+export const stripe = new Proxy({} as Stripe, {
+  get(_, prop) {
+    return (getStripe() as any)[prop];
+  },
 });
 
 /**

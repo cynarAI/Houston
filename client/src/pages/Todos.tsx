@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,13 +10,33 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { CheckSquare, Plus, Trash2, Sparkles, Filter, ArrowUpDown } from "lucide-react";
+import { CheckSquare, Plus, Trash2, Sparkles, Filter, ArrowUpDown, Loader2 } from "lucide-react";
 import ViewSwitcher, { ViewType } from "@/components/ViewSwitcher";
 import TableView from "@/components/views/TableView";
-import BoardView from "@/components/views/BoardView";
 import TimelineView from "@/components/views/TimelineView";
-import CalendarView from "@/components/views/CalendarView";
 import { toast } from "sonner";
+import type { Todo } from "@shared/types";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { handleMutationError, ErrorMessages } from "@/lib/errorHandling";
+import { PageHeader } from "@/components/ui/page-header";
+import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
+import { GradientIcon } from "@/components/ui/gradient-icon";
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
+import { celebrations, checkTaskMilestone } from "@/lib/celebrations";
+
+// Lazy load heavy view components (BoardView uses @dnd-kit, CalendarView uses react-day-picker)
+const BoardView = lazy(() => import("@/components/views/BoardView"));
+const CalendarView = lazy(() => import("@/components/views/CalendarView"));
+
+// Loading fallback for lazy-loaded views
+function ViewLoader() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
 
 export default function Todos() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -44,20 +64,24 @@ export default function Todos() {
     dueDate: undefined as Date | undefined,
   });
 
-  const { data: workspaces } = trpc.workspaces.list.useQuery();
-  const { data: todosData, refetch } = trpc.todos.listByWorkspace.useQuery(
+  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
+  const { data: todosData, isLoading: todosLoading, isError: todosError, refetch } = trpc.todos.listByWorkspace.useQuery(
     { workspaceId: workspaces?.[0]?.id || 0 },
     { enabled: !!workspaces?.[0]?.id }
   );
+  
+  // Combined states
+  const isLoading = workspacesLoading || (workspaces?.[0]?.id && todosLoading);
+  const hasError = workspacesError || todosError;
 
   // Filter and sort todos
   const todos = useMemo(() => {
     if (!todosData) return [];
     let filtered = todosData;
     if (filterStatus !== "all") {
-      filtered = todosData.filter((t: any) => t.status === filterStatus);
+      filtered = todosData.filter((t: Todo) => t.status === filterStatus);
     }
-    const sorted = [...filtered].sort((a: any, b: any) => {
+    const sorted = [...filtered].sort((a: Todo, b: Todo) => {
       if (sortBy === "title") return a.title.localeCompare(b.title);
       if (sortBy === "priority") {
         const priorityOrder = { high: 0, medium: 1, low: 2 };
@@ -75,6 +99,8 @@ export default function Todos() {
   const handleCreate = async () => {
     if (!workspaces?.[0]?.id || !formData.title) return;
 
+    const isFirstTodo = !todosData || todosData.length === 0;
+    
     try {
       await createTodoMutation.mutateAsync({
         workspaceId: workspaces[0].id,
@@ -83,24 +109,50 @@ export default function Todos() {
         priority: formData.priority,
         dueDate: formData.dueDate,
       });
+      
+      // Track todo creation
+      trackEvent(AnalyticsEvents.TODO_CREATED, { priority: formData.priority, has_due_date: !!formData.dueDate });
+      
       toast.success("To-do erfolgreich erstellt!");
       setIsCreateDialogOpen(false);
       setFormData({ title: "", description: "", priority: "medium", dueDate: undefined });
       refetch();
+      
+      // Celebrate first todo
+      if (isFirstTodo) {
+        celebrations.firstTodo();
+      }
     } catch (error) {
-      toast.error("Fehler beim Erstellen des To-dos");
+      handleMutationError(error, ErrorMessages.todoCreate);
     }
   };
 
   const handleToggle = async (id: number, status: string) => {
+    const isCompletingTask = status !== "done";
+    const currentCompletedCount = todosData?.filter((t: Todo) => t.status === "done").length || 0;
+    
     try {
       await updateTodoMutation.mutateAsync({
         id,
         status: status === "done" ? "todo" : "done",
       });
       refetch();
+      
+      // Celebrate task completion milestones and track analytics
+      if (isCompletingTask) {
+        trackEvent(AnalyticsEvents.TODO_COMPLETED, { todo_id: id });
+        checkTaskMilestone(currentCompletedCount + 1);
+        
+        // Check if all tasks are done
+        const openTasksAfter = (todosData?.filter((t: Todo) => t.status !== "done" && t.id !== id).length || 0);
+        if (openTasksAfter === 0 && (todosData?.length || 0) > 1) {
+          setTimeout(() => {
+            celebrations.allTasksCompleted();
+          }, 500);
+        }
+      }
     } catch (error) {
-      toast.error("Fehler beim Aktualisieren des To-dos");
+      handleMutationError(error, ErrorMessages.todoUpdate);
     }
   };
 
@@ -109,10 +161,14 @@ export default function Todos() {
 
     try {
       await deleteTodoMutation.mutateAsync({ id });
+      
+      // Track todo deletion
+      trackEvent(AnalyticsEvents.TODO_DELETED, { todo_id: id });
+      
       toast.success("To-do erfolgreich gelöscht!");
       refetch();
     } catch (error) {
-      toast.error("Fehler beim Löschen des To-dos");
+      handleMutationError(error, ErrorMessages.todoDelete);
     }
   };
 
@@ -145,18 +201,45 @@ export default function Todos() {
   const openTodos = todos?.filter((t) => t.status !== "done") || [];
   const completedTodos = todos?.filter((t) => t.status === "done") || [];
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <LoadingState message="Lade deine To-dos..." fullPage />
+      </DashboardLayout>
+    );
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <DashboardLayout>
+        <div className="container py-8">
+          <ErrorState
+            title="To-dos konnten nicht geladen werden"
+            message="Es gab ein Problem beim Laden deiner Aufgaben. Bitte versuche es erneut."
+            onRetry={() => {
+              refetchWorkspaces();
+              refetch();
+            }}
+            fullPage
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="container py-8 space-y-8">
         {/* Header */}
         <div className="space-y-6">
           {/* Title & Description */}
-          <div>
-            <h1 className="text-3xl font-bold mb-2">To-dos</h1>
-            <p className="text-muted-foreground text-base">
-              Verwalte deine Marketing-Aufgaben und behalte den Überblick.
-            </p>
-          </div>
+          <PageHeader
+            title="To-dos"
+            description="Verwalte deine Marketing-Aufgaben und behalte den Überblick."
+            className="mb-0"
+          />
           
           {/* Controls */}
           <div className="flex items-center justify-between gap-4">
@@ -171,21 +254,21 @@ export default function Todos() {
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
+                  <SelectItem value="all">Alle Status</SelectItem>
+                  <SelectItem value="todo">Zu erledigen</SelectItem>
+                  <SelectItem value="in_progress">In Arbeit</SelectItem>
+                  <SelectItem value="done">Erledigt</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[150px]">
                   <ArrowUpDown className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Sort" />
+                  <SelectValue placeholder="Sortierung" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="created">Newest First</SelectItem>
-                  <SelectItem value="title">Title A-Z</SelectItem>
-                  <SelectItem value="priority">Priority</SelectItem>
+                  <SelectItem value="created">Neueste zuerst</SelectItem>
+                  <SelectItem value="title">Titel A-Z</SelectItem>
+                  <SelectItem value="priority">Priorität</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -286,13 +369,17 @@ export default function Todos() {
           <TableView items={todos || []} type="tasks" onDelete={handleDelete} />
         )}
         {currentView === "board" && (
-          <BoardView items={todos || []} type="tasks" />
+          <Suspense fallback={<ViewLoader />}>
+            <BoardView items={todos || []} type="tasks" />
+          </Suspense>
         )}
         {currentView === "timeline" && (
           <TimelineView items={todos || []} type="tasks" />
         )}
         {currentView === "calendar" && (
-          <CalendarView items={todos || []} type="tasks" />
+          <Suspense fallback={<ViewLoader />}>
+            <CalendarView items={todos || []} type="tasks" />
+          </Suspense>
         )}
 
         {/* Original Kanban View (hidden) */}
@@ -305,7 +392,7 @@ export default function Todos() {
             </h2>
             {openTodos.length > 0 ? (
               <div className="space-y-3">
-                {openTodos.map((todo: any) => (
+                {openTodos.map((todo: Todo) => (
                   <Card key={todo.id}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -343,20 +430,18 @@ export default function Todos() {
                 ))}
               </div>
             ) : (
-              <Card className="glass border-white/10">
-                <CardContent className="py-12 text-center">
+              <GlassCard variant="elevated">
+                <GlassCardContent className="py-12 text-center">
                   <div className="flex justify-center mb-4">
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gradient-purple)] to-[var(--color-gradient-indigo)] rounded-full blur-xl opacity-20 animate-pulse"></div>
-                      <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-gradient-purple)] to-[var(--color-gradient-indigo)]">
-                        <CheckSquare className="h-8 w-8 text-white" />
-                      </div>
+                      <GradientIcon icon={CheckSquare} gradient="purple-indigo" size="xl" className="relative" />
                     </div>
                   </div>
-                  <h3 className="font-semibold mb-2">All tasks completed!</h3>
-                  <p className="text-sm text-muted-foreground">Great job! Create new tasks to stay productive.</p>
-                </CardContent>
-              </Card>
+                  <h3 className="font-semibold mb-2">Alle Aufgaben erledigt! 🎉</h3>
+                  <p className="text-sm text-muted-foreground">Super Arbeit! Erstelle neue Aufgaben, um produktiv zu bleiben.</p>
+                </GlassCardContent>
+              </GlassCard>
             )}
           </div>
 
@@ -368,7 +453,7 @@ export default function Todos() {
             </h2>
             {completedTodos.length > 0 ? (
               <div className="space-y-3">
-                {completedTodos.map((todo: any) => (
+                {completedTodos.map((todo: Todo) => (
                   <Card key={todo.id} className="opacity-60">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -403,12 +488,12 @@ export default function Todos() {
                 ))}
               </div>
             ) : (
-              <Card className="glass border-white/10">
-                <CardContent className="py-12 text-center">
+              <GlassCard variant="default">
+                <GlassCardContent className="py-12 text-center">
                   <CheckSquare className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">No completed tasks yet</p>
-                </CardContent>
-              </Card>
+                  <p className="text-sm text-muted-foreground">Noch keine erledigten Aufgaben</p>
+                </GlassCardContent>
+              </GlassCard>
             )}
           </div>
         </div>)}

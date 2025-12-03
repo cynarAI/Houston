@@ -1,0 +1,253 @@
+---
+name: UX & Copy Rules
+description: i18n, Houston Persona und Copy Guidelines
+ruleType: Auto
+globs:
+  - "client/src/locales/**"
+  - "client/src/pages/**"
+  - "client/src/components/**"
+---
+
+# UX & Copy Guidelines
+
+Houston ist ein AI Marketing Coach mit Space-Theme (AIstronaut Branding).
+Die Sprache ist freundlich, motivierend und klar - ohne Marketing-Buzzwords.
+
+## Brand & Persona
+
+### Houston Charakter
+- **Rolle**: Erfahrener Marketing-Coach, der komplexe Dinge einfach erklärt
+- **Ton**: Freundlich, kompetent, motivierend
+- **Ansprache**: Du-Form (deutsch), direkt und persönlich
+- **Stil**: Klar, prägnant, action-orientiert
+
+### Space-Theme
+- App-Name: **Houston** (wie Mission Control)
+- Company: **AIstronaut**
+- Metaphern: Missionen, Orbit, Raketen (sparsam einsetzen)
+- Farben: Cyan (#00D4FF), Purple (#8B5CF6), Pink (#FF6B9D)
+
+## Sprache
+
+### Primärsprache: Deutsch
+- Du-Form für alle User-facing Texte
+- Klare, einfache Sprache
+- Keine Anglizismen wenn deutsche Begriffe existieren
+
+### Fallback: Englisch
+- Für technische Begriffe ohne gute Übersetzung
+- Englische Übersetzungen in `en.json` pflegen
+
+### Begriffe Konsistenz
+
+| Deutsch | English | Kontext |
+|---------|---------|---------|
+| Credits | Credits | Billing-Einheit (kein "Guthaben") |
+| Ziele | Goals | SMART Goals |
+| To-dos | To-dos | Aufgaben |
+| Strategie | Strategy | Marketing-Strategie |
+| Playbooks | Playbooks | Vordefinierte Vorlagen |
+| Empfehlungen | Referrals | Referral-Programm |
+| Einstellungen | Settings | App-Einstellungen |
+
+## i18n Implementation
+
+### Übersetzungsdateien
+```
+client/src/locales/
+├── de.json    # Deutsch (Standard)
+└── en.json    # Englisch
+```
+
+### Hook verwenden
+```tsx
+import { useTranslation } from "react-i18next";
+
+function MyComponent() {
+  const { t } = useTranslation();
+  
+  return (
+    <h1>{t("dashboard.title")}</h1>
+  );
+}
+```
+
+### Key-Struktur
+```json
+{
+  "section": {
+    "subsection": {
+      "key": "Wert"
+    }
+  }
+}
+```
+
+Beispiele:
+- `nav.dashboard` → "Dashboard"
+- `goals.create.title` → "Neues Ziel erstellen"
+- `credits.balance` → "Dein Guthaben"
+- `common.save` → "Speichern"
+
+### Interpolation
+```json
+{
+  "credits": {
+    "remaining": "Du hast noch {{count}} Credits"
+  }
+}
+```
+
+```tsx
+t("credits.remaining", { count: 42 })
+// → "Du hast noch 42 Credits"
+```
+
+### Pluralisierung
+```json
+{
+  "goals": {
+    "count_one": "{{count}} Ziel",
+    "count_other": "{{count}} Ziele"
+  }
+}
+```
+
+### Neue Übersetzungen hinzufügen
+1. Key zu `de.json` hinzufügen
+2. Gleichen Key zu `en.json` hinzufügen
+3. Komponente mit `t()` aktualisieren
+
+## Microcopy Guidelines
+
+### Buttons
+- Aktiv, verb-basiert: "Speichern", "Erstellen", "Starten"
+- Kurz: Max 2-3 Wörter
+- Konsistent: Gleiche Aktion = gleicher Text
+
+```json
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "create": "Erstellen",
+    "edit": "Bearbeiten"
+  }
+}
+```
+
+### Überschriften
+- Klar und beschreibend
+- Keine Fragezeichen
+- H1 für Seitentitel, H2 für Sektionen
+
+### Fehlermeldungen
+- Sag was falsch ist
+- Sag was der User tun kann
+- Kein technischer Jargon
+
+```json
+{
+  "errors": {
+    "insufficientCredits": "Du hast nicht genug Credits. Lade jetzt auf, um fortzufahren.",
+    "networkError": "Verbindungsproblem. Bitte prüfe deine Internetverbindung.",
+    "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+  }
+}
+```
+
+### Erfolgsmeldungen
+- Bestätige was passiert ist
+- Optional: Nächster Schritt
+
+```json
+{
+  "success": {
+    "goalCreated": "Ziel erstellt! Du kannst jetzt To-dos hinzufügen.",
+    "creditsPurchased": "Credits erfolgreich hinzugefügt.",
+    "settingsSaved": "Einstellungen gespeichert."
+  }
+}
+```
+
+### Leere Zustände
+- Erkläre warum leer
+- Zeige klaren CTA
+
+```json
+{
+  "empty": {
+    "goals": {
+      "title": "Noch keine Ziele",
+      "description": "Erstelle dein erstes SMART-Ziel, um loszulegen.",
+      "cta": "Ziel erstellen"
+    }
+  }
+}
+```
+
+### Loading States
+- Kurz und informativ
+- Kein "Bitte warten..."
+
+```json
+{
+  "loading": {
+    "goals": "Ziele werden geladen...",
+    "analysis": "Houston analysiert...",
+    "generating": "Wird erstellt..."
+  }
+}
+```
+
+## Houston AI Responses
+
+### Stil für AI-Antworten
+- Persönlich: "Ich empfehle dir..." statt "Es wird empfohlen..."
+- Strukturiert: Listen, Absätze, klare Gliederung
+- Actionable: Konkrete nächste Schritte
+- Motivierend: Positive Formulierungen
+
+### Beispiel Houston Response
+```
+Super, dass du deine Social-Media-Strategie verbessern möchtest! 🚀
+
+Basierend auf deinen Zielen empfehle ich dir folgende Schritte:
+
+1. **Content-Kalender erstellen**: Plane 3 Posts pro Woche
+2. **Engagement fokussieren**: Antworte auf alle Kommentare innerhalb 24h
+3. **Analytics tracken**: Prüfe wöchentlich, welche Posts am besten performen
+
+Soll ich dir bei einem dieser Punkte helfen?
+```
+
+### Emojis
+- Sparsam einsetzen (max 1-2 pro Response)
+- Nur in AI-Antworten und Marketing-Copy
+- Nicht in UI-Labels oder Buttons
+
+## Accessibility Copy
+
+### Alt-Texte für Icons
+```tsx
+<Button aria-label={t("common.close")}>
+  <X className="h-4 w-4" />
+</Button>
+```
+
+### Screen Reader Hints
+```tsx
+<div role="status" aria-live="polite">
+  {t("loading.goals")}
+</div>
+```
+
+## Don'ts
+
+- **Kein Marketing-Sprech**: "Revolutionär", "Game-Changer", "Disruptiv"
+- **Keine Buzzwords**: "KI-gestützt", "Next-Gen", "State-of-the-art"
+- **Keine Übertreibungen**: "Garantiert", "Niemals", "Immer"
+- **Kein Jargon**: Technische Begriffe für End-User vermeiden
+- **Kein Passiv**: "Wurde gespeichert" → "Gespeichert"
+- **Keine Ausrufezeichen-Inflation**: Max 1 pro Absatz

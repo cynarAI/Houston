@@ -15,6 +15,10 @@ interface OnboardingProps {
 }
 
 export default function Onboarding({ open, onComplete }: OnboardingProps) {
+  // DEPRECATED: This component is replaced by OnboardingWizard in DashboardLayout
+  // Return null to prevent rendering - will be removed in future cleanup
+  return null;
+  
   const [step, setStep] = useState(1);
   const totalSteps = 4;
   

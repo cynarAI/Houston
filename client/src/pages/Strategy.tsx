@@ -2,21 +2,29 @@ import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { Compass, Save, Edit, Sparkles, Download } from "lucide-react";
 import { toast } from "sonner";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { handleMutationError, ErrorMessages } from "@/lib/errorHandling";
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
+import { celebrations } from "@/lib/celebrations";
 
 export default function Strategy() {
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: workspaces } = trpc.workspaces.list.useQuery();
-  const { data: strategy, refetch } = trpc.strategy.getByWorkspace.useQuery(
+  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
+  const { data: strategy, isLoading: strategyLoading, isError: strategyError, refetch } = trpc.strategy.getByWorkspace.useQuery(
     { workspaceId: workspaces?.[0]?.id || 0 },
     { enabled: !!workspaces?.[0]?.id }
   );
+  
+  // Combined states
+  const isLoading = workspacesLoading || (workspaces?.[0]?.id && strategyLoading);
+  const hasError = workspacesError || strategyError;
 
   const saveStrategyMutation = trpc.strategy.createOrUpdate.useMutation();
   const exportPDFMutation = trpc.export.exportStrategyPDF.useMutation();
@@ -33,6 +41,8 @@ export default function Strategy() {
   const handleSave = async () => {
     if (!workspaces?.[0]?.id) return;
 
+    const isFirstStrategy = !strategy?.positioning;
+    
     try {
       await saveStrategyMutation.mutateAsync({
         workspaceId: workspaces[0].id,
@@ -41,8 +51,13 @@ export default function Strategy() {
       toast.success(strategy ? "Strategie erfolgreich aktualisiert!" : "Strategie erfolgreich erstellt!");
       setIsEditing(false);
       refetch();
+      
+      // Celebrate first strategy
+      if (isFirstStrategy) {
+        celebrations.firstStrategy();
+      }
     } catch (error) {
-      toast.error("Fehler beim Speichern der Strategie");
+      handleMutationError(error, ErrorMessages.strategySave);
     }
   };
 
@@ -82,11 +97,42 @@ export default function Strategy() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
+      // Track PDF export
+      trackEvent(AnalyticsEvents.PDF_EXPORTED, { type: "strategy" });
+      
       toast.success("PDF erfolgreich heruntergeladen!");
     } catch (error) {
-      toast.error("Fehler beim Exportieren des PDFs");
+      handleMutationError(error, ErrorMessages.pdfExport);
     }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <LoadingState message="Lade deine Strategie..." fullPage />
+      </DashboardLayout>
+    );
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <DashboardLayout>
+        <div className="container py-8">
+          <ErrorState
+            title="Strategie konnte nicht geladen werden"
+            message="Es gab ein Problem beim Laden deiner Strategie. Bitte versuche es erneut."
+            onRetry={() => {
+              refetchWorkspaces();
+              refetch();
+            }}
+            fullPage
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -311,19 +357,19 @@ export default function Strategy() {
                 </div>
               </div>
               <h3 className="font-semibold text-xl mb-2">
-                Define your <span className="gradient-text">marketing strategy</span>
+                Definiere deine <span className="gradient-text">Marketing-Strategie</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-8 max-w-md mx-auto">
-                Create a clear roadmap for your marketing success with Houston's guidance.
+                Erstelle eine klare Roadmap für deinen Marketing-Erfolg mit Houstons Unterstützung.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Button onClick={() => setIsEditing(true)} className="btn-gradient">
                   <Edit className="mr-2 h-4 w-4" />
-                  Create Strategy
+                  Strategie erstellen
                 </Button>
                 <Button variant="outline" className="glass hover:bg-white/10">
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Ask Houston for help
+                  Houston um Hilfe fragen
                 </Button>
               </div>
             </CardContent>

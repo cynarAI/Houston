@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -41,6 +41,17 @@ export function NotificationCenter() {
     markAllAsRead.mutate();
   };
 
+  // Accessible label with unread count
+  const buttonAriaLabel = useMemo(() => {
+    if (!unreadCount || unreadCount === 0) {
+      return "Benachrichtigungen - keine ungelesenen";
+    }
+    if (unreadCount === 1) {
+      return "Benachrichtigungen - 1 ungelesen";
+    }
+    return `Benachrichtigungen - ${unreadCount} ungelesen`;
+  }, [unreadCount]);
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -48,13 +59,16 @@ export function NotificationCenter() {
           variant="ghost"
           size="icon"
           className="relative h-9 w-9 rounded-lg"
-          aria-label="Notifications"
+          aria-label={buttonAriaLabel}
+          aria-haspopup="true"
+          aria-expanded={open}
         >
-          <Bell className="h-5 w-5" />
+          <Bell className="h-5 w-5" aria-hidden="true" />
           {unreadCount && unreadCount > 0 && (
             <Badge
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-[#ffb606] text-black border-0"
               variant="default"
+              aria-hidden="true"
             >
               {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
@@ -65,9 +79,10 @@ export function NotificationCenter() {
         align="end"
         className="w-[380px] p-0"
         sideOffset={8}
+        aria-label="Benachrichtigungen"
       >
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <h3 className="font-semibold">Notifications</h3>
+          <h3 className="font-semibold" id="notifications-heading">Benachrichtigungen</h3>
           {unreadCount && unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -75,8 +90,9 @@ export function NotificationCenter() {
               onClick={handleMarkAllAsRead}
               disabled={markAllAsRead.isPending}
               className="h-8 text-xs"
+              aria-label="Alle als gelesen markieren"
             >
-              Mark all read
+              Alle gelesen
             </Button>
           )}
         </div>

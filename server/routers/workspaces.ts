@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import * as db from "../db";
+import { verifyWorkspaceOwnership, getWorkspaceWithOwnershipCheck } from "../_core/ownership";
 
 export const workspacesRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -9,22 +10,23 @@ export const workspacesRouter = router({
 
   getById: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
-      return await db.getWorkspaceById(input.id);
+    .query(async ({ ctx, input }) => {
+      // Verify user owns this workspace
+      return await getWorkspaceWithOwnershipCheck(input.id, ctx.user.id);
     }),
 
   create: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1).max(255),
-        description: z.string().optional(),
-        industry: z.string().optional(),
-        companySize: z.string().optional(),
-        targetAudience: z.string().optional(),
-        products: z.string().optional(),
-        marketingChannels: z.string().optional(),
-        monthlyBudget: z.string().optional(),
-        challenges: z.string().optional(),
+        description: z.string().max(5000).optional(),
+        industry: z.string().max(100).optional(),
+        companySize: z.string().max(50).optional(),
+        targetAudience: z.string().max(2000).optional(),
+        products: z.string().max(2000).optional(),
+        marketingChannels: z.string().max(1000).optional(),
+        monthlyBudget: z.string().max(50).optional(),
+        challenges: z.string().max(2000).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -49,18 +51,20 @@ export const workspacesRouter = router({
       z.object({
         id: z.number(),
         name: z.string().min(1).max(255).optional(),
-        description: z.string().optional(),
-        industry: z.string().optional(),
-        companySize: z.string().optional(),
-        targetAudience: z.string().optional(),
-        products: z.string().optional(),
-        marketingChannels: z.string().optional(),
-        monthlyBudget: z.string().optional(),
-        challenges: z.string().optional(),
+        description: z.string().max(5000).optional(),
+        industry: z.string().max(100).optional(),
+        companySize: z.string().max(50).optional(),
+        targetAudience: z.string().max(2000).optional(),
+        products: z.string().max(2000).optional(),
+        marketingChannels: z.string().max(1000).optional(),
+        monthlyBudget: z.string().max(50).optional(),
+        challenges: z.string().max(2000).optional(),
         onboardingCompleted: z.number().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verify user owns this workspace before updating
+      await verifyWorkspaceOwnership(input.id, ctx.user.id);
       const { id, ...data } = input;
       await db.updateWorkspace(id, data);
       return { success: true };
@@ -68,7 +72,9 @@ export const workspacesRouter = router({
 
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verify user owns this workspace before deleting
+      await verifyWorkspaceOwnership(input.id, ctx.user.id);
       await db.deleteWorkspace(input.id);
       return { success: true };
     }),

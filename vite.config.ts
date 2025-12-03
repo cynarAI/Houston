@@ -1,7 +1,6 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import fs from "node:fs";
 import path from "path";
 import { defineConfig } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
@@ -24,6 +23,30 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Manual chunks for heavy libraries to improve code splitting
+        manualChunks: {
+          // Charts library (~250kb) - only loaded on Credits analytics tab
+          'charts': ['recharts'],
+          // Drag and drop library (~30kb) - only loaded on Board view
+          'dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+          // Calendar library (~30kb) - only loaded on Calendar view
+          'calendar': ['react-day-picker'],
+          // Vendor chunk for common React libraries
+          'vendor-react': ['react', 'react-dom'],
+          // UI components chunk
+          'vendor-radix': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-tooltip',
+          ],
+        },
+      },
+    },
   },
   server: {
     host: true,

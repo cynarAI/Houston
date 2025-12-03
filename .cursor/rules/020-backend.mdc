@@ -1,0 +1,336 @@
+---
+name: Backend Rules
+description: tRPC, Drizzle ORM und CreditService Patterns
+ruleType: Auto
+globs:
+  - "server/**"
+  - "drizzle/**"
+---
+
+# Backend Architektur
+
+Das Backend ist ein Express-Server mit tRPC für type-safe APIs
+und Drizzle ORM für Datenbankzugriff.
+
+## Verzeichnis-Struktur
+
+```
+server/
+├── _core/              # Core Utilities
+│   ├── index.ts        # Express Server Setup
+│   ├── trpc.ts         # tRPC Procedures & Middleware
+│   ├── context.ts      # Request Context
+│   ├── llm.ts          # Manus LLM Integration
+│   ├── oauth.ts        # Manus OAuth Flow
+│   ├── stripe.ts       # Stripe Client
+│   └── ownership.ts    # Resource Ownership Checks
+├── routers/            # tRPC Router
+│   ├── chat.ts         # Houston Chat
+│   ├── goals.ts        # Goals CRUD
+│   ├── todos.ts        # Todos CRUD
+│   ├── strategy.ts     # Strategy CRUD
+│   ├── credits.ts      # Credit Endpoints
+│   ├── stripe.ts       # Stripe Checkout
+│   └── ...
+├── webhooks/           # Webhook Handler
+│   └── stripe.ts       # Stripe Webhooks
+├── creditService.ts    # Credit Business Logic
+├── referralService.ts  # Referral Business Logic
+├── notificationService.ts
+├── db.ts               # Database Connection
+└── routers.ts          # Router Registration
+```
+
+## tRPC Router
+
+### Router erstellen
+```typescript
+// server/routers/myFeature.ts
+import { z } from "zod";
+import { router, protectedProcedure } from "../_core/trpc";
+import { getDb } from "../db";
+import { myTable } from "../../drizzle/schema";
+
+export const myFeatureRouter = router({
+  list: protectedProcedure
+    .input(z.object({ workspaceId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      // ... implementation
+    }),
+    
+  create: protectedProcedure
+    .input(z.object({
+      workspaceId: z.number(),
+      title: z.string().min(1),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // ... implementation
+    }),
+});
+```
+
+### Router registrieren
+```typescript
+// server/routers.ts
+import { myFeatureRouter } from "./routers/myFeature";
+
+export const appRouter = router({
+  // ... existing routers
+  myFeature: myFeatureRouter,
+});
+```
+
+### Procedure Types
+
+| Procedure | Verwendung |
+|-----------|------------|
+| `publicProcedure` | Öffentliche Endpoints (Landing, Health) |
+| `protectedProcedure` | Authentifizierte User (`ctx.user` garantiert) |
+| `adminProcedure` | Nur Admins (`ctx.user.role === "admin"`) |
+
+### Context
+```typescript
+// ctx enthält:
+ctx.user    // User | null (protectedProcedure: garantiert User)
+ctx.req     // Express Request
+ctx.res     // Express Response
+```
+
+## Drizzle ORM
+
+### Schema Definition
+```typescript
+// drizzle/schema.ts
+import { int, mysqlTable, varchar, timestamp, mysqlEnum, text } from "drizzle-orm/mysql-core";
+
+export const myTable = mysqlTable("myTable", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["active", "completed"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Type Export
+export type MyEntity = typeof myTable.$inferSelect;
+export type InsertMyEntity = typeof myTable.$inferInsert;
+```
+
+### Queries
+```typescript
+import { getDb } from "../db";
+import { myTable } from "../../drizzle/schema";
+import { eq, and, desc } from "drizzle-orm";
+
+const db = await getDb();
+
+// Select
+const items = await db
+  .select()
+  .from(myTable)
+  .where(eq(myTable.userId, userId))
+  .orderBy(desc(myTable.createdAt));
+
+// Insert
+const [result] = await db.insert(myTable).values({
+  userId,
+  title: "New Item",
+});
+const newId = result.insertId;
+
+// Update
+await db
+  .update(myTable)
+  .set({ title: "Updated" })
+  .where(eq(myTable.id, itemId));
+
+// Delete
+await db.delete(myTable).where(eq(myTable.id, itemId));
+```
+
+### Migrationen
+```bash
+# Schema ändern in drizzle/schema.ts, dann:
+pnpm db:push  # Generiert und führt Migration aus
+```
+
+## Credit System (KRITISCH)
+
+### NIEMALS Credits direkt in DB ändern
+```typescript
+// FALSCH - niemals so!
+await db.update(users).set({ credits: sql`credits - 5` });
+
+// RICHTIG - immer über CreditService
+import { CreditService, CREDIT_COSTS } from "../creditService";
+
+const cost = CreditService.getCost("GOALS_GENERATION"); // 5
+const result = await CreditService.charge(userId, "GOALS_GENERATION", cost);
+
+if (!result.success) {
+  throw new AppError(AppErrorCode.INSUFFICIENT_CREDITS, "Nicht genug Credits");
+}
+```
+
+### Credit Costs
+```typescript
+// server/creditService.ts
+export const CREDIT_COSTS = {
+  // Kostenlos (0 Credits)
+  CHAT_BASIC: 0,
+  VIEW_CONTENT: 0,
+  
+  // Niedrig (1-3 Credits)
+  CHAT_DEEP_ANALYSIS: 3,
+  PDF_EXPORT: 2,
+  AI_INSIGHTS: 3,
+  
+  // Mittel (5-8 Credits)
+  GOALS_GENERATION: 5,
+  STRATEGY_ANALYSIS: 8,
+  CAMPAIGN_BLUEPRINT: 7,
+  
+  // Hoch (10+ Credits)
+  MARKETING_AUDIT: 15,
+  COMPETITOR_ANALYSIS: 12,
+  CONTENT_CALENDAR: 10,
+} as const;
+```
+
+### CreditService API
+```typescript
+// Balance prüfen
+const balance = await CreditService.getBalance(userId);
+const canAfford = await CreditService.canAfford(userId, 5);
+
+// Credits abziehen (atomar, mit Logging)
+const result = await CreditService.charge(userId, "FEATURE_KEY", amount, { metadata });
+// result: { success, newBalance, transactionId?, error? }
+
+// Credits gutschreiben
+await CreditService.grant(userId, 50, "subscription_start", { planId });
+
+// Usage Stats
+const usage = await CreditService.getMonthlyUsage(userId);
+const history = await CreditService.getUsageHistory(userId, { limit: 10 });
+```
+
+### Pattern für kostenpflichtige Features
+```typescript
+export const myRouter = router({
+  expensiveAction: protectedProcedure
+    .input(z.object({ workspaceId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const cost = CreditService.getCost("STRATEGY_ANALYSIS");
+      
+      // 1. Credits prüfen & abziehen
+      const chargeResult = await CreditService.charge(
+        ctx.user.id,
+        "STRATEGY_ANALYSIS",
+        cost,
+        { workspaceId: input.workspaceId }
+      );
+      
+      if (!chargeResult.success) {
+        throw new AppError(
+          AppErrorCode.INSUFFICIENT_CREDITS,
+          `Diese Aktion kostet ${cost} Credits. Du hast nur ${chargeResult.newBalance}.`
+        );
+      }
+      
+      // 2. Eigentliche Aktion ausführen
+      const result = await performExpensiveAction(input);
+      
+      return {
+        ...result,
+        creditsUsed: cost,
+        newBalance: chargeResult.newBalance,
+      };
+    }),
+});
+```
+
+## Error Handling
+
+### AppError verwenden
+```typescript
+import { AppError, AppErrorCode } from "@shared/_core/errors";
+
+// Business-Fehler
+throw new AppError(AppErrorCode.INSUFFICIENT_CREDITS, "Nicht genug Credits");
+throw new AppError(AppErrorCode.RESOURCE_NOT_FOUND, "Ziel nicht gefunden");
+throw new AppError(AppErrorCode.ACCESS_DENIED, "Kein Zugriff auf diese Ressource");
+```
+
+### Error Codes
+```typescript
+// @shared/_core/errors.ts
+export enum AppErrorCode {
+  // Credits
+  INSUFFICIENT_CREDITS = "INSUFFICIENT_CREDITS",
+  INVALID_CREDIT_AMOUNT = "INVALID_CREDIT_AMOUNT",
+  
+  // Resources
+  RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND",
+  WORKSPACE_NOT_FOUND = "WORKSPACE_NOT_FOUND",
+  GOAL_NOT_FOUND = "GOAL_NOT_FOUND",
+  
+  // Auth
+  ACCESS_DENIED = "ACCESS_DENIED",
+  OWNERSHIP_REQUIRED = "OWNERSHIP_REQUIRED",
+  
+  // Limits
+  WORKSPACE_LIMIT_REACHED = "WORKSPACE_LIMIT_REACHED",
+  
+  // External
+  LLM_ERROR = "LLM_ERROR",
+  STRIPE_ERROR = "STRIPE_ERROR",
+}
+```
+
+## Ownership Checks
+
+### Resource Ownership prüfen
+```typescript
+import { checkWorkspaceOwnership, checkGoalOwnership } from "../_core/ownership";
+
+// Wirft AppError wenn User nicht Owner ist
+await checkWorkspaceOwnership(db, workspaceId, ctx.user.id);
+await checkGoalOwnership(db, goalId, ctx.user.id);
+```
+
+## LLM Integration
+
+### Manus LLM aufrufen
+```typescript
+import { callLLM, streamLLM } from "../_core/llm";
+
+// Nicht-streaming
+const response = await callLLM({
+  messages: [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userMessage },
+  ],
+  temperature: 0.7,
+});
+
+// Streaming (für Chat)
+const stream = await streamLLM({
+  messages,
+  onChunk: (chunk) => {
+    // Chunk an Client senden
+  },
+});
+```
+
+## Best Practices
+
+1. **Input Validation** - Immer Zod Schemas für Input
+2. **Ownership Checks** - Vor jeder Ressourcen-Mutation
+3. **Credits first** - Bei kostenpflichtigen Features zuerst Credits prüfen
+4. **Atomic Operations** - CreditService nutzt atomare DB-Updates
+5. **Error Logging** - Errors werden automatisch geloggt (siehe trpc.ts)
+6. **No N+1** - Joins statt Schleifen-Queries
+7. **Transactions** - Für zusammengehörige Operationen

@@ -7,51 +7,223 @@
     "getStarted": "Get Started Free",
     "dashboard": "Dashboard",
     "chats": "Chats",
+    "playbooks": "Playbooks",
     "goals": "Goals",
     "todos": "To-dos",
     "strategy": "Strategy",
     "missions": "Missions",
-    "settings": "Settings"
+    "settings": "Settings",
+    "credits": "Credits",
+    "referrals": "Referrals"
+  },
+  "playbooks": {
+    "title": "Marketing Playbooks",
+    "subtitle": "Proven strategies and step-by-step guides for your marketing. Choose a playbook and start your mission.",
+    "searchPlaceholder": "Search playbooks...",
+    "allCategories": "All Categories",
+    "allLevels": "All Levels",
+    "activeFilters": "Active Filters",
+    "resetFilters": "Reset All",
+    "resultsCount": "{{count}} of {{total}} Playbooks",
+    "noResults": "No playbooks found",
+    "noResultsHint": "Try different filters or a different search.",
+    "startMission": "Start Mission",
+    "viewDetails": "View Details",
+    "askHouston": "Ask Houston",
+    "notSure": "Not sure which playbook?",
+    "notSureHint": "Ask Houston! He'll analyze your situation and recommend the right playbook.",
+    "askHoustonPrompt": "Which marketing playbook fits best for my situation?",
+    "noWorkspace": "No workspace found. Please create a workspace first.",
+    "missionStarted": "Mission \"{{title}}\" started! {{count}} tasks were created.",
+    "missionError": "Mission could not be started. Please try again.",
+    "recommended": "Recommended Playbooks",
+    "recommendedSubtitle": "Proven marketing strategies for your next step",
+    "allPlaybooks": "All Playbooks",
+    "tabs": {
+      "overview": "Overview",
+      "steps": "Steps",
+      "goals": "Goals",
+      "houstonHelp": "Houston Help"
+    },
+    "modal": {
+      "description": "Description",
+      "benefits": "What this playbook delivers",
+      "tags": "Tags",
+      "tasksCreated": "{{count}} tasks will be created for you",
+      "close": "Close",
+      "askHoustonHint": "Ask Houston for support with this playbook. Click a suggestion or ask your own question."
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "advanced": "Advanced"
+    },
+    "category": {
+      "content": "Content Marketing",
+      "leadgen": "Lead Generation",
+      "campaign": "Campaigns",
+      "nurturing": "Nurturing",
+      "social": "Social Media"
+    },
+    "meta": {
+      "duration": "{{days}} Days",
+      "steps": "{{count}} Steps",
+      "goals": "{{count}} Goal",
+      "goalsPlural": "{{count}} Goals"
+    },
+    "smart": {
+      "specific": "Specific",
+      "measurable": "Measurable",
+      "achievable": "Achievable",
+      "relevant": "Relevant",
+      "timeBound": "Time-Bound"
+    }
   },
   "appName": "Houston",
   "landing": {
     "nav": {
       "features": "Features",
+      "howItWorks": "How it Works",
       "pricing": "Pricing",
+      "faq": "FAQ",
       "login": "Login",
-      "dashboard": "Go to Dashboard"
+      "dashboard": "Go to Dashboard",
+      "screenshots": "Screenshots",
+      "testimonials": "Testimonials"
     },
     "hero": {
-      "badge": "AI-Powered Marketing Coach",
+      "badge": "Your AI Marketing Copilot",
       "title": {
-        "part1": "Boost Your Marketing Performance by",
-        "highlight": "300%",
-        "part2": "with AI-Powered Strategy"
+        "part1": "Your",
+        "highlight": "AI Marketing Copilot",
+        "part2": "for everyday"
       },
-      "subtitle": "Stop guessing – Houston analyzes your goals, creates data-driven strategies, and gives you concrete action items. Save 10h/week and achieve measurable results.",
+      "subtitle": "Houston plans strategies, creates to-dos and guides you daily – so your marketing never falls behind.",
       "cta": {
-        "start": "Start Free – No Credit Card Required",
-        "learn": "See Houston in Action",
+        "start": "Start Free with 50 Credits",
+        "learn": "How it Works",
         "dashboard": "Go to Dashboard"
+      },
+      "trustBadges": {
+        "noCard": "No credit card required",
+        "freeCredits": "50 free credits",
+        "cancelAnytime": "Cancel anytime"
       }
     },
-    "features": {
+    "howItWorks": {
       "title": {
-        "part1": "Features that",
-        "highlight": "move you forward"
+        "part1": "How",
+        "highlight": "Houston Works"
       },
-      "subtitle": "Concrete tools that save you time and deliver measurable results.",
-      "feature1": {
-        "title": "SMART Goals in 60 Seconds",
-        "description": "Create measurable marketing goals with AI support – instead of 2 hours manual work. Houston analyzes your industry and suggests concrete KPIs."
+      "subtitle": "4 simple steps to marketing success",
+      "step1": {
+        "title": "Share Your Goal",
+        "description": "Tell Houston what you want to achieve – more customers, better visibility, or a new campaign."
       },
-      "feature2": {
-        "title": "5 Action Items Per Week",
-        "description": "Get weekly concrete tasks based on your goals. Houston prioritizes automatically and shows you what matters now."
+      "step2": {
+        "title": "Get Your Plan",
+        "description": "Houston analyzes your situation and creates a strategy with concrete to-dos."
       },
-      "feature3": {
-        "title": "Track 20+ KPIs Automatically",
-        "description": "No more Excel chaos. Houston monitors your marketing performance in real-time and alerts you when goals are at risk."
+      "step3": {
+        "title": "Execute",
+        "description": "Work through the steps with Houston. He's always there when you have questions."
+      },
+      "step4": {
+        "title": "Optimize",
+        "description": "Houston evaluates your progress and suggests improvements."
+      }
+    },
+    "benefits": {
+      "title": {
+        "part1": "What",
+        "highlight": "Houston Delivers"
+      },
+      "subtitle": "Real results, not empty promises",
+      "benefit1": {
+        "title": "Your marketing never falls behind",
+        "description": "No more forgotten campaigns. Houston reminds you of next steps and keeps you on track."
+      },
+      "benefit2": {
+        "title": "Clear plan instead of overwhelm",
+        "description": "No more overthinking. Houston gives you concrete daily tasks that fit your goals."
+      },
+      "benefit3": {
+        "title": "Less thinking, more doing",
+        "description": "Houston thinks ahead – you execute. Save hours of planning time every week."
+      }
+    },
+    "forWhom": {
+      "title": {
+        "part1": "Who is",
+        "highlight": "Houston for?"
+      },
+      "subtitle": "Houston is for everyone who needs to do marketing – but doesn't have a marketing department",
+      "persona1": {
+        "title": "Solo Coach & Consultant",
+        "description": "You have many ideas but no time for marketing planning. Houston helps you stay focused."
+      },
+      "persona2": {
+        "title": "Small Agency",
+        "description": "Multiple clients, little time. Houston helps you manage projects in a structured way."
+      },
+      "persona3": {
+        "title": "Local Business",
+        "description": "You want more customers, but marketing overwhelms you. Houston makes it simple."
+      }
+    },
+    "screenshots": {
+      "title": {
+        "part1": "Your",
+        "highlight": "Mission Control"
+      },
+      "subtitle": "Looks like a cockpit – but feels simple",
+      "dashboard": {
+        "title": "Dashboard & Insights",
+        "description": "Keep track of all important metrics and get personalized AI recommendations."
+      },
+      "chat": {
+        "title": "Chat with Houston",
+        "description": "Ask questions and get concrete marketing strategies and action items instantly."
+      },
+      "goals": {
+        "title": "Goals & Progress",
+        "description": "Create and track measurable marketing goals with visual progress indicators."
+      },
+      "strategy": {
+        "title": "Strategy Planning",
+        "description": "Define positioning, target audiences and channels in one place."
+      }
+    },
+    "creditsExplained": {
+      "title": {
+        "part1": "Credits",
+        "highlight": "Explained Simply"
+      },
+      "subtitle": "Transparent and fair – you only pay for what you use",
+      "whatAreCredits": {
+        "title": "What are Credits?",
+        "description": "Credits are your currency for premium features. Basic chats are free, only deeper analyses cost credits."
+      },
+      "whatCanYouDo": {
+        "title": "What can you do with 50 Credits?",
+        "examples": {
+          "deepAnalysis": "~16 deep analyses",
+          "aiInsights": "~16 AI insights",
+          "strategyAnalysis": "~6 strategy analyses",
+          "pdfExports": "~25 PDF exports"
+        }
+      },
+      "costs": {
+        "chat": "Chat messages",
+        "chatCost": "Free",
+        "deepAnalysis": "Deep Analysis",
+        "deepAnalysisCost": "3 Credits",
+        "aiInsights": "AI Insights",
+        "aiInsightsCost": "3 Credits",
+        "strategyAnalysis": "Strategy Analysis",
+        "strategyAnalysisCost": "8 Credits",
+        "pdfExport": "PDF Export",
+        "pdfExportCost": "2 Credits"
       }
     },
     "pricing": {
@@ -59,30 +231,156 @@
         "part1": "Choose Your",
         "highlight": "Plan"
       },
-      "subtitle": "Start for free or upgrade for more features.",
-      "satellite": {
+      "subtitle": "Start free – upgrade when you need more",
+      "trustSignals": {
+        "cancelAnytime": "Cancel anytime",
+        "securePayment": "Secure payment via Stripe",
+        "noHiddenCosts": "No hidden costs"
+      },
+      "starter": {
+        "name": "Starter",
         "price": "Free",
         "description": "Perfect for trying out",
-        "feature1": "1 Campaign or Product",
-        "feature2": "~5 Strategies per month (20 Chats)",
-        "feature3": "Basic Analytics & Goal Tracking",
+        "credits": "50 Credits",
+        "creditsNote": "Free starter credits",
+        "feature1": "~16 deep analyses",
+        "feature2": "Unlimited basic chat",
+        "feature3": "No credit card required",
         "cta": "Start Free"
       },
-      "rocket": {
-        "badge": "Saves you $2,000/month",
-        "price": "€49/month",
-        "description": "For ambitious teams",
-        "feature1": "3 Campaigns in parallel",
-        "feature2": "~50 Strategies per month (200 Chats)",
-        "feature3": "Advanced Analytics & Prioritization",
-        "roi": "ROI: 10h/week saved = $2,000/month labor cost",
-        "cta": "Start 14-Day Free Trial"
+      "solo": {
+        "name": "Solo",
+        "badge": "Recommended",
+        "price": "€9.99",
+        "period": "per month",
+        "description": "For solo marketers and small teams",
+        "credits": "100 Credits",
+        "creditsNote": "Renews monthly",
+        "feature1": "~33 deep analyses/month",
+        "feature2": "All AI features included",
+        "feature3": "Cancel anytime",
+        "useCase": "Ideal for solo marketers with 2-3 projects per month.",
+        "cta": "Get Solo Plan"
+      },
+      "team": {
+        "name": "Team",
+        "price": "€39.99",
+        "period": "per month",
+        "description": "For agencies and growing teams",
+        "credits": "500 Credits",
+        "creditsNote": "Renews monthly",
+        "feature1": "~166 deep analyses/month",
+        "feature2": "Best for agencies & teams",
+        "feature3": "Priority support",
+        "useCase": "Perfect for agencies and marketing teams with many parallel campaigns.",
+        "cta": "Get Team Plan"
+      },
+      "boosters": {
+        "title": "Need more flexibility?",
+        "subtitle": "Get Credit Boosters (one-time top-ups, never expire)",
+        "small": "50 Credits",
+        "smallPrice": "€5.99",
+        "medium": "150 Credits",
+        "mediumPrice": "€14.99",
+        "large": "300 Credits",
+        "largePrice": "€24.99",
+        "bestValue": "Best Value"
       }
     },
+    "faq": {
+      "title": {
+        "part1": "Frequently Asked",
+        "highlight": "Questions"
+      },
+      "subtitle": "Everything you need to know about Houston",
+      "whatIs": {
+        "question": "What is Houston and how does it work?",
+        "answer": "Houston is your AI-powered marketing copilot that helps you plan, execute, and optimize your marketing. Tell Houston what you want to achieve, and he creates a plan with concrete to-dos. He's always there when you have questions."
+      },
+      "credits": {
+        "question": "How does the credit system work?",
+        "answer": "Houston uses a flexible credit system. You get 50 free starter credits when you sign up. Basic chat messages are free, while premium features like Deep Analysis (3 credits), AI Insights (3 credits), or Strategy Analysis (8 credits) cost credits. With the Solo Plan (€9.99/month) you get 100 credits, with the Team Plan (€39.99/month) 500 credits monthly."
+      },
+      "whoIsItFor": {
+        "question": "Who is Houston for?",
+        "answer": "Houston is for everyone who needs to do marketing but doesn't have a marketing department: solo coaches, consultants, small agencies, local businesses, and startups. If you have little time and don't want your marketing to fall behind, Houston is for you."
+      },
+      "security": {
+        "question": "Is my data secure with Houston?",
+        "answer": "Yes! We take security seriously. Houston uses enterprise-grade encryption for all data transmission and storage. Your marketing data, strategies, and conversations are protected with industry-standard security measures. We're GDPR compliant and never share your data with third parties."
+      },
+      "cancel": {
+        "question": "Can I cancel my subscription anytime?",
+        "answer": "Absolutely! You can cancel your subscription (Solo or Team Plan) at any time with no questions asked. Your plan will remain active until the end of your billing period, and you can export all your data. No hidden fees or cancellation charges. Credit Boosters (one-time purchases) never expire."
+      },
+      "technical": {
+        "question": "Do I need technical knowledge to use Houston?",
+        "answer": "Not at all! Houston is designed for marketers, not developers. The interface is intuitive and conversational – just chat with Houston like you would with a human marketing consultant. No coding, no complex setup, no technical jargon."
+      }
+    },
+    "testimonials": {
+      "title": {
+        "part1": "What Our",
+        "highlight": "Users Say"
+      },
+      "subtitle": "Real results from real marketing teams",
+      "testimonial1": {
+        "name": "Sarah Miller",
+        "role": "Marketing Director",
+        "quote": "Houston transformed our marketing strategy. Finally, nothing falls behind!"
+      },
+      "testimonial2": {
+        "name": "James Davis",
+        "role": "Startup Founder",
+        "quote": "The AI insights are incredible. Houston helps me make data-driven decisions without spending hours on analysis."
+      },
+      "testimonial3": {
+        "name": "Lisa Wang",
+        "role": "Solo Coach",
+        "quote": "Best marketing tool I've ever used. Finally a clear plan instead of overwhelm!"
+      }
+    },
+    "stats": {
+      "activeUsers": "Active Users",
+      "marketingGoals": "Marketing Goals Created",
+      "successRate": "Satisfaction",
+      "aiSupport": "AI Support"
+    },
+    "trust": {
+      "security": "Enterprise Security",
+      "uptime": "99.9% Uptime",
+      "gdpr": "GDPR Compliant"
+    },
     "footer": {
-      "rights": "All rights reserved.",
-      "privacy": "Privacy",
-      "terms": "Terms"
+      "tagline": "Your AI assistant for strategic marketing.",
+      "product": "Product",
+      "company": "Company",
+      "legal": "Legal",
+      "features": "Features",
+      "pricing": "Pricing",
+      "roadmap": "Roadmap",
+      "changelog": "Changelog",
+      "about": "About",
+      "blog": "Blog",
+      "contact": "Contact",
+      "careers": "Careers",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy",
+      "rights": "All rights reserved."
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "subtitle": "Get the latest marketing insights and AI tips.",
+      "placeholder": "Enter your email",
+      "cta": "Subscribe"
+    },
+    "cta": {
+      "final": {
+        "title": "Ready to get your marketing on track?",
+        "subtitle": "Start free with 50 credits – no credit card required.",
+        "button": "Start Free Now"
+      }
     }
   }
 }
