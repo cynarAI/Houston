@@ -520,52 +520,112 @@ if [ "$RESTARTED" = "false" ] && command -v docker >/dev/null 2>&1; then
 fi
 
 # Methode 4: Finde laufenden Node-Prozess und starte neu (FALLBACK)
+# ⚠️ WICHTIG: Express.js unterstützt HUP-Signale nicht für Neustarts!
+# ⚠️ WICHTIG: Wir müssen den Prozess killen und neu starten, damit neue Dateien geladen werden!
 if [ "$RESTARTED" = "false" ] && [ ! -z "$NODE_PIDS" ]; then
   echo "🔄 Versuche Node-Prozess direkt neu zu starten..."
   for PID in $NODE_PIDS; do
     echo "   Gefundener Prozess PID: $PID"
     
-    # Versuche graceful restart mit HUP Signal (falls unterstützt)
-    if kill -HUP "$PID" 2>/dev/null; then
-      echo "✅ HUP Signal an PID $PID gesendet"
-      RESTARTED=true
-      sleep 2
-      # Prüfe ob Prozess noch läuft
-      if ! ps -p "$PID" > /dev/null 2>&1; then
-        echo "⚠️  Prozess $PID wurde beendet - muss neu gestartet werden"
-        RESTARTED=false
-      fi
-    fi
+    # Finde das Arbeitsverzeichnis und Start-Kommando BEVOR wir den Prozess killen
+    PROC_CWD=$(pwdx "$PID" 2>/dev/null | awk '{print $2}' || lsof -p "$PID" 2>/dev/null | grep cwd | awk '{print $NF}' | head -1)
+    PROC_CMD=$(ps -p "$PID" -o cmd= 2>/dev/null | head -1)
     
-    # Falls HUP nicht funktioniert, versuche kill und Neustart
-    if [ "$RESTARTED" = "false" ]; then
-      # Finde das Arbeitsverzeichnis und Start-Kommando
-      PROC_CWD=$(pwdx "$PID" 2>/dev/null | awk '{print $2}' || lsof -p "$PID" 2>/dev/null | grep cwd | awk '{print $NF}' | head -1)
-      PROC_CMD=$(ps -p "$PID" -o cmd= 2>/dev/null | head -1)
+    echo "   Prozess-CWD: $PROC_CWD"
+    echo "   Prozess-CMD: $PROC_CMD"
+    
+    # KRITISCH: Express.js lädt statische Dateien beim Start - wir MÜSSEN kill + restart machen!
+    # HUP-Signale werden von Express.js nicht verarbeitet, daher ist kill + restart erforderlich
+    if [ ! -z "$PROC_CWD" ] && [ -d "$PROC_CWD" ]; then
+      echo "   Beende Prozess $PID (Express.js benötigt vollständigen Neustart)..."
       
-      echo "   Prozess-CWD: $PROC_CWD"
-      echo "   Prozess-CMD: $PROC_CMD"
+      # Versuche graceful shutdown zuerst
+      kill "$PID" 2>/dev/null
+      sleep 3
       
-      # Versuche kill und Neustart
-      if [ ! -z "$PROC_CWD" ] && [ -d "$PROC_CWD" ]; then
-        echo "   Beende Prozess $PID..."
-        kill "$PID" 2>/dev/null || kill -9 "$PID" 2>/dev/null
+      # Falls Prozess noch läuft, force kill
+      if ps -p "$PID" > /dev/null 2>&1; then
+        echo "   Prozess reagiert nicht - force kill..."
+        kill -9 "$PID" 2>/dev/null
         sleep 2
+      fi
+      
+      # Verifiziere dass Prozess beendet wurde
+      if ps -p "$PID" > /dev/null 2>&1; then
+        echo "⚠️  WARNUNG: Prozess $PID läuft noch nach kill -9!"
+        RESTARTED=false
+      else
+        echo "✅ Prozess $PID erfolgreich beendet"
         
         # Versuche Neustart basierend auf CWD
-        if [ -f "$PROC_CWD/package.json" ]; then
-          cd "$PROC_CWD"
-          if [ -f "package.json" ] && grep -q '"start"' package.json; then
+        cd "$PROC_CWD" || {
+          echo "⚠️  Konnte nicht in $PROC_CWD wechseln"
+          RESTARTED=false
+          break
+        }
+        
+        # Prüfe welche Start-Methode verfügbar ist
+        if [ -f "package.json" ] && grep -q '"start"' package.json; then
+          echo "   Starte Server neu mit npm start..."
+          nohup npm start > /tmp/houston-restart.log 2>&1 &
+          NEW_PID=$!
+          sleep 2
+          if ps -p "$NEW_PID" > /dev/null 2>&1; then
+            echo "✅ Server erfolgreich neu gestartet (PID: $NEW_PID)"
+            RESTARTED=true
+          else
+            echo "⚠️  Server-Start fehlgeschlagen - prüfe /tmp/houston-restart.log"
+            RESTARTED=false
+          fi
+        elif [ -f "dist/index.js" ]; then
+          echo "   Starte Server neu mit node dist/index.js..."
+          nohup node dist/index.js > /tmp/houston-restart.log 2>&1 &
+          NEW_PID=$!
+          sleep 2
+          if ps -p "$NEW_PID" > /dev/null 2>&1; then
+            echo "✅ Server erfolgreich neu gestartet (PID: $NEW_PID)"
+            RESTARTED=true
+          else
+            echo "⚠️  Server-Start fehlgeschlagen - prüfe /tmp/houston-restart.log"
+            RESTARTED=false
+          fi
+        elif [ -f "pnpm-lock.yaml" ] || [ -f "yarn.lock" ] || [ -f "package-lock.json" ]; then
+          # Versuche mit pnpm/yarn/npm
+          if command -v pnpm >/dev/null 2>&1 && [ -f "pnpm-lock.yaml" ]; then
+            echo "   Starte Server neu mit pnpm start..."
+            nohup pnpm start > /tmp/houston-restart.log 2>&1 &
+            NEW_PID=$!
+          elif command -v yarn >/dev/null 2>&1 && [ -f "yarn.lock" ]; then
+            echo "   Starte Server neu mit yarn start..."
+            nohup yarn start > /tmp/houston-restart.log 2>&1 &
+            NEW_PID=$!
+          elif command -v npm >/dev/null 2>&1; then
             echo "   Starte Server neu mit npm start..."
             nohup npm start > /tmp/houston-restart.log 2>&1 &
-            RESTARTED=true
-          elif [ -f "dist/index.js" ]; then
-            echo "   Starte Server neu mit node dist/index.js..."
-            nohup node dist/index.js > /tmp/houston-restart.log 2>&1 &
-            RESTARTED=true
+            NEW_PID=$!
           fi
+          
+          if [ ! -z "$NEW_PID" ]; then
+            sleep 2
+            if ps -p "$NEW_PID" > /dev/null 2>&1; then
+              echo "✅ Server erfolgreich neu gestartet (PID: $NEW_PID)"
+              RESTARTED=true
+            else
+              echo "⚠️  Server-Start fehlgeschlagen - prüfe /tmp/houston-restart.log"
+              RESTARTED=false
+            fi
+          else
+            echo "⚠️  Keine Start-Methode gefunden in $PROC_CWD"
+            RESTARTED=false
+          fi
+        else
+          echo "⚠️  Keine Start-Methode gefunden (weder package.json noch dist/index.js)"
+          RESTARTED=false
         fi
       fi
+    else
+      echo "⚠️  Konnte Arbeitsverzeichnis für PID $PID nicht ermitteln"
+      RESTARTED=false
     fi
     
     # Nur einen Prozess behandeln
