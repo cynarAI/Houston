@@ -1,4 +1,11 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +25,14 @@ interface CheckInModalProps {
   onSuccess?: () => void;
 }
 
-export function CheckInModal({ open, onOpenChange, goalId, goalTitle, currentProgress, onSuccess }: CheckInModalProps) {
+export function CheckInModal({
+  open,
+  onOpenChange,
+  goalId,
+  goalTitle,
+  currentProgress,
+  onSuccess,
+}: CheckInModalProps) {
   const [progress, setProgress] = useState(currentProgress);
   const [note, setNote] = useState("");
   const updateGoalMutation = trpc.goals.updateProgress.useMutation();
@@ -28,12 +42,14 @@ export function CheckInModal({ open, onOpenChange, goalId, goalTitle, currentPro
       await updateGoalMutation.mutateAsync({
         id: goalId,
         progress: progress,
-        note: note,
       });
-      
-      trackEvent(AnalyticsEvents.GOAL_UPDATED, { goal_id: goalId, new_progress: progress });
+
+      trackEvent(AnalyticsEvents.GOAL_UPDATED, {
+        goal_id: goalId,
+        new_progress: progress,
+      });
       toast.success("Fortschritt gespeichert! 🚀");
-      
+
       if (onSuccess) onSuccess();
       onOpenChange(false);
     } catch (error) {
@@ -50,15 +66,18 @@ export function CheckInModal({ open, onOpenChange, goalId, goalTitle, currentPro
             Check-in: {goalTitle}
           </DialogTitle>
           <DialogDescription>
-            Hast du diese Woche Fortschritte gemacht? Aktualisiere deinen Status.
+            Hast du diese Woche Fortschritte gemacht? Aktualisiere deinen
+            Status.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="grid gap-6 py-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label>Neuer Fortschritt</Label>
-              <span className="text-sm font-bold text-primary">{progress}%</span>
+              <span className="text-sm font-bold text-primary">
+                {progress}%
+              </span>
             </div>
             <Slider
               defaultValue={[currentProgress]}
@@ -90,8 +109,13 @@ export function CheckInModal({ open, onOpenChange, goalId, goalTitle, currentPro
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Abbrechen
           </Button>
-          <Button onClick={handleSubmit} disabled={updateGoalMutation.isPending}>
-            {updateGoalMutation.isPending ? "Speichert..." : "Check-in speichern"}
+          <Button
+            onClick={handleSubmit}
+            disabled={updateGoalMutation.isLoading}
+          >
+            {updateGoalMutation.isLoading
+              ? "Speichert..."
+              : "Check-in speichern"}
           </Button>
         </DialogFooter>
       </DialogContent>

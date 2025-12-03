@@ -8,6 +8,7 @@
 ## 🚀 CRITICAL USER FLOWS (Must Pass)
 
 ### Flow 1: Erster Kontakt (Landing → Chat)
+
 - [ ] Landing Page Hero zeigt EINE klare Headline
 - [ ] CTA "Kostenlos starten" ist prominent sichtbar
 - [ ] Login/Sign-up funktioniert
@@ -16,6 +17,7 @@
 - [ ] Erster Chat mit Houston funktioniert
 
 ### Flow 2: Tägliche Rückkehr (Login → Action)
+
 - [ ] Login funktioniert
 - [ ] Dashboard "Today's Focus" Card ist sichtbar
 - [ ] Stats (Ziele, To-dos, Chats) werden korrekt angezeigt
@@ -23,6 +25,7 @@
 - [ ] User weiß in <10 Sekunden, was zu tun ist
 
 ### Flow 3: Arbeiten mit Houston (Chat → Ergebnis)
+
 - [ ] Chat-Seite lädt korrekt
 - [ ] Quick-Action Chips werden angezeigt (Was heute?, Nächster Schritt, etc.)
 - [ ] Klick auf Chip füllt Input-Feld
@@ -226,6 +229,28 @@
 - [ ] ARIA labels present
 - [ ] Color contrast sufficient
 - [ ] Screen reader friendly
+
+---
+
+## 🤖 AI & AGENT QA
+
+### Resilienz & Fehler
+
+- [ ] **Timeout:** Was passiert bei >60s Wartezeit? (Erwartung: Freundliche Fehlermeldung, kein Crash)
+- [ ] **API-Fehler:** Was passiert bei 500er Fehlern? (Erwartung: Retry im Hintergrund, dann Fehlermeldung)
+- [ ] **UI-Feedback:** Ist der "Thinking"-Status jederzeit klar erkennbar?
+
+### Qualität & Halluzinationen
+
+- [ ] **Fakten-Check:** Erfindet Houston Features, die die App nicht hat?
+- [ ] **Persona:** Bleibt Houston konsistent in seiner Rolle (laut `.cursor/rules/040-ux-copy.mdc`)?
+- [ ] **Formatting:** Werden Markdown-Tabellen und Code-Blöcke korrekt gerendert?
+
+### Kosten & Limits
+
+- [ ] **Credit-Abzug:** Werden Credits erst nach _erfolgreicher_ Generierung abgezogen?
+- [ ] **Limits:** Wird der Chat blockiert, wenn keine Credits mehr da sind?
+- [ ] **Transparenz:** Sieht der User vor der Aktion, was sie kosten wird?
 
 ---
 

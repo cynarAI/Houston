@@ -1,10 +1,25 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { Sparkles, Target, CheckSquare, MessageSquare, ArrowRight, Brain, RefreshCw, BookOpen } from "lucide-react";
+import {
+  Sparkles,
+  Target,
+  CheckSquare,
+  MessageSquare,
+  ArrowRight,
+  Brain,
+  RefreshCw,
+  BookOpen,
+} from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "wouter";
 // Onboarding is handled by DashboardLayout's OnboardingWizard
@@ -27,7 +42,7 @@ import { CheckInModal } from "@/components/CheckInModal";
 interface InsightRecommendation {
   title: string;
   description: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: "high" | "medium" | "low";
   action: string;
   link: string;
 }
@@ -36,88 +51,130 @@ interface InsightsResult {
   recommendations: InsightRecommendation[];
 }
 
-
 // Daily Wisdom Tips
 const DAILY_TIPS = [
-  { title: "Fokus auf Retention", text: "Es ist 5x günstiger, einen bestehenden Kunden zu halten, als einen neuen zu gewinnen." },
-  { title: "Content Recycling", text: "Nutze deinen besten Blog-Post und mache daraus 3 Social Media Posts und eine E-Mail." },
-  { title: "Social Proof", text: "Platziere Testimonials direkt neben deinen 'Kaufen'-Buttons für höhere Conversion." },
-  { title: "E-Mail Betreffzeilen", text: "Fragen in Betreffzeilen erhöhen die Öffnungsrate oft um über 15%." },
-  { title: "Pareto-Prinzip", text: "20% deiner Marketing-Aktivitäten bringen 80% der Ergebnisse. Finde diese 20%." }
+  {
+    title: "Focus on Retention",
+    text: "It costs 5x more to acquire a new customer than to retain an existing one.",
+  },
+  {
+    title: "Content Recycling",
+    text: "Take your best blog post and turn it into 3 social media posts and an email.",
+  },
+  {
+    title: "Social Proof",
+    text: "Place testimonials right next to your 'Buy' buttons for higher conversion.",
+  },
+  {
+    title: "Email Subject Lines",
+    text: "Questions in subject lines often increase open rates by over 15%.",
+  },
+  {
+    title: "Pareto Principle",
+    text: "20% of your marketing activities bring 80% of the results. Find that 20%.",
+  },
 ];
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  
+
   // Time-based greeting
   const getTimeGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Guten Morgen";
-    if (hour < 18) return "Guten Tag";
-    return "Guten Abend";
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
   };
 
-  const [dailyTip] = useState(() => DAILY_TIPS[Math.floor(Math.random() * DAILY_TIPS.length)]);
-  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
-  
+  const [dailyTip] = useState(
+    () => DAILY_TIPS[Math.floor(Math.random() * DAILY_TIPS.length)],
+  );
+  const {
+    data: workspaces,
+    isLoading: workspacesLoading,
+    isError: workspacesError,
+    refetch: refetchWorkspaces,
+  } = trpc.workspaces.list.useQuery();
+
   // Playbook state
-  const [selectedPlaybook, setSelectedPlaybook] = useState<Playbook | null>(null);
+  const [selectedPlaybook, setSelectedPlaybook] = useState<Playbook | null>(
+    null,
+  );
   const [isPlaybookModalOpen, setIsPlaybookModalOpen] = useState(false);
-  
+
   // Check-in state
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [checkInGoal, setCheckInGoal] = useState<Goal | null>(null);
 
   const currentWorkspace = workspaces?.[0];
-  const { data: goals, isLoading: goalsLoading, isError: goalsError } = trpc.goals.listByWorkspace.useQuery(
+  const {
+    data: goals,
+    isLoading: goalsLoading,
+    isError: goalsError,
+  } = trpc.goals.listByWorkspace.useQuery(
     { workspaceId: currentWorkspace?.id || 0 },
-    { enabled: !!currentWorkspace?.id }
+    { enabled: !!currentWorkspace?.id },
   );
-  const { data: todos, isLoading: todosLoading, isError: todosError } = trpc.todos.listByWorkspace.useQuery(
+  const {
+    data: todos,
+    isLoading: todosLoading,
+    isError: todosError,
+  } = trpc.todos.listByWorkspace.useQuery(
     { workspaceId: currentWorkspace?.id || 0 },
-    { enabled: !!currentWorkspace?.id }
+    { enabled: !!currentWorkspace?.id },
   );
-  const { data: chatSessions, isLoading: chatsLoading, isError: chatsError } = trpc.chat.listSessions.useQuery(
+  const {
+    data: chatSessions,
+    isLoading: chatsLoading,
+    isError: chatsError,
+  } = trpc.chat.listSessions.useQuery(
     { workspaceId: currentWorkspace?.id || 0 },
-    { enabled: !!currentWorkspace?.id }
+    { enabled: !!currentWorkspace?.id },
   );
   const { data: strategy } = trpc.strategy.getByWorkspace.useQuery(
     { workspaceId: currentWorkspace?.id || 0 },
-    { enabled: !!currentWorkspace?.id }
+    { enabled: !!currentWorkspace?.id },
   );
-  
+
   // Combined loading/error states
-  const isLoading = workspacesLoading || (currentWorkspace && (goalsLoading || todosLoading || chatsLoading));
+  const isLoading =
+    workspacesLoading ||
+    (currentWorkspace && (goalsLoading || todosLoading || chatsLoading));
   const hasError = workspacesError || goalsError || todosError || chatsError;
-  
+
   // Activation status for checklist
-  const activationStatus = useMemo(() => ({
-    hasFirstChat: (chatSessions?.length || 0) > 0,
-    hasFirstGoal: (goals?.length || 0) > 0,
-    hasStrategy: !!strategy?.positioning,
-    hasFirstTodo: (todos?.length || 0) > 0,
-    hasCompletedTodo: todos?.some((t: Todo) => t.status === "done") || false,
-  }), [chatSessions, goals, strategy, todos]);
-  
+  const activationStatus = useMemo(
+    () => ({
+      hasFirstChat: (chatSessions?.length || 0) > 0,
+      hasFirstGoal: (goals?.length || 0) > 0,
+      hasStrategy: !!strategy?.positioning,
+      hasFirstTodo: (todos?.length || 0) > 0,
+      hasCompletedTodo: todos?.some((t: Todo) => t.status === "done") || false,
+    }),
+    [chatSessions, goals, strategy, todos],
+  );
+
   // Check for activation milestone celebrations
   useEffect(() => {
     if (!isLoading && goals !== undefined && todos !== undefined) {
       checkActivationMilestone(activationStatus);
     }
   }, [activationStatus, isLoading, goals, todos]);
-  
-  const activeGoals = goals?.filter((g: Goal) => g.status === "active").length || 0;
+
+  const activeGoals =
+    goals?.filter((g: Goal) => g.status === "active").length || 0;
   const openTodos = todos?.filter((t: Todo) => t.status !== "done").length || 0;
   const totalChatSessions = chatSessions?.length || 0;
-  
+
   // AI Insights
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [insights, setInsights] = useState<InsightsResult | null>(null);
-  const generateInsightsMutation = trpc.insights.generateRecommendations.useMutation();
+  const generateInsightsMutation =
+    trpc.insights.generateRecommendations.useMutation();
   const createGoalMutation = trpc.goals.create.useMutation();
   const createTodoMutation = trpc.todos.create.useMutation();
-  
+
   // Get suggested playbooks based on user state
   const suggestedPlaybooks = useMemo(() => {
     return getSuggestedPlaybooks({
@@ -127,7 +184,7 @@ export default function Dashboard() {
       hasEmailList: false, // We don't track this yet
     });
   }, [activeGoals, strategy, todos]);
-  
+
   const loadInsights = async () => {
     if (!currentWorkspace?.id) return;
     setInsightsLoading(true);
@@ -136,19 +193,21 @@ export default function Dashboard() {
         workspaceId: currentWorkspace.id,
       });
       setInsights(result);
-      
+
       // Track insights generation
-      trackEvent(AnalyticsEvents.INSIGHTS_GENERATED, { workspace_id: currentWorkspace.id });
+      trackEvent(AnalyticsEvents.INSIGHTS_GENERATED, {
+        workspace_id: currentWorkspace.id,
+      });
     } catch (error) {
       handleMutationError(error, ErrorMessages.insightsGenerate);
     } finally {
       setInsightsLoading(false);
     }
   };
-  
+
   // Removed automatic insights loading to prevent unwanted credit deductions
   // User must click "Generate Insights" button manually
-  
+
   // Note: Onboarding is now handled by DashboardLayout's OnboardingWizard component
   // which uses server-side onboarding status instead of localStorage
 
@@ -191,8 +250,8 @@ export default function Dashboard() {
       }
 
       // Track the event
-      trackEvent(AnalyticsEvents.GOAL_CREATED, { 
-        is_first_goal: activeGoals === 0
+      trackEvent(AnalyticsEvents.GOAL_CREATED, {
+        is_first_goal: activeGoals === 0,
       });
 
       setIsPlaybookModalOpen(false);
@@ -221,7 +280,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <LoadingState message="Lade dein Dashboard..." fullPage />
+        <LoadingState message="Loading your dashboard..." fullPage />
       </DashboardLayout>
     );
   }
@@ -232,8 +291,8 @@ export default function Dashboard() {
       <DashboardLayout>
         <div className="container py-8">
           <ErrorState
-            title="Dashboard konnte nicht geladen werden"
-            message="Es gab ein Problem beim Laden deiner Daten. Bitte versuche es erneut."
+            title="Could not load dashboard"
+            message="There was a problem loading your data. Please try again."
             onRetry={() => refetchWorkspaces()}
             fullPage
           />
@@ -244,11 +303,10 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-
       <div className="container py-8 space-y-6">
         {/* Credit Banner - Shows when credits are low */}
         <CreditBanner threshold={20} />
-        
+
         {/* ============ TODAY'S FOCUS - Hero Element ============ */}
         <Card className="glass border-border/50 backdrop-blur-xl bg-gradient-to-br from-primary/5 via-background to-primary/10 dark:from-[#1a1a2e]/80 dark:to-[#0a0a0f]/80 overflow-hidden hero-entrance">
           <CardContent className="p-6 md:p-8">
@@ -259,26 +317,28 @@ export default function Dashboard() {
                   <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                   {getTimeGreeting()}, {user?.name?.split(" ")[0] || "Captain"}
                 </p>
-                
+
                 {/* Dynamic Focus Message */}
                 {openTodos > 0 ? (
                   <>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      Du hast {openTodos} {openTodos === 1 ? 'Aufgabe' : 'Aufgaben'} offen
+                      You have {openTodos} {openTodos === 1 ? "task" : "tasks"}{" "}
+                      pending
                     </h1>
                     <p className="text-muted-foreground mb-4 max-w-lg">
-                      Arbeite sie Schritt für Schritt ab. Houston hilft dir, wenn du nicht weiterkommst.
+                      Tackle them step by step. Houston is here to help if you
+                      get stuck.
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <Link href="/app/todos">
                         <Button variant="gradient" size="lg">
-                          Aufgaben anzeigen
+                          View Tasks
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                       <Link href="/app/chats">
                         <Button variant="outline" size="lg">
-                          Houston fragen
+                          Ask Houston
                         </Button>
                       </Link>
                     </div>
@@ -286,21 +346,21 @@ export default function Dashboard() {
                 ) : activeGoals > 0 && (todos?.length || 0) === 0 ? (
                   <>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      Deine Ziele sind bereit! 🎯
+                      Your goals are ready! 🎯
                     </h1>
                     <p className="text-muted-foreground mb-4 max-w-lg">
-                      Lass uns jetzt konkrete Schritte definieren, um dein erstes Ziel zu erreichen.
+                      Let's define concrete steps now to reach your first goal.
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      <Link href="/app/chats?prompt=Lass+uns+einen+Plan+für+mein+erstes+Ziel+erstellen">
+                      <Link href="/app/chats?prompt=Let's+create+a+plan+for+my+first+goal">
                         <Button variant="gradient" size="lg">
-                          Plan erstellen
+                          Create Plan
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                       <Link href="/app/goals">
                         <Button variant="outline" size="lg">
-                          Ziele ansehen
+                          View Goals
                         </Button>
                       </Link>
                     </div>
@@ -308,21 +368,21 @@ export default function Dashboard() {
                 ) : activeGoals > 0 ? (
                   <>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      Alle Aufgaben erledigt! 🎉
+                      All tasks completed! 🎉
                     </h1>
                     <p className="text-muted-foreground mb-4 max-w-lg">
-                      Super gemacht! Frag Houston nach den nächsten Schritten für dein Ziel.
+                      Great job! Ask Houston for the next steps on your goal.
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <Link href="/app/chats">
                         <Button variant="gradient" size="lg">
-                          Mit Houston planen
+                          Plan with Houston
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                       <Link href="/app/goals">
                         <Button variant="outline" size="lg">
-                          Ziele anschauen
+                          View Goals
                         </Button>
                       </Link>
                     </div>
@@ -330,44 +390,58 @@ export default function Dashboard() {
                 ) : (
                   <>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      Lass uns loslegen! 🚀
+                      Let's get started! 🚀
                     </h1>
                     <p className="text-muted-foreground mb-4 max-w-lg">
-                      {activationStatus.hasStrategy 
-                        ? "Deine Strategie steht. Jetzt brauchen wir konkrete Ziele für deinen Erfolg."
-                        : "Erzähl Houston von deinem Business und deinen Zielen. Er erstellt einen Plan für dich."}
+                      {activationStatus.hasStrategy
+                        ? "Your strategy is set. Now we need concrete goals for your success."
+                        : "Tell Houston about your business and goals. He'll create a plan for you."}
                     </p>
-                    <Link href={activationStatus.hasStrategy ? "/app/chats?prompt=Hilf+mir,+ein+neues+Ziel+zu+definieren" : "/app/chats"}>
+                    <Link
+                      href={
+                        activationStatus.hasStrategy
+                          ? "/app/chats?prompt=Help+me+define+a+new+goal"
+                          : "/app/chats"
+                      }
+                    >
                       <Button variant="gradient" size="lg">
-                        {activationStatus.hasStrategy ? "Ziel definieren" : "Erstes Gespräch starten"}
+                        {activationStatus.hasStrategy
+                          ? "Define Goal"
+                          : "Start First Chat"}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </Link>
                   </>
                 )}
               </div>
-              
+
               {/* Right: Quick Stats */}
               <div className="flex gap-4 md:gap-6">
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">{activeGoals}</div>
-                  <div className="text-xs text-muted-foreground">Ziele</div>
+                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">
+                    {activeGoals}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Goals</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">{openTodos}</div>
+                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">
+                    {openTodos}
+                  </div>
                   <div className="text-xs text-muted-foreground">To-dos</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">{totalChatSessions}</div>
+                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">
+                    {totalChatSessions}
+                  </div>
                   <div className="text-xs text-muted-foreground">Chats</div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
-        
-{/* ReturnReminder removed - Today's Focus Hero already provides this context */}
-        
+
+        {/* ReturnReminder removed - Today's Focus Hero already provides this context */}
+
         {/* Activation Checklist - Shows until user is activated */}
         {!activationStatus.hasFirstChat || !activationStatus.hasFirstGoal ? (
           <ActivationChecklist
@@ -384,7 +458,7 @@ export default function Dashboard() {
         <Card className="glass border-border/50 backdrop-blur-xl relative overflow-hidden">
           {/* Background decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[var(--color-gradient-purple)]/10 to-transparent rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-          
+
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -393,7 +467,9 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <CardTitle>Daily Wisdom</CardTitle>
-                  <CardDescription>Dein Marketing-Impuls für heute</CardDescription>
+                  <CardDescription>
+                    Your marketing impulse for today
+                  </CardDescription>
                 </div>
               </div>
             </div>
@@ -416,24 +492,35 @@ export default function Dashboard() {
               <div className="flex-shrink-0 w-full md:w-auto flex flex-col gap-3 p-5 rounded-xl border border-[var(--color-gradient-purple)]/20 bg-[var(--color-gradient-purple)]/5">
                 <div className="flex items-center gap-2 mb-1">
                   <Target className="h-4 w-4 text-[var(--color-gradient-purple)]" />
-                  <h4 className="font-medium text-sm">Tiefer eintauchen?</h4>
+                  <h4 className="font-medium text-sm">Dive Deeper?</h4>
                 </div>
                 <p className="text-xs text-muted-foreground max-w-[250px]">
-                  Lass Houston dein Marketing analysieren und konkrete Chancen finden.
+                  Let Houston analyze your marketing and find concrete
+                  opportunities.
                 </p>
-                
+
                 {insights ? (
-                   // If insights are already loaded, show them
-                   <div className="space-y-3 mt-2">
-                     {insights.recommendations.map((rec: InsightRecommendation, idx: number) => (
-                       <div key={idx} className="p-3 bg-background/80 rounded-lg border border-border/50">
-                         <p className="font-medium text-sm text-foreground">{rec.title}</p>
-                         <Link href={rec.link} className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
-                           {rec.action} <ArrowRight className="h-3 w-3" />
-                         </Link>
-                       </div>
-                     ))}
-                   </div>
+                  // If insights are already loaded, show them
+                  <div className="space-y-3 mt-2">
+                    {insights.recommendations.map(
+                      (rec: InsightRecommendation, idx: number) => (
+                        <div
+                          key={idx}
+                          className="p-3 bg-background/80 rounded-lg border border-border/50"
+                        >
+                          <p className="font-medium text-sm text-foreground">
+                            {rec.title}
+                          </p>
+                          <Link
+                            href={rec.link}
+                            className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                          >
+                            {rec.action} <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </div>
+                      ),
+                    )}
+                  </div>
                 ) : (
                   <Button
                     variant="outline"
@@ -443,10 +530,19 @@ export default function Dashboard() {
                     className="w-full justify-between group border-[var(--color-gradient-purple)]/30 hover:border-[var(--color-gradient-purple)] hover:bg-[var(--color-gradient-purple)]/10"
                   >
                     <span className="flex items-center gap-2">
-                      {insightsLoading ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Brain className="h-3 w-3" />}
-                      Deep Dive Analyse
+                      {insightsLoading ? (
+                        <RefreshCw className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Brain className="h-3 w-3" />
+                      )}
+                      Deep Dive Analysis
                     </span>
-                    <Badge variant="secondary" className="text-[10px] px-1.5 h-5 bg-background/80">3 Credits</Badge>
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] px-1.5 h-5 bg-background/80"
+                    >
+                      3 Credits
+                    </Badge>
                   </Button>
                 )}
               </div>
@@ -464,13 +560,15 @@ export default function Dashboard() {
                     <BookOpen className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <CardTitle>Empfohlene Playbooks</CardTitle>
-                    <CardDescription>Bewährte Marketing-Strategien für deinen nächsten Schritt</CardDescription>
+                    <CardTitle>Recommended Playbooks</CardTitle>
+                    <CardDescription>
+                      Proven marketing strategies for your next step
+                    </CardDescription>
                   </div>
                 </div>
                 <Link href="/app/playbooks">
                   <Button variant="ghost" size="sm" className="gap-1">
-                    Alle Playbooks
+                    All Playbooks
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
@@ -497,16 +595,20 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="space-y-1">
-                <CardTitle>Ziele & Fortschritt</CardTitle>
-                <CardDescription>Deine Marketing-Ziele im Überblick</CardDescription>
+                <CardTitle>Goals & Progress</CardTitle>
+                <CardDescription>
+                  Your marketing goals at a glance
+                </CardDescription>
               </div>
               {activeGoals > 0 && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="text-xs h-8 px-2"
                   onClick={() => {
-                    const firstGoal = goals?.find((g: Goal) => g.status === "active");
+                    const firstGoal = goals?.find(
+                      (g: Goal) => g.status === "active",
+                    );
                     if (firstGoal) handleCheckIn(firstGoal);
                   }}
                 >
@@ -519,22 +621,33 @@ export default function Dashboard() {
               {activeGoals > 0 ? (
                 <div className="space-y-4">
                   {goals?.slice(0, 2).map((goal: Goal) => (
-                    <div key={goal.id} className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 cursor-pointer hover:bg-blue-500/20 transition-colors" onClick={() => handleCheckIn(goal)}>
+                    <div
+                      key={goal.id}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 cursor-pointer hover:bg-blue-500/20 transition-colors"
+                      onClick={() => handleCheckIn(goal)}
+                    >
                       <Target className="h-5 w-5 text-blue-400 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between mb-1">
-                          <p className="text-sm font-medium truncate">{goal.title}</p>
-                          <span className="text-xs text-blue-400 font-bold">{goal.progress}%</span>
+                          <p className="text-sm font-medium truncate">
+                            {goal.title}
+                          </p>
+                          <span className="text-xs text-blue-400 font-bold">
+                            {goal.progress}%
+                          </span>
                         </div>
                         <div className="h-1.5 w-full bg-blue-900/20 rounded-full overflow-hidden">
-                          <div className="h-full bg-blue-400 rounded-full" style={{ width: `${goal.progress}%` }} />
+                          <div
+                            className="h-full bg-blue-400 rounded-full"
+                            style={{ width: `${goal.progress}%` }}
+                          />
                         </div>
                       </div>
                     </div>
                   ))}
                   <Link href="/app/goals">
                     <Button variant="outline" className="w-full text-xs h-8">
-                      Alle {activeGoals} Ziele anzeigen
+                      View all {activeGoals} goals
                       <ArrowRight className="ml-2 h-3 w-3" />
                     </Button>
                   </Link>
@@ -543,7 +656,7 @@ export default function Dashboard() {
                 <div className="bg-accent/30 rounded-lg p-4 relative mt-2">
                   {/* Chat Bubble Tail */}
                   <div className="absolute -top-2 left-6 w-4 h-4 bg-accent/30 transform rotate-45 border-t border-l border-transparent" />
-                  
+
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 mt-1">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] flex items-center justify-center">
@@ -552,11 +665,16 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-sm mb-3">
-                        "Hey! Wir haben noch keine Ziele definiert. Soll ich dir helfen, ein SMART-Ziel für deinen Erfolg zu erstellen?"
+                        "Hey! We haven't defined any goals yet. Should I help
+                        you create a SMART goal for your success?"
                       </p>
-                      <Link href="/app/chats?prompt=Hilf+mir,+ein+SMART-Marketing-Ziel+zu+definieren">
-                        <Button size="sm" variant="gradient" className="w-full text-xs h-8">
-                          Ja, Ziel erstellen
+                      <Link href="/app/chats?prompt=Help+me+create+a+SMART+marketing+goal">
+                        <Button
+                          size="sm"
+                          variant="gradient"
+                          className="w-full text-xs h-8"
+                        >
+                          Yes, Create Goal
                         </Button>
                       </Link>
                     </div>
@@ -569,8 +687,8 @@ export default function Dashboard() {
           {/* Recent Conversations with Houston */}
           <Card>
             <CardHeader>
-              <CardTitle>Gespräche mit Houston</CardTitle>
-              <CardDescription>Dein Chat-Verlauf</CardDescription>
+              <CardTitle>Conversations with Houston</CardTitle>
+              <CardDescription>Your chat history</CardDescription>
             </CardHeader>
             <CardContent>
               {totalChatSessions > 0 ? (
@@ -578,13 +696,20 @@ export default function Dashboard() {
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-pink-500/10 border border-pink-500/20">
                     <MessageSquare className="h-5 w-5 text-pink-400" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">{totalChatSessions} {totalChatSessions === 1 ? 'Gespräch' : 'Gespräche'}</p>
-                      <p className="text-xs text-muted-foreground">Setze deine Unterhaltung fort oder starte eine neue</p>
+                      <p className="text-sm font-medium">
+                        {totalChatSessions}{" "}
+                        {totalChatSessions === 1
+                          ? "Conversation"
+                          : "Conversations"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Continue your chat or start a new one
+                      </p>
                     </div>
                   </div>
                   <Link href="/app/chats">
                     <Button variant="outline" className="w-full">
-                      Zum Chat
+                      Go to Chat
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -593,7 +718,7 @@ export default function Dashboard() {
                 <div className="bg-accent/30 rounded-lg p-4 relative mt-2">
                   {/* Chat Bubble Tail */}
                   <div className="absolute -top-2 left-6 w-4 h-4 bg-accent/30 transform rotate-45 border-t border-l border-transparent" />
-                  
+
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 mt-1">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] flex items-center justify-center">
@@ -602,11 +727,16 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-sm mb-3">
-                        "Ich warte auf dich! Lass uns über deine Strategie sprechen oder Content-Ideen brainstormen."
+                        "I'm waiting for you! Let's talk about your strategy or
+                        brainstorm content ideas."
                       </p>
                       <Link href="/app/chats">
-                        <Button size="sm" variant="gradient" className="w-full text-xs h-8">
-                          Hallo Houston! 👋
+                        <Button
+                          size="sm"
+                          variant="gradient"
+                          className="w-full text-xs h-8"
+                        >
+                          Hello Houston! 👋
                         </Button>
                       </Link>
                     </div>
@@ -618,7 +748,7 @@ export default function Dashboard() {
         </div>
       </div>
       {/* Note: Onboarding is handled by DashboardLayout's OnboardingWizard */}
-      
+
       {/* Playbook Detail Modal */}
       <PlaybookDetailModal
         playbook={selectedPlaybook}
