@@ -145,7 +145,9 @@ function DashboardLayoutContent({
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
-  const activeMenuLabel = activeMenuItem ? (currentLanguage === 'de' ? activeMenuItem.labelDe : activeMenuItem.label) : "Menu";
+  const activeMenuLabel = activeMenuItem 
+    ? (currentLanguage === 'de' ? activeMenuItem.labelDe : activeMenuItem.label) 
+    : (currentLanguage === 'de' ? "Menü" : "Menu");
   const isMobile = useIsMobile();
 
   useEffect(() => {
