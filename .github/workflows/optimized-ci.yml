@@ -276,59 +276,157 @@ jobs:
           - Das Deployment erfolgt durch einfaches Kopieren von Dateien zu einem Webserver-Verzeichnis
           - Du kannst alle notwendigen Schritte mit Standard-Shell-Befehlen durchführen
           
-          🚀 SCHRITT 3.2: Führe das Deployment durch (versuche Methoden in dieser Reihenfolge):
+          🚀 SCHRITT 3.2: Führe das Deployment durch (PRIMÄRE METHODE - Shell-Befehle):
           
-          METHODE 1 (BEVORZUGT - Manus Runtime API via curl):
-          Falls du Shell-Zugriff hast und curl verfügbar ist:
-          - Prüfe ob MANUS_API_KEY als Umgebungsvariable verfügbar ist: echo \\\$MANUS_API_KEY | head -c 10
-          - Falls verfügbar, nutze die Manus Runtime API direkt:
-            curl -X POST https://api.manus.ai/v1/publish \\
-              -H \"API_KEY: \\\$MANUS_API_KEY\" \\
-              -H \"Content-Type: application/json\" \\
-              -d '{\"project_id\": \"9Ye7dFtLEUdP6ojxHpkQhu\", \"directory\": \"\$(pwd)/dist/public\", \"target\": \"houston.manus.space\"}'
-          - Falls MANUS_API_KEY nicht verfügbar ist oder der API-Call fehlschlägt, nutze METHODE 2
+          ═══════════════════════════════════════════════════════════════════
+          SCHRITT 3.2.1: Finde das Deployment-Verzeichnis
+          ═══════════════════════════════════════════════════════════════════
           
-          METHODE 2 (ALTERNATIVE - Manus Publish Tool):
-          Falls du ein Manus Publish-Tool oder eine ähnliche Funktion in deinen verfügbaren Tools hast:
-          - Nutze dieses Tool mit folgenden Parametern:
-            - Verzeichnis: \$(pwd)/dist/public (absoluter Pfad)
-            - Ziel: houston.manus.space
-            - Typ: static (für statische Frontend-Dateien)
+          DEPLOY_DIR=\"\"
           
-          METHODE 3 (FALLBACK - Finde Deployment-Verzeichnis und kopiere Dateien):
-          Falls keine API/Tools verfügbar sind, finde das aktuelle Deployment-Verzeichnis:
+          # Methode 1: Suche in Standard-Webserver-Verzeichnissen
+          echo \"🔍 Suche nach Deployment-Verzeichnis...\"
+          if [ -d \"/var/www/houston.manus.space\" ]; then
+            DEPLOY_DIR=\"/var/www/houston.manus.space\"
+            echo \"✅ Gefunden: \\\$DEPLOY_DIR\"
+          elif [ -d \"/var/www/html\" ]; then
+            DEPLOY_DIR=\"/var/www/html\"
+            echo \"✅ Gefunden: \\\$DEPLOY_DIR (default)\"
+          fi
           
-          Schritt 3.2.1: Suche nach dem Deployment-Verzeichnis
-          - Prüfe Standard-Webserver-Verzeichnisse:
-            - ls -la /var/www/ 2>/dev/null | grep -i houston || echo \"Nicht gefunden\"
-            - ls -la /var/www/html/ 2>/dev/null | head -5
-            - ls -la /home/ubuntu/ 2>/dev/null | grep -i manus || echo \"Nicht gefunden\"
-            - find /home -type d -name \"*houston*\" 2>/dev/null | head -5
-            - find /var/www -type d -name \"*houston*\" 2>/dev/null | head -5
-            - find /opt -type d -name \"*houston*\" 2>/dev/null | head -5
+          # Methode 2: Suche nach laufenden Node-Prozessen
+          if [ -z \"\\\$DEPLOY_DIR\" ]; then
+            echo \"🔍 Suche nach laufenden Node-Prozessen...\"
+            NODE_PID=\$(ps aux | grep -i \"node\" | grep -v grep | head -1 | awk '{print \\\$2}')
+            if [ ! -z \"\\\$NODE_PID\" ]; then
+              echo \"✅ Node Prozess gefunden (PID: \\\$NODE_PID)\"
+              PROC_DIR=\$(lsof -p \\\$NODE_PID 2>/dev/null | grep -i houston | head -1 | awk '{print \\\$NF}')
+              if [ ! -z \"\\\$PROC_DIR\" ]; then
+                DEPLOY_DIR=\$(dirname \"\\\$PROC_DIR\")
+                echo \"✅ Deployment-Verzeichnis aus Prozess: \\\$DEPLOY_DIR\"
+              fi
+            fi
+          fi
           
-          Schritt 3.2.2: Prüfe laufende Prozesse um das Deployment-Verzeichnis zu finden
-          - ps aux | grep -i node | grep -v grep
-          - ps aux | grep -i \"houston\" | grep -v grep
-          - lsof -i :80 -i :443 2>/dev/null | head -10
-          - netstat -tlnp 2>/dev/null | grep -E \":80|:443\" | head -5
+          # Methode 3: Suche in Nginx-Konfiguration
+          if [ -z \"\\\$DEPLOY_DIR\" ]; then
+            echo \"🔍 Suche in Nginx-Konfiguration...\"
+            if [ -f \"/etc/nginx/sites-enabled/houston.manus.space\" ]; then
+              DEPLOY_DIR=\$(grep -o 'root [^;]*' /etc/nginx/sites-enabled/houston.manus.space | sed 's/root //' | head -1)
+              echo \"✅ Gefunden in Nginx: \\\$DEPLOY_DIR\"
+            elif [ -f \"/etc/nginx/sites-enabled/default\" ]; then
+              DEPLOY_DIR=\$(grep -o 'root [^;]*' /etc/nginx/sites-enabled/default | sed 's/root //' | head -1)
+              echo \"✅ Gefunden in Nginx default: \\\$DEPLOY_DIR\"
+            fi
+          fi
           
-          Schritt 3.2.3: Prüfe nginx/apache Konfiguration
-          - cat /etc/nginx/sites-enabled/* 2>/dev/null | grep -i houston || echo \"Nginx config nicht gefunden\"
-          - cat /etc/apache2/sites-enabled/* 2>/dev/null | grep -i houston || echo \"Apache config nicht gefunden\"
+          # Methode 4: Suche mit find-Befehlen
+          if [ -z \"\\\$DEPLOY_DIR\" ]; then
+            echo \"🔍 Suche mit find-Befehlen...\"
+            FOUND_DIR=\$(find /var/www -type d -name \"*houston*\" 2>/dev/null | head -1)
+            if [ ! -z \"\\\$FOUND_DIR\" ]; then
+              DEPLOY_DIR=\"\\\$FOUND_DIR\"
+              echo \"✅ Gefunden mit find: \\\$DEPLOY_DIR\"
+            else
+              FOUND_DIR=\$(find /home -type d -name \"*houston*\" 2>/dev/null | head -1)
+              if [ ! -z \"\\\$FOUND_DIR\" ]; then
+                DEPLOY_DIR=\"\\\$FOUND_DIR\"
+                echo \"✅ Gefunden mit find: \\\$DEPLOY_DIR\"
+              fi
+            fi
+          fi
           
-          Schritt 3.2.4: Falls Deployment-Verzeichnis gefunden wurde:
-          - DEPLOY_DIR=\"[GEFUNDENES_VERZEICHNIS]\"
-          - Backup erstellen: cp -r \\\$DEPLOY_DIR \\\$DEPLOY_DIR.backup.\$(date +%s)
-          - Neue Dateien kopieren: cp -r \$(pwd)/dist/public/* \\\$DEPLOY_DIR/
-          - Setze korrekte Berechtigungen: chmod -R 755 \\\$DEPLOY_DIR
-          - Stelle sicher, dass der Webserver neu geladen wird (falls nötig: sudo systemctl reload nginx || sudo systemctl reload apache2)
+          # Fallback: Standard-Verzeichnis
+          if [ -z \"\\\$DEPLOY_DIR\" ]; then
+            DEPLOY_DIR=\"/var/www/html\"
+            echo \"⚠️  Fallback zu Standard-Verzeichnis: \\\$DEPLOY_DIR\"
+          fi
           
-          Schritt 3.2.5: Falls kein Deployment-Verzeichnis gefunden wurde, kopiere zu Standard-Webserver-Verzeichnis:
-          - Versuche: sudo cp -r \$(pwd)/dist/public/* /var/www/html/ 2>/dev/null || cp -r \$(pwd)/dist/public/* /var/www/html/
-          - Oder: sudo cp -r \$(pwd)/dist/public/* /var/www/houston.manus.space/ 2>/dev/null || mkdir -p /var/www/houston.manus.space && cp -r \$(pwd)/dist/public/* /var/www/houston.manus.space/
-          - Setze Berechtigungen: chmod -R 755 /var/www/html/ || chmod -R 755 /var/www/houston.manus.space/
-          - Lade Webserver neu: sudo systemctl reload nginx 2>/dev/null || sudo systemctl reload apache2 2>/dev/null || echo \"Webserver reload versucht\"
+          # Verifiziere, dass Verzeichnis existiert
+          if [ ! -d \"\\\$DEPLOY_DIR\" ]; then
+            echo \"⚠️  Verzeichnis existiert nicht, erstelle es...\"
+            sudo mkdir -p \"\\\$DEPLOY_DIR\" 2>/dev/null || mkdir -p \"\\\$DEPLOY_DIR\"
+          fi
+          
+          echo \"✅ Finales Deployment-Verzeichnis: \\\$DEPLOY_DIR\"
+          
+          ═══════════════════════════════════════════════════════════════════
+          SCHRITT 3.2.2: Erstelle Backup
+          ═══════════════════════════════════════════════════════════════════
+          
+          BACKUP_TIMESTAMP=\$(date +%s)
+          BACKUP_DIR=\"\\\${DEPLOY_DIR}.backup.\\\${BACKUP_TIMESTAMP}\"
+          echo \"💾 Erstelle Backup: \\\$BACKUP_DIR\"
+          
+          sudo cp -r \"\\\$DEPLOY_DIR\" \"\\\$BACKUP_DIR\" 2>/dev/null || cp -r \"\\\$DEPLOY_DIR\" \"\\\$BACKUP_DIR\"
+          
+          if [ -d \"\\\$BACKUP_DIR\" ]; then
+            echo \"✅ Backup erstellt: \\\$BACKUP_DIR\"
+            echo \"📊 Backup-Größe: \$(du -sh \\\$BACKUP_DIR | cut -f1)\"
+          else
+            echo \"⚠️  WARNUNG: Backup konnte nicht erstellt werden\"
+            echo \"   Deployment wird fortgesetzt, aber Rollback ist möglicherweise nicht möglich\"
+          fi
+          
+          ═══════════════════════════════════════════════════════════════════
+          SCHRITT 3.2.3: Deploye neue Dateien
+          ═══════════════════════════════════════════════════════════════════
+          
+          echo \"📤 Deploye neue Dateien nach \\\$DEPLOY_DIR...\"
+          
+          # Kopiere Dateien
+          sudo cp -r dist/public/* \"\\\$DEPLOY_DIR/\" 2>/dev/null || cp -r dist/public/* \"\\\$DEPLOY_DIR/\"
+          
+          if [ \\\$? -eq 0 ]; then
+            echo \"✅ Dateien erfolgreich kopiert\"
+          else
+            echo \"❌ FEHLER beim Kopieren der Dateien\"
+            echo \"   Versuche Rollback...\"
+            if [ -d \"\\\$BACKUP_DIR\" ]; then
+              sudo cp -r \"\\\$BACKUP_DIR\"/* \"\\\$DEPLOY_DIR/\" 2>/dev/null || cp -r \"\\\$BACKUP_DIR\"/* \"\\\$DEPLOY_DIR/\"
+              echo \"✅ Rollback durchgeführt\"
+            fi
+            exit 1
+          fi
+          
+          # Setze Berechtigungen
+          sudo chmod -R 755 \"\\\$DEPLOY_DIR\" 2>/dev/null || chmod -R 755 \"\\\$DEPLOY_DIR\"
+          echo \"✅ Berechtigungen gesetzt\"
+          
+          ═══════════════════════════════════════════════════════════════════
+          SCHRITT 3.2.4: Webserver neu laden
+          ═══════════════════════════════════════════════════════════════════
+          
+          echo \"🔄 Lade Webserver neu...\"
+          
+          # Ermittle Webserver-Typ
+          WEBSERVER=\"\"
+          if systemctl is-active --quiet nginx 2>/dev/null; then
+            WEBSERVER=\"nginx\"
+            echo \"✅ Nginx erkannt\"
+          elif systemctl is-active --quiet apache2 2>/dev/null; then
+            WEBSERVER=\"apache2\"
+            echo \"✅ Apache erkannt\"
+          else
+            echo \"⚠️  Kein bekannter Webserver erkannt\"
+            echo \"   Versuche beide...\"
+          fi
+          
+          # Lade Webserver neu
+          if [ \"\\\$WEBSERVER\" = \"nginx\" ]; then
+            sudo systemctl reload nginx 2>/dev/null && echo \"✅ Nginx reloaded\" || echo \"⚠️  Nginx reload fehlgeschlagen\"
+          elif [ \"\\\$WEBSERVER\" = \"apache2\" ]; then
+            sudo systemctl reload apache2 2>/dev/null && echo \"✅ Apache reloaded\" || echo \"⚠️  Apache reload fehlgeschlagen\"
+          else
+            sudo systemctl reload nginx 2>/dev/null && echo \"✅ Nginx reloaded\" || true
+            sudo systemctl reload apache2 2>/dev/null && echo \"✅ Apache reloaded\" || true
+          fi
+          
+          # Versuche Node.js Prozess zu neustarten (falls vorhanden)
+          sudo systemctl restart houston 2>/dev/null && echo \"✅ Houston Service restarted\" || true
+          
+          sleep 2
+          echo \"✅ Webserver-Reload abgeschlossen\"
           
           ⚠️ WICHTIG: 
           - Der API Key wurde bereits im HTTP Header bereitgestellt, als dieser Task erstellt wurde
