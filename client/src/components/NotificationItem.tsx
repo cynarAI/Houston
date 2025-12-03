@@ -36,7 +36,7 @@ const notificationColors = {
 };
 
 export function NotificationItem({ notification, onClose }: NotificationItemProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const utils = trpc.useUtils();
 
   const markAsRead = trpc.notifications.markAsRead.useMutation({
@@ -50,7 +50,7 @@ export function NotificationItem({ notification, onClose }: NotificationItemProp
     onSuccess: () => {
       utils.notifications.getUnreadCount.invalidate();
       utils.notifications.getAll.invalidate();
-      toast.success("Notification deleted");
+      toast.success(t("notifications.deleted"));
     },
   });
 
