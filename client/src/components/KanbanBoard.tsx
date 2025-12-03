@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -7,30 +7,33 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Target, Calendar, TrendingUp } from 'lucide-react';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Target, Calendar, TrendingUp } from "lucide-react";
 
 interface Goal {
   id: number;
   title: string;
-  status: 'active' | 'in_progress' | 'completed';
+  status: "active" | "in_progress" | "completed";
   deadline?: string;
   progress?: number;
 }
 
 interface KanbanBoardProps {
   goals: Goal[];
-  onStatusChange: (goalId: number, newStatus: 'active' | 'in_progress' | 'completed') => void;
+  onStatusChange: (
+    goalId: number,
+    newStatus: "active" | "in_progress" | "completed",
+  ) => void;
 }
 
 function SortableGoalCard({ goal }: { goal: Goal }) {
@@ -65,14 +68,14 @@ function SortableGoalCard({ goal }: { goal: Goal }) {
               <h4 className="font-semibold text-sm">{goal.title}</h4>
             </div>
           </div>
-          
+
           {goal.deadline && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
               <Calendar className="h-3 w-3" />
               {new Date(goal.deadline).toLocaleDateString()}
             </div>
           )}
-          
+
           {goal.progress !== undefined && (
             <div className="flex items-center gap-2">
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
@@ -81,7 +84,9 @@ function SortableGoalCard({ goal }: { goal: Goal }) {
                   style={{ width: `${goal.progress}%` }}
                 />
               </div>
-              <span className="text-xs text-muted-foreground">{goal.progress}%</span>
+              <span className="text-xs text-muted-foreground">
+                {goal.progress}%
+              </span>
             </div>
           )}
         </CardContent>
@@ -91,15 +96,19 @@ function SortableGoalCard({ goal }: { goal: Goal }) {
 }
 
 export function KanbanBoard({ goals, onStatusChange }: KanbanBoardProps) {
-  const [activeGoals, setActiveGoals] = useState(goals.filter(g => g.status === 'active'));
-  const [inProgressGoals, setInProgressGoals] = useState(goals.filter(g => g.status === 'in_progress'));
-  const [completedGoals, setCompletedGoals] = useState(goals.filter(g => g.status === 'completed'));
+  const [activeGoals] = useState(goals.filter((g) => g.status === "active"));
+  const [inProgressGoals] = useState(
+    goals.filter((g) => g.status === "in_progress"),
+  );
+  const [completedGoals] = useState(
+    goals.filter((g) => g.status === "completed"),
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -125,15 +134,17 @@ export function KanbanBoard({ goals, onStatusChange }: KanbanBoardProps) {
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-gray-500" />
                 Backlog
-                <Badge variant="secondary" className="ml-auto">{activeGoals.length}</Badge>
+                <Badge variant="secondary" className="ml-auto">
+                  {activeGoals.length}
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <SortableContext
-                items={activeGoals.map(g => g.id)}
+                items={activeGoals.map((g) => g.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {activeGoals.map(goal => (
+                {activeGoals.map((goal) => (
                   <SortableGoalCard key={goal.id} goal={goal} />
                 ))}
               </SortableContext>
@@ -148,15 +159,17 @@ export function KanbanBoard({ goals, onStatusChange }: KanbanBoardProps) {
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-blue-500" />
                 In Progress
-                <Badge variant="secondary" className="ml-auto">{inProgressGoals.length}</Badge>
+                <Badge variant="secondary" className="ml-auto">
+                  {inProgressGoals.length}
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <SortableContext
-                items={inProgressGoals.map(g => g.id)}
+                items={inProgressGoals.map((g) => g.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {inProgressGoals.map(goal => (
+                {inProgressGoals.map((goal) => (
                   <SortableGoalCard key={goal.id} goal={goal} />
                 ))}
               </SortableContext>
@@ -171,15 +184,17 @@ export function KanbanBoard({ goals, onStatusChange }: KanbanBoardProps) {
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500" />
                 Completed
-                <Badge variant="secondary" className="ml-auto">{completedGoals.length}</Badge>
+                <Badge variant="secondary" className="ml-auto">
+                  {completedGoals.length}
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <SortableContext
-                items={completedGoals.map(g => g.id)}
+                items={completedGoals.map((g) => g.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {completedGoals.map(goal => (
+                {completedGoals.map((goal) => (
                   <SortableGoalCard key={goal.id} goal={goal} />
                 ))}
               </SortableContext>
