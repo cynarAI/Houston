@@ -387,16 +387,27 @@ jobs:
           - Prüfe dass der richtige Commit deployed ist: curl -s https://houston.manus.space | grep -o \"${{ steps.commit.outputs.sha_short }}\" || echo \"⚠️  Commit-Hash nicht in HTML gefunden\"
           - Prüfe dass keine JavaScript-Fehler auftreten: curl -s https://houston.manus.space | grep -i \"error\" || echo \"✅ Keine offensichtlichen Fehler im HTML\"
           - Logge das Deployment: echo \"✅ Deployment erfolgreich: Commit ${{ steps.commit.outputs.sha_short }} deployed um \$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+          - Speichere Log in Datei: LOG_FILE=\"/var/log/houston-deployment.log\" && mkdir -p \$(dirname \\\$LOG_FILE) 2>/dev/null && echo \"[AUDIT] \$(date -u +%Y-%m-%dT%H:%M:%SZ) - Deployment erfolgreich - Commit: ${{ steps.commit.outputs.sha_short }}\" | sudo tee -a \\\$LOG_FILE 2>/dev/null || echo \"⚠️  Log-Datei konnte nicht geschrieben werden\"
           
           🚨 FEHLERBEHANDLUNG:
           - Falls alle Deployment-Methoden fehlschlagen:
           - Gib eine detaillierte Fehlermeldung aus mit: Fehlercode, betroffene Methode, letzte erfolgreiche Aktion
           - Erstelle ein Backup des aktuellen Zustands: cp -r \\\$DEPLOY_DIR \\\$DEPLOY_DIR.error.\$(date +%s)
           - Versuche nicht, das Deployment zu erzwingen - gib stattdessen klare Fehlerinformationen aus
+          - Spezifische HTTP-Status-Codes beachten:
+            - 401/403: Authentifizierungsfehler - Deployment abbrechen
+            - 404: Endpoint nicht gefunden - Fallback-Methode verwenden
+            - 409: Konflikt (z.B. gleichzeitiges Deployment) - Warten und erneut versuchen
+            - 500: Server-Fehler - Rollback durchführen
+            - Andere Fehler: Detaillierte Fehlermeldung ausgeben und abbrechen
           
           📋 AUDIT-LOGGING:
-          - Logge alle wichtigen Schritte: echo \"[AUDIT] \$(date -u +%Y-%m-%dT%H:%M:%SZ) - [AKTION] - Commit: ${{ steps.commit.outputs.sha_short }}\"
-          - Wichtige Aktionen zum Loggen: Repository geklont, Commit verifiziert, Build erfolgreich, Backup erstellt, Dateien kopiert, Webserver neu geladen, Validierung durchgeführt"
+          - Logge alle wichtigen Schritte sowohl in stdout als auch in Log-Datei:
+            - LOG_FILE=\"/var/log/houston-deployment.log\"
+            - mkdir -p \$(dirname \\\$LOG_FILE) 2>/dev/null
+            - Für jede wichtige Aktion: echo \"[AUDIT] \$(date -u +%Y-%m-%dT%H:%M:%SZ) - [AKTION] - Commit: ${{ steps.commit.outputs.sha_short }}\" | sudo tee -a \\\$LOG_FILE 2>/dev/null || echo \"[AUDIT] \$(date -u +%Y-%m-%dT%H:%M:%SZ) - [AKTION] - Commit: ${{ steps.commit.outputs.sha_short }}\"
+          - Wichtige Aktionen zum Loggen: Repository geklont, Commit verifiziert, Build erfolgreich, Backup erstellt, Dateien kopiert, Webserver neu geladen, Validierung durchgeführt, Deployment erfolgreich/fehlgeschlagen
+          - Falls Log-Datei nicht beschreibbar ist, logge nur in stdout (nicht abbrechen)"
 
           # Erstelle Task
           RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
