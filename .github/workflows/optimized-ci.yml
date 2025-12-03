@@ -203,12 +203,47 @@ jobs:
           
           # Lade PROMPT-Template aus Datei und ersetze Template-Variablen
           # KRITISCH: Der Agent MUSS den exakten Commit verwenden - keine alten Versionen!
-          PROMPT=$(cat .github/scripts/deployment-prompt-template.sh | \
-            sed "s/COMMIT_SHA_SHORT/${{ steps.commit.outputs.sha_short }}/g" | \
-            sed "s/COMMIT_SHA_FULL/${{ steps.commit.outputs.sha_full }}/g" | \
-            sed "s|COMMIT_MESSAGE|$(echo '${{ steps.commit.outputs.message }}' | sed 's/"/\\"/g')|g" | \
-            sed "s/COMMIT_TIMESTAMP/${{ steps.commit.outputs.timestamp }}/g" | \
-            sed "s|CHANGED_FILES|$(echo '${{ steps.commit.outputs.changed_files }}' | sed 's/"/\\"/g')|g")
+          # Verwende einfachen Prompt wenn USE_SIMPLE_PROMPT=true (z.B. für manuelle Deployments)
+          
+          # Escape-Funktion für sed: escapt alle sed-spezialzeichen
+          # Verwendet # als Separator (muss auch # escapen, falls es in den Werten vorkommt)
+          # Escapt auch einfache Anführungszeichen für Robustheit
+          escape_for_sed() {
+            echo "$1" | sed 's/\\/\\\\/g' | sed 's/#/\\#/g' | sed 's/|/\\|/g' | sed 's/\//\\\//g' | sed 's/&/\\&/g' | sed 's/"/\\"/g' | sed "s/'/\\\'/g"
+          }
+          
+          # Escape Commit-Message und Changed-Files für sed
+          # WICHTIG: Verwende doppelte Anführungszeichen, damit GitHub Actions die Variable expandiert
+          # und einfache Anführungszeichen in der Commit-Message die Shell-Syntax nicht brechen
+          COMMIT_MSG_ESCAPED=$(escape_for_sed "${{ steps.commit.outputs.message }}")
+          CHANGED_FILES_ESCAPED=$(escape_for_sed "${{ steps.commit.outputs.changed_files }}")
+          
+          if [ "${{ vars.USE_SIMPLE_PROMPT }}" = "true" ]; then
+            echo "📋 Verwende einfachen Deployment-Prompt..."
+            PROMPT_TEMPLATE=".github/scripts/simple-deployment-prompt.sh"
+            # Entferne Shell-Script-Header nur beim einfachen Template
+            PROMPT=$(cat "$PROMPT_TEMPLATE" | \
+              sed "s#COMMIT_SHA_SHORT#${{ steps.commit.outputs.sha_short }}#g" | \
+              sed "s#COMMIT_SHA_FULL#${{ steps.commit.outputs.sha_full }}#g" | \
+              sed "s#COMMIT_MESSAGE#$COMMIT_MSG_ESCAPED#g" | \
+              sed "s#COMMIT_TIMESTAMP#${{ steps.commit.outputs.timestamp }}#g" | \
+              sed "s#CHANGED_FILES#$CHANGED_FILES_ESCAPED#g" | \
+              sed '/^#!/d' | \
+              sed '/^cat << /d' | \
+              sed '/^PROMPT_EOF$/d')
+          else
+            echo "📋 Verwende vollständigen Deployment-Prompt..."
+            PROMPT_TEMPLATE=".github/scripts/deployment-prompt-template.sh"
+            # Beim vollständigen Template KEINE Shell-Script-Header entfernen!
+            # Die cat << Zeilen sind Teil des Prompt-Inhalts für den Manus-Agent
+            PROMPT=$(cat "$PROMPT_TEMPLATE" | \
+              sed "s#COMMIT_SHA_SHORT#${{ steps.commit.outputs.sha_short }}#g" | \
+              sed "s#COMMIT_SHA_FULL#${{ steps.commit.outputs.sha_full }}#g" | \
+              sed "s#COMMIT_MESSAGE#$COMMIT_MSG_ESCAPED#g" | \
+              sed "s#COMMIT_TIMESTAMP#${{ steps.commit.outputs.timestamp }}#g" | \
+              sed "s#CHANGED_FILES#$CHANGED_FILES_ESCAPED#g" | \
+              sed '/^#!/d')
+          fi
           
           # Alte PROMPT-Definition entfernt - jetzt aus Datei geladen
           # Erstelle JSON-Payload mit jq (robust gegen Sonderzeichen)
