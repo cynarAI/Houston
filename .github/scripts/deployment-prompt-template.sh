@@ -274,6 +274,43 @@ if [ ! -d "$DEPLOY_DIR" ]; then
   sudo mkdir -p "$DEPLOY_DIR" 2>/dev/null || mkdir -p "$DEPLOY_DIR"
 fi
 
+# KRITISCH: Verifiziere dass das Deployment-Verzeichnis mit dem Webserver übereinstimmt
+echo "🔍 Verifiziere Webserver-Konfiguration..."
+NGINX_ROOT=""
+APACHE_ROOT=""
+
+# Prüfe Nginx-Konfiguration für houston.manus.space
+if [ -f "/etc/nginx/sites-enabled/houston.manus.space" ]; then
+  NGINX_ROOT=$(grep -o 'root [^;]*' /etc/nginx/sites-enabled/houston.manus.space | sed 's/root //' | head -1 | xargs)
+  echo "   Nginx root für houston.manus.space: $NGINX_ROOT"
+elif [ -f "/etc/nginx/sites-available/houston.manus.space" ]; then
+  NGINX_ROOT=$(grep -o 'root [^;]*' /etc/nginx/sites-available/houston.manus.space | sed 's/root //' | head -1 | xargs)
+  echo "   Nginx root für houston.manus.space (available): $NGINX_ROOT"
+fi
+
+# Prüfe Apache-Konfiguration
+if [ -f "/etc/apache2/sites-enabled/houston.manus.space.conf" ]; then
+  APACHE_ROOT=$(grep -i "DocumentRoot" /etc/apache2/sites-enabled/houston.manus.space.conf | awk '{print $2}' | head -1 | xargs)
+  echo "   Apache DocumentRoot für houston.manus.space: $APACHE_ROOT"
+fi
+
+# Wenn Webserver ein anderes Verzeichnis verwendet, korrigiere DEPLOY_DIR
+if [ ! -z "$NGINX_ROOT" ] && [ "$DEPLOY_DIR" != "$NGINX_ROOT" ]; then
+  echo "⚠️  WARNUNG: Nginx verwendet anderes Verzeichnis: $NGINX_ROOT"
+  echo "   Korrigiere DEPLOY_DIR zu: $NGINX_ROOT"
+  DEPLOY_DIR="$NGINX_ROOT"
+elif [ ! -z "$APACHE_ROOT" ] && [ "$DEPLOY_DIR" != "$APACHE_ROOT" ]; then
+  echo "⚠️  WARNUNG: Apache verwendet anderes Verzeichnis: $APACHE_ROOT"
+  echo "   Korrigiere DEPLOY_DIR zu: $APACHE_ROOT"
+  DEPLOY_DIR="$APACHE_ROOT"
+fi
+
+# Stelle sicher, dass das Verzeichnis existiert
+if [ ! -d "$DEPLOY_DIR" ]; then
+  echo "⚠️  Verzeichnis existiert nicht, erstelle es..."
+  sudo mkdir -p "$DEPLOY_DIR" 2>/dev/null || mkdir -p "$DEPLOY_DIR"
+fi
+
 echo "✅ Finales Deployment-Verzeichnis: $DEPLOY_DIR"
 
 ═══════════════════════════════════════════════════════════════════
@@ -315,8 +352,32 @@ fi
 SOURCE_FILE_COUNT=$(find dist/public -type f | wc -l)
 echo "📊 Anzahl zu kopierender Dateien: $SOURCE_FILE_COUNT"
 
-# Kopiere Dateien (assets/ wird neu erstellt)
+# KRITISCH: Lösche auch index.html, damit die neue Version garantiert deployed wird
+# (index.html enthält Referenzen auf neue Assets mit Hash-Namen)
+if [ -f "$DEPLOY_DIR/index.html" ]; then
+  echo "🗑️  Lösche alte index.html (enthält Referenzen auf alte Assets)..."
+  sudo rm -f "$DEPLOY_DIR/index.html" 2>/dev/null || rm -f "$DEPLOY_DIR/index.html"
+  echo "✅ Alte index.html gelöscht"
+fi
+
+# Kopiere Dateien (assets/ wird neu erstellt, index.html wird neu kopiert)
 sudo cp -r dist/public/* "$DEPLOY_DIR/" 2>/dev/null || cp -r dist/public/* "$DEPLOY_DIR/"
+
+# KRITISCH: Verifiziere dass die neue index.html auf neue Assets verweist
+if [ -f "$DEPLOY_DIR/index.html" ]; then
+  NEW_ASSET_REF=$(grep -o 'src="[^"]*index-[^"]*\.js"' "$DEPLOY_DIR/index.html" | head -1)
+  echo "📋 Neue index.html verweist auf: $NEW_ASSET_REF"
+  
+  # Prüfe ob die referenzierte Datei existiert
+  ASSET_FILE=$(echo "$NEW_ASSET_REF" | sed 's|src="/assets/||;s|"||')
+  if [ -f "$DEPLOY_DIR/assets/$ASSET_FILE" ]; then
+    echo "✅ Referenzierte Asset-Datei existiert: $ASSET_FILE"
+  else
+    echo "⚠️  WARNUNG: Referenzierte Asset-Datei fehlt: $ASSET_FILE"
+  fi
+else
+  echo "❌ FEHLER: index.html wurde nicht kopiert!"
+fi
 
 if [ $? -eq 0 ]; then
   echo "✅ Dateien erfolgreich kopiert"
@@ -479,6 +540,41 @@ if [ -f "$DEPLOY_DIR/index.html" ]; then
   fi
 else
   echo "❌ FEHLER: index.html fehlt!"
+fi
+
+# KRITISCH: Verifiziere dass die Live-Seite die neuen Dateien zeigt
+echo "🌐 Prüfe Live-Seite nach Deployment..."
+sleep 3  # Warte kurz, damit Webserver Zeit hat zu aktualisieren
+
+LIVE_HTML=$(curl -s --max-time 10 "https://houston.manus.space/?nocache=$(date +%s)" 2>/dev/null || echo "")
+if [ ! -z "$LIVE_HTML" ]; then
+  # Prüfe welche JavaScript-Datei die Live-Seite lädt
+  LIVE_ASSET=$(echo "$LIVE_HTML" | grep -o 'src="[^"]*index-[^"]*\.js"' | head -1)
+  echo "   Live-Seite lädt: $LIVE_ASSET"
+  
+  # Prüfe welche JavaScript-Datei lokal deployed wurde
+  DEPLOYED_ASSET=$(grep -o 'src="[^"]*index-[^"]*\.js"' "$DEPLOY_DIR/index.html" 2>/dev/null | head -1)
+  echo "   Deployed index.html verweist auf: $DEPLOYED_ASSET"
+  
+  if [ ! -z "$LIVE_ASSET" ] && [ ! -z "$DEPLOYED_ASSET" ]; then
+    if [ "$LIVE_ASSET" = "$DEPLOYED_ASSET" ]; then
+      echo "✅ Live-Seite lädt die neuen Assets!"
+    else
+      echo "⚠️  WARNUNG: Live-Seite lädt andere Assets als deployed!"
+      echo "   Möglicherweise wird ein anderes Verzeichnis vom Webserver verwendet"
+      echo "   Oder es gibt ein Caching-Problem"
+    fi
+  fi
+  
+  # Prüfe ob die neue Überschrift auf der Live-Seite ist
+  if echo "$LIVE_HTML" | grep -qi "Marketing.*nicht.*liegen"; then
+    echo "✅ Neue Überschrift auf Live-Seite gefunden!"
+  elif echo "$LIVE_HTML" | grep -qi "Steigere deine Marketing-Performance"; then
+    echo "⚠️  WARNUNG: Alte Überschrift noch auf Live-Seite!"
+    echo "   Das Deployment-Verzeichnis könnte falsch sein oder es gibt ein Caching-Problem"
+  fi
+else
+  echo "⚠️  WARNUNG: Konnte Live-Seite nicht abrufen"
 fi
 
 echo "✅ Deployment-Verifizierung abgeschlossen"
