@@ -1,8 +1,17 @@
 import { describe, expect, it, beforeAll } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { getDb } from "./db";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
+
+// Check if database is available
+let dbAvailable = false;
+
+beforeAll(async () => {
+  const db = await getDb();
+  dbAvailable = !!db;
+});
 
 function createAuthContext(): { ctx: TrpcContext } {
   const user: AuthenticatedUser = {
@@ -31,7 +40,7 @@ function createAuthContext(): { ctx: TrpcContext } {
   return { ctx };
 }
 
-describe("goals router", () => {
+describe.skipIf(!dbAvailable)("goals router", () => {
   let testWorkspaceId: number;
 
   beforeAll(async () => {

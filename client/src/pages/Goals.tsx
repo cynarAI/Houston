@@ -1,19 +1,49 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { CheckSquare, Plus, Target, Edit, Trash2, Sparkles, Filter, ArrowUpDown, Download, Loader2 } from "lucide-react";
+import {
+  CheckSquare,
+  Plus,
+  Target,
+  Edit,
+  Trash2,
+  Sparkles,
+  Filter,
+  ArrowUpDown,
+  Download,
+  Loader2,
+} from "lucide-react";
 import ViewSwitcher, { ViewType } from "@/components/ViewSwitcher";
 import TableView from "@/components/views/TableView";
 import TimelineView from "@/components/views/TimelineView";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import type { Goal } from "@shared/types";
 import { LoadingState } from "@/components/ui/LoadingState";
@@ -59,12 +89,22 @@ export default function Goals() {
     localStorage.setItem("goals-view", view);
   };
 
-  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
-  const { data: goalsData, isLoading: goalsLoading, isError: goalsError, refetch } = trpc.goals.listByWorkspace.useQuery(
+  const {
+    data: workspaces,
+    isLoading: workspacesLoading,
+    isError: workspacesError,
+    refetch: refetchWorkspaces,
+  } = trpc.workspaces.list.useQuery();
+  const {
+    data: goalsData,
+    isLoading: goalsLoading,
+    isError: goalsError,
+    refetch,
+  } = trpc.goals.listByWorkspace.useQuery(
     { workspaceId: workspaces?.[0]?.id || 0 },
-    { enabled: !!workspaces?.[0]?.id }
+    { enabled: !!workspaces?.[0]?.id },
   );
-  
+
   // Combined states
   const isLoading = workspacesLoading || (workspaces?.[0]?.id && goalsLoading);
   const hasError = workspacesError || goalsError;
@@ -72,13 +112,13 @@ export default function Goals() {
   // Filter and sort goals
   const goals = useMemo(() => {
     if (!goalsData) return [];
-    
+
     // Filter
     let filtered = goalsData;
     if (filterStatus !== "all") {
       filtered = goalsData.filter((g: Goal) => g.status === filterStatus);
     }
-    
+
     // Sort
     const sorted = [...filtered].sort((a: Goal, b: Goal) => {
       switch (sortBy) {
@@ -88,10 +128,12 @@ export default function Goals() {
           return (b.progress || 0) - (a.progress || 0);
         case "created":
         default:
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
       }
     });
-    
+
     return sorted;
   }, [goalsData, filterStatus, sortBy]);
 
@@ -127,23 +169,32 @@ export default function Goals() {
     if (!workspaces?.[0]?.id || !formData.title) return;
 
     const isFirstGoal = !goalsData || goalsData.length === 0;
-    
+
     try {
       await createGoalMutation.mutateAsync({
         workspaceId: workspaces[0].id,
         ...formData,
       });
-      
+
       // Track goal creation
       const isFirstGoal = !goalsData || goalsData.length === 0;
-      const hasSmartFields = !!(formData.specific || formData.measurable || formData.achievable || formData.relevant || formData.timeBound);
-      trackEvent(AnalyticsEvents.GOAL_CREATED, { is_first_goal: isFirstGoal, has_smart_fields: hasSmartFields });
-      
+      const hasSmartFields = !!(
+        formData.specific ||
+        formData.measurable ||
+        formData.achievable ||
+        formData.relevant ||
+        formData.timeBound
+      );
+      trackEvent(AnalyticsEvents.GOAL_CREATED, {
+        is_first_goal: isFirstGoal,
+        has_smart_fields: hasSmartFields,
+      });
+
       toast.success("Ziel erfolgreich erstellt!");
       setIsCreateDialogOpen(false);
       resetForm();
       refetch();
-      
+
       // Celebrate first goal
       if (isFirstGoal) {
         celebrations.firstGoal();
@@ -161,10 +212,10 @@ export default function Goals() {
         id: editingGoal.id,
         ...formData,
       });
-      
+
       // Track goal update
       trackEvent(AnalyticsEvents.GOAL_UPDATED, { goal_id: editingGoal.id });
-      
+
       toast.success("Ziel erfolgreich aktualisiert!");
       setEditingGoal(null);
       resetForm();
@@ -179,10 +230,10 @@ export default function Goals() {
 
     try {
       await deleteGoalMutation.mutateAsync({ id });
-      
+
       // Track goal deletion
       trackEvent(AnalyticsEvents.GOAL_DELETED, { goal_id: id });
-      
+
       toast.success("Ziel erfolgreich gelöscht!");
       refetch();
     } catch (error) {
@@ -207,7 +258,7 @@ export default function Goals() {
     try {
       toast.info("Generiere PDF...");
       const result = await exportPDFMutation.mutateAsync({});
-      
+
       // Convert base64 to blob and download
       const byteCharacters = atob(result.data);
       const byteNumbers = new Array(byteCharacters.length);
@@ -215,21 +266,21 @@ export default function Goals() {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/pdf' });
-      
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = result.filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
       // Track PDF export
       trackEvent(AnalyticsEvents.PDF_EXPORTED, { type: "goals" });
-      
+
       toast.success("PDF erfolgreich heruntergeladen!");
     } catch (error) {
       handleMutationError(error, ErrorMessages.pdfExport);
@@ -275,12 +326,15 @@ export default function Goals() {
             description="Verfolge deine SMART-Ziele und messe deinen Erfolg."
             className="mb-0"
           />
-          
+
           {/* Controls */}
           <div className="flex items-center justify-between gap-4">
             {/* View Switcher - Left */}
-            <ViewSwitcher currentView={currentView} onViewChange={handleViewChange} />
-            
+            <ViewSwitcher
+              currentView={currentView}
+              onViewChange={handleViewChange}
+            />
+
             {/* Filters & Actions - Right */}
             <div className="flex items-center gap-3">
               {/* Filter */}
@@ -296,7 +350,7 @@ export default function Goals() {
                   <SelectItem value="archived">Archiviert</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               {/* Sort */}
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[150px]">
@@ -309,110 +363,137 @@ export default function Goals() {
                   <SelectItem value="progress">Fortschritt</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               {/* Export PDF */}
-              <Button variant="outline" onClick={handleExportPDF} disabled={!goals || goals.length === 0}>
+              <Button
+                variant="outline"
+                onClick={handleExportPDF}
+                disabled={!goals || goals.length === 0}
+              >
                 <Download className="mr-2 h-4 w-4" />
                 Export PDF
               </Button>
             </div>
           </div>
         </div>
-            
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Neues Ziel
-                </Button>
-              </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Neues Ziel erstellen</DialogTitle>
-                <DialogDescription>
-                  Erstelle ein SMART-Ziel für deine Marketing-Mission.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div>
-                  <Label htmlFor="title">Titel *</Label>
-                  <Input
-                    id="title"
-                    placeholder="z.B. 100 neue Leads generieren"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Beschreibung</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Detaillierte Beschreibung des Ziels..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="specific">Spezifisch</Label>
-                  <Textarea
-                    id="specific"
-                    placeholder="Was genau soll erreicht werden?"
-                    value={formData.specific}
-                    onChange={(e) => setFormData({ ...formData, specific: e.target.value })}
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="measurable">Messbar</Label>
-                  <Textarea
-                    id="measurable"
-                    placeholder="Wie wird der Erfolg gemessen?"
-                    value={formData.measurable}
-                    onChange={(e) => setFormData({ ...formData, measurable: e.target.value })}
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="achievable">Erreichbar</Label>
-                  <Textarea
-                    id="achievable"
-                    placeholder="Warum ist das Ziel erreichbar?"
-                    value={formData.achievable}
-                    onChange={(e) => setFormData({ ...formData, achievable: e.target.value })}
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="relevant">Relevant</Label>
-                  <Textarea
-                    id="relevant"
-                    placeholder="Warum ist das Ziel wichtig?"
-                    value={formData.relevant}
-                    onChange={(e) => setFormData({ ...formData, relevant: e.target.value })}
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="timeBound">Zeitgebunden</Label>
-                  <Textarea
-                    id="timeBound"
-                    placeholder="Bis wann soll es erreicht werden?"
-                    value={formData.timeBound}
-                    onChange={(e) => setFormData({ ...formData, timeBound: e.target.value })}
-                    rows={2}
-                  />
-                </div>
-                <Button onClick={handleCreate} className="w-full" disabled={!formData.title}>
-                  Ziel erstellen
-                </Button>
+
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Neues Ziel
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Neues Ziel erstellen</DialogTitle>
+              <DialogDescription>
+                Erstelle ein SMART-Ziel für deine Marketing-Mission.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label htmlFor="title">Titel *</Label>
+                <Input
+                  id="title"
+                  placeholder="z.B. 100 neue Leads generieren"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                />
               </div>
-            </DialogContent>
-          </Dialog>
+              <div>
+                <Label htmlFor="description">Beschreibung</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Detaillierte Beschreibung des Ziels..."
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label htmlFor="specific">Spezifisch</Label>
+                <Textarea
+                  id="specific"
+                  placeholder="Was genau soll erreicht werden?"
+                  value={formData.specific}
+                  onChange={(e) =>
+                    setFormData({ ...formData, specific: e.target.value })
+                  }
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label htmlFor="measurable">Messbar</Label>
+                <Textarea
+                  id="measurable"
+                  placeholder="Wie wird der Erfolg gemessen?"
+                  value={formData.measurable}
+                  onChange={(e) =>
+                    setFormData({ ...formData, measurable: e.target.value })
+                  }
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label htmlFor="achievable">Erreichbar</Label>
+                <Textarea
+                  id="achievable"
+                  placeholder="Warum ist das Ziel erreichbar?"
+                  value={formData.achievable}
+                  onChange={(e) =>
+                    setFormData({ ...formData, achievable: e.target.value })
+                  }
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label htmlFor="relevant">Relevant</Label>
+                <Textarea
+                  id="relevant"
+                  placeholder="Warum ist das Ziel wichtig?"
+                  value={formData.relevant}
+                  onChange={(e) =>
+                    setFormData({ ...formData, relevant: e.target.value })
+                  }
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label htmlFor="timeBound">Zeitgebunden</Label>
+                <Textarea
+                  id="timeBound"
+                  placeholder="Bis wann soll es erreicht werden?"
+                  value={formData.timeBound}
+                  onChange={(e) =>
+                    setFormData({ ...formData, timeBound: e.target.value })
+                  }
+                  rows={2}
+                />
+              </div>
+              <Button
+                onClick={handleCreate}
+                className="w-full"
+                disabled={!formData.title}
+              >
+                Ziel erstellen
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Goals Views */}
         {currentView === "table" && (
-          <TableView items={goals || []} type="goals" onEdit={handleEdit} onDelete={(id) => deleteGoalMutation.mutate({ id })} />
+          <TableView
+            items={goals || []}
+            type="goals"
+            onEdit={handleEdit}
+            onDelete={(id) => deleteGoalMutation.mutate({ id })}
+          />
         )}
         {currentView === "board" && (
           <Suspense fallback={<ViewLoader />}>
@@ -426,188 +507,6 @@ export default function Goals() {
           <Suspense fallback={<ViewLoader />}>
             <CalendarView items={goals || []} type="goals" />
           </Suspense>
-        )}
-
-        {/* Original Card View (hidden) */}
-        {false && goals && goals.length > 0 ? (
-          <div className="grid gap-6">
-            {goals.map((goal: Goal, index: number) => (
-              <Card key={goal.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary">Ziel {index + 1}</Badge>
-                        <Badge variant="outline">
-                          <Target className="h-3 w-3 mr-1" />
-                          SMART
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-xl">{goal.title}</CardTitle>
-                      {goal.description && (
-                        <CardDescription className="mt-2">{goal.description}</CardDescription>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Dialog open={editingGoal?.id === goal.id} onOpenChange={(open) => !open && resetForm()}>
-                        <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm" onClick={() => handleEdit(goal)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Ziel bearbeiten</DialogTitle>
-                            <DialogDescription>
-                              Aktualisiere dein SMART-Ziel.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 py-4">
-                            <div>
-                              <Label htmlFor="edit-title">Titel *</Label>
-                              <Input
-                                id="edit-title"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="edit-description">Beschreibung</Label>
-                              <Textarea
-                                id="edit-description"
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                rows={3}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="edit-specific">Spezifisch</Label>
-                              <Textarea
-                                id="edit-specific"
-                                value={formData.specific}
-                                onChange={(e) => setFormData({ ...formData, specific: e.target.value })}
-                                rows={2}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="edit-measurable">Messbar</Label>
-                              <Textarea
-                                id="edit-measurable"
-                                value={formData.measurable}
-                                onChange={(e) => setFormData({ ...formData, measurable: e.target.value })}
-                                rows={2}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="edit-achievable">Erreichbar</Label>
-                              <Textarea
-                                id="edit-achievable"
-                                value={formData.achievable}
-                                onChange={(e) => setFormData({ ...formData, achievable: e.target.value })}
-                                rows={2}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="edit-relevant">Relevant</Label>
-                              <Textarea
-                                id="edit-relevant"
-                                value={formData.relevant}
-                                onChange={(e) => setFormData({ ...formData, relevant: e.target.value })}
-                                rows={2}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="edit-timeBound">Zeitgebunden</Label>
-                              <Textarea
-                                id="edit-timeBound"
-                                value={formData.timeBound}
-                                onChange={(e) => setFormData({ ...formData, timeBound: e.target.value })}
-                                rows={2}
-                              />
-                            </div>
-                            <Button onClick={handleUpdate} className="w-full" disabled={!formData.title}>
-                              Änderungen speichern
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(goal.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {goal.specific && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-1">Spezifisch</h4>
-                      <p className="text-sm text-muted-foreground">{goal.specific}</p>
-                    </div>
-                  )}
-                  {goal.measurable && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-1">Messbar</h4>
-                      <p className="text-sm text-muted-foreground">{goal.measurable}</p>
-                    </div>
-                  )}
-                  {goal.achievable && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-1">Erreichbar</h4>
-                      <p className="text-sm text-muted-foreground">{goal.achievable}</p>
-                    </div>
-                  )}
-                  {goal.relevant && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-1">Relevant</h4>
-                      <p className="text-sm text-muted-foreground">{goal.relevant}</p>
-                    </div>
-                  )}
-                  {goal.timeBound && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-1">Zeitgebunden</h4>
-                      <p className="text-sm text-muted-foreground">{goal.timeBound}</p>
-                    </div>
-                  )}
-                  
-                  {/* Progress Placeholder */}
-                  <div className="pt-4 border-t">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Fortschritt</span>
-                      <span className="text-sm text-muted-foreground">0%</span>
-                    </div>
-                    <Progress value={0} />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <GlassCard variant="elevated">
-            <GlassCardContent className="py-16 text-center">
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)] rounded-full blur-2xl opacity-20 animate-pulse"></div>
-                  <GradientIcon icon={Target} gradient="blue-purple" size="xl" className="relative" />
-                </div>
-              </div>
-              <h3 className="font-semibold text-xl mb-2">
-                Erstelle dein erstes <span className="gradient-text">SMART-Ziel</span>
-              </h3>
-              <p className="text-sm text-muted-foreground mb-8 max-w-md mx-auto">
-                Definiere spezifische, messbare, erreichbare, relevante und zeitgebundene Ziele mit Houstons Hilfe.
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Button onClick={() => setIsCreateDialogOpen(true)} variant="gradient">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Ziel erstellen
-                </Button>
-                <Button variant="outline" className="glass hover:bg-white/10">
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Houston um Hilfe fragen
-                </Button>
-              </div>
-            </GlassCardContent>
-          </GlassCard>
         )}
       </div>
     </DashboardLayout>
