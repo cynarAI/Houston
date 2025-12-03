@@ -476,28 +476,136 @@ else
   sudo systemctl reload apache2 2>/dev/null && echo "✅ Apache reloaded" || true
 fi
 
-# KRITISCH: Versuche Node.js Prozess zu neustarten (falls vorhanden)
-echo "🔄 Versuche Node.js Server neu zu starten..."
+# KRITISCH: Node.js Server NEUSTARTEN (FULL-STACK APP!)
+# ⚠️ WICHTIG: Dies ist eine Express.js App - der Server MUSS neu gestartet werden!
+# ⚠️ WICHTIG: express.static() lädt Dateien beim Start - neue Dateien werden sonst nicht serviert!
+echo "🔄 Starte Node.js Server neu (KRITISCH für Express.js App)..."
 
-# Methode 1: Systemd Service
-if sudo systemctl restart houston 2>/dev/null; then
-  echo "✅ Houston Service restarted via systemctl"
-elif sudo systemctl restart houston-app 2>/dev/null; then
-  echo "✅ Houston App Service restarted via systemctl"
-else
-  # Methode 2: Finde laufenden Node-Prozess und starte neu
-  NODE_PID=$(ps aux | grep -i "node.*dist/index.js\|node.*houston" | grep -v grep | head -1 | awk '{print $2}')
-  if [ ! -z "$NODE_PID" ]; then
-    echo "⚠️  Node-Prozess gefunden (PID: $NODE_PID), aber kein systemd Service"
-    echo "   Der Server muss manuell neu gestartet werden, um die neuen Dateien zu laden"
-    echo "   Befehl zum Neustart: kill -HUP $NODE_PID oder kill $NODE_PID && [START_COMMAND]"
-  else
-    echo "⚠️  Kein laufender Node.js-Prozess gefunden"
-    echo "   Die App läuft möglicherweise als statische Website oder über einen anderen Webserver"
+# Finde zuerst alle möglichen Node-Prozesse
+NODE_PIDS=$(ps aux | grep -i "node.*dist/index.js\|node.*houston\|node.*server" | grep -v grep | awk '{print $2}')
+echo "📊 Gefundene Node-Prozesse: $NODE_PIDS"
+
+# Methode 1: Systemd Service (BEVORZUGT)
+RESTARTED=false
+for SERVICE in houston houston-app houston-server node-houston; do
+  if sudo systemctl restart "$SERVICE" 2>/dev/null; then
+    echo "✅ $SERVICE Service restarted via systemctl"
+    RESTARTED=true
+    break
+  fi
+done
+
+# Methode 2: PM2 (falls verwendet)
+if [ "$RESTARTED" = "false" ] && command -v pm2 >/dev/null 2>&1; then
+  echo "🔄 Versuche PM2 Restart..."
+  if pm2 restart all 2>/dev/null; then
+    echo "✅ PM2 restart erfolgreich"
+    RESTARTED=true
+  elif pm2 restart houston 2>/dev/null; then
+    echo "✅ PM2 restart houston erfolgreich"
+    RESTARTED=true
   fi
 fi
 
-sleep 2
+# Methode 3: Docker (falls als Container läuft)
+if [ "$RESTARTED" = "false" ] && command -v docker >/dev/null 2>&1; then
+  echo "🔄 Versuche Docker Container Restart..."
+  DOCKER_CONTAINER=$(docker ps | grep -i "houston\|node" | awk '{print $1}' | head -1)
+  if [ ! -z "$DOCKER_CONTAINER" ]; then
+    if docker restart "$DOCKER_CONTAINER" 2>/dev/null; then
+      echo "✅ Docker Container restarted: $DOCKER_CONTAINER"
+      RESTARTED=true
+    fi
+  fi
+fi
+
+# Methode 4: Finde laufenden Node-Prozess und starte neu (FALLBACK)
+if [ "$RESTARTED" = "false" ] && [ ! -z "$NODE_PIDS" ]; then
+  echo "🔄 Versuche Node-Prozess direkt neu zu starten..."
+  for PID in $NODE_PIDS; do
+    echo "   Gefundener Prozess PID: $PID"
+    
+    # Versuche graceful restart mit HUP Signal (falls unterstützt)
+    if kill -HUP "$PID" 2>/dev/null; then
+      echo "✅ HUP Signal an PID $PID gesendet"
+      RESTARTED=true
+      sleep 2
+      # Prüfe ob Prozess noch läuft
+      if ! ps -p "$PID" > /dev/null 2>&1; then
+        echo "⚠️  Prozess $PID wurde beendet - muss neu gestartet werden"
+        RESTARTED=false
+      fi
+    fi
+    
+    # Falls HUP nicht funktioniert, versuche kill und Neustart
+    if [ "$RESTARTED" = "false" ]; then
+      # Finde das Arbeitsverzeichnis und Start-Kommando
+      PROC_CWD=$(pwdx "$PID" 2>/dev/null | awk '{print $2}' || lsof -p "$PID" 2>/dev/null | grep cwd | awk '{print $NF}' | head -1)
+      PROC_CMD=$(ps -p "$PID" -o cmd= 2>/dev/null | head -1)
+      
+      echo "   Prozess-CWD: $PROC_CWD"
+      echo "   Prozess-CMD: $PROC_CMD"
+      
+      # Versuche kill und Neustart
+      if [ ! -z "$PROC_CWD" ] && [ -d "$PROC_CWD" ]; then
+        echo "   Beende Prozess $PID..."
+        kill "$PID" 2>/dev/null || kill -9 "$PID" 2>/dev/null
+        sleep 2
+        
+        # Versuche Neustart basierend auf CWD
+        if [ -f "$PROC_CWD/package.json" ]; then
+          cd "$PROC_CWD"
+          if [ -f "package.json" ] && grep -q '"start"' package.json; then
+            echo "   Starte Server neu mit npm start..."
+            nohup npm start > /tmp/houston-restart.log 2>&1 &
+            RESTARTED=true
+          elif [ -f "dist/index.js" ]; then
+            echo "   Starte Server neu mit node dist/index.js..."
+            nohup node dist/index.js > /tmp/houston-restart.log 2>&1 &
+            RESTARTED=true
+          fi
+        fi
+      fi
+    fi
+    
+    # Nur einen Prozess behandeln
+    break
+  done
+fi
+
+# Methode 5: Suche nach Start-Skripten
+if [ "$RESTARTED" = "false" ]; then
+  echo "🔄 Suche nach Start-Skripten..."
+  for DIR in /home/ubuntu /opt /var/www /usr/local; do
+    if [ -f "$DIR/houston/package.json" ] || [ -f "$DIR/houston-app/package.json" ]; then
+      APP_DIR=$(find "$DIR" -name "package.json" -path "*/houston*" | head -1 | xargs dirname)
+      if [ ! -z "$APP_DIR" ] && [ -d "$APP_DIR" ]; then
+        echo "   Gefunden: $APP_DIR"
+        cd "$APP_DIR"
+        if [ -f "dist/index.js" ]; then
+          echo "   Starte Server neu..."
+          nohup node dist/index.js > /tmp/houston-restart.log 2>&1 &
+          RESTARTED=true
+          break
+        fi
+      fi
+    fi
+  done
+fi
+
+if [ "$RESTARTED" = "true" ]; then
+  echo "✅ Node.js Server Neustart erfolgreich"
+else
+  echo "⚠️  WARNUNG: Node.js Server konnte nicht neu gestartet werden!"
+  echo "   Die neuen Dateien wurden deployed, aber der Server muss manuell neu gestartet werden"
+  echo "   Bitte prüfe:"
+  echo "   1. Läuft die App als systemd Service? → sudo systemctl restart houston"
+  echo "   2. Läuft die App als PM2? → pm2 restart all"
+  echo "   3. Läuft die App als Docker Container? → docker restart [container]"
+  echo "   4. Manueller Neustart: cd [app-dir] && node dist/index.js"
+fi
+
+sleep 5  # Warte länger, damit Server Zeit hat zu starten
 echo "✅ Webserver-Reload abgeschlossen"
 
 ═══════════════════════════════════════════════════════════════════
