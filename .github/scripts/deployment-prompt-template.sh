@@ -476,26 +476,71 @@ else
   sudo systemctl reload apache2 2>/dev/null && echo "✅ Apache reloaded" || true
 fi
 
-# KRITISCH: Versuche Node.js Prozess zu neustarten (falls vorhanden)
-echo "🔄 Versuche Node.js Server neu zu starten..."
+# KRITISCH: Node.js Server NEUSTARTEN (FULL-STACK APP!)
+# ⚠️ WICHTIG: Dies ist eine Express.js App - der Server MUSS neu gestartet werden!
+# ⚠️ WICHTIG: express.static() lädt Dateien beim Start - neue Dateien werden sonst nicht serviert!
+echo "🔄 Starte Node.js Server neu (KRITISCH für Express.js App)..."
 
-# Methode 1: Systemd Service
+# Methode 1: Systemd Service (BEVORZUGT)
 if sudo systemctl restart houston 2>/dev/null; then
   echo "✅ Houston Service restarted via systemctl"
 elif sudo systemctl restart houston-app 2>/dev/null; then
   echo "✅ Houston App Service restarted via systemctl"
+elif sudo systemctl restart node 2>/dev/null; then
+  echo "✅ Node Service restarted via systemctl"
 else
   # Methode 2: Finde laufenden Node-Prozess und starte neu
-  NODE_PID=$(ps aux | grep -i "node.*dist/index.js\|node.*houston" | grep -v grep | head -1 | awk '{print $2}')
+  NODE_PID=$(ps aux | grep -i "node.*dist/index.js\|node.*houston\|node.*server" | grep -v grep | head -1 | awk '{print $2}')
   if [ ! -z "$NODE_PID" ]; then
-    echo "⚠️  Node-Prozess gefunden (PID: $NODE_PID), aber kein systemd Service"
-    echo "   Der Server muss manuell neu gestartet werden, um die neuen Dateien zu laden"
-    echo "   Befehl zum Neustart: kill -HUP $NODE_PID oder kill $NODE_PID && [START_COMMAND]"
+    echo "⚠️  Node-Prozess gefunden (PID: $NODE_PID)"
+    
+    # Versuche graceful restart mit HUP Signal (falls unterstützt)
+    if kill -HUP $NODE_PID 2>/dev/null; then
+      echo "✅ HUP Signal an Node-Prozess gesendet (graceful restart)"
+      sleep 2
+    else
+      # Falls HUP nicht funktioniert, kill und neu starten
+      echo "⚠️  HUP Signal nicht erfolgreich, versuche Neustart..."
+      
+      # Finde das Arbeitsverzeichnis des Prozesses
+      PROC_CWD=$(pwdx $NODE_PID 2>/dev/null | awk '{print $2}' || lsof -p $NODE_PID 2>/dev/null | grep cwd | awk '{print $NF}' | head -1)
+      
+      if [ ! -z "$PROC_CWD" ] && [ -f "$PROC_CWD/dist/index.js" ]; then
+        echo "   Arbeitsverzeichnis gefunden: $PROC_CWD"
+        echo "   Stoppe Prozess..."
+        kill $NODE_PID 2>/dev/null || sudo kill $NODE_PID 2>/dev/null
+        sleep 2
+        
+        # Versuche Server neu zu starten
+        if [ -f "$PROC_CWD/package.json" ]; then
+          cd "$PROC_CWD"
+          echo "   Starte Server neu..."
+          # Versuche verschiedene Start-Methoden
+          if [ -f "package.json" ] && grep -q '"start"' package.json; then
+            nohup npm start > /dev/null 2>&1 &
+            echo "✅ Server gestartet mit 'npm start'"
+          elif [ -f "package.json" ] && grep -q '"dev"' package.json; then
+            nohup npm run dev > /dev/null 2>&1 &
+            echo "✅ Server gestartet mit 'npm run dev'"
+          else
+            nohup node dist/index.js > /dev/null 2>&1 &
+            echo "✅ Server gestartet mit 'node dist/index.js'"
+          fi
+        fi
+      else
+        echo "⚠️  Konnte Arbeitsverzeichnis nicht finden - Server muss manuell neu gestartet werden"
+        echo "   Prozess PID: $NODE_PID"
+      fi
+    fi
   else
     echo "⚠️  Kein laufender Node.js-Prozess gefunden"
     echo "   Die App läuft möglicherweise als statische Website oder über einen anderen Webserver"
+    echo "   Oder der Server wurde bereits gestoppt"
   fi
 fi
+
+# Warte kurz, damit Server Zeit hat zu starten
+sleep 3
 
 sleep 2
 echo "✅ Webserver-Reload abgeschlossen"
