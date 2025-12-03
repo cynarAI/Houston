@@ -7,6 +7,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      skip_deploy:
+        description: 'Skip deployment (build only)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   NODE_VERSION: '20'
@@ -52,12 +58,13 @@ jobs:
           retention-days: 7
 
   deploy:
-    name: 🚀 Deploy via Manus Runtime API
+    name: 🚀 Deploy via Manus Runtime API (OHNE Credits)
     needs: build
     runs-on: ubuntu-latest
     if: |
       github.ref == 'refs/heads/main' && 
-      github.event_name != 'pull_request'
+      github.event_name != 'pull_request' &&
+      (github.event.inputs.skip_deploy != 'true' || github.event.inputs.skip_deploy == null)
 
     steps:
       - name: 📥 Download build artifacts

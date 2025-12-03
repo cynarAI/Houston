@@ -146,13 +146,10 @@ jobs:
           echo "**Artifact:** \`dist-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
 
   deploy:
-    name: 🚀 Deploy to Manus
+    name: 🚀 Deploy to Manus (DEAKTIVIERT - Verwende deploy-manus-api.yml)
     needs: build
     runs-on: ubuntu-latest
-    if: |
-      github.ref == 'refs/heads/main' && 
-      github.event_name != 'pull_request' &&
-      (github.event.inputs.skip_deploy != 'true' || github.event.inputs.skip_deploy == null)
+    if: false  # DEAKTIVIERT - Verwende stattdessen deploy-manus-api.yml für kostenloses Deployment
 
     steps:
       - name: 📥 Checkout code (ALWAYS LATEST - NO CACHE)
