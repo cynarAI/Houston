@@ -476,71 +476,26 @@ else
   sudo systemctl reload apache2 2>/dev/null && echo "✅ Apache reloaded" || true
 fi
 
-# KRITISCH: Node.js Server NEUSTARTEN (FULL-STACK APP!)
-# ⚠️ WICHTIG: Dies ist eine Express.js App - der Server MUSS neu gestartet werden!
-# ⚠️ WICHTIG: express.static() lädt Dateien beim Start - neue Dateien werden sonst nicht serviert!
-echo "🔄 Starte Node.js Server neu (KRITISCH für Express.js App)..."
+# KRITISCH: Versuche Node.js Prozess zu neustarten (falls vorhanden)
+echo "🔄 Versuche Node.js Server neu zu starten..."
 
-# Methode 1: Systemd Service (BEVORZUGT)
+# Methode 1: Systemd Service
 if sudo systemctl restart houston 2>/dev/null; then
   echo "✅ Houston Service restarted via systemctl"
 elif sudo systemctl restart houston-app 2>/dev/null; then
   echo "✅ Houston App Service restarted via systemctl"
-elif sudo systemctl restart node 2>/dev/null; then
-  echo "✅ Node Service restarted via systemctl"
 else
   # Methode 2: Finde laufenden Node-Prozess und starte neu
-  NODE_PID=$(ps aux | grep -i "node.*dist/index.js\|node.*houston\|node.*server" | grep -v grep | head -1 | awk '{print $2}')
+  NODE_PID=$(ps aux | grep -i "node.*dist/index.js\|node.*houston" | grep -v grep | head -1 | awk '{print $2}')
   if [ ! -z "$NODE_PID" ]; then
-    echo "⚠️  Node-Prozess gefunden (PID: $NODE_PID)"
-    
-    # Versuche graceful restart mit HUP Signal (falls unterstützt)
-    if kill -HUP $NODE_PID 2>/dev/null; then
-      echo "✅ HUP Signal an Node-Prozess gesendet (graceful restart)"
-      sleep 2
-    else
-      # Falls HUP nicht funktioniert, kill und neu starten
-      echo "⚠️  HUP Signal nicht erfolgreich, versuche Neustart..."
-      
-      # Finde das Arbeitsverzeichnis des Prozesses
-      PROC_CWD=$(pwdx $NODE_PID 2>/dev/null | awk '{print $2}' || lsof -p $NODE_PID 2>/dev/null | grep cwd | awk '{print $NF}' | head -1)
-      
-      if [ ! -z "$PROC_CWD" ] && [ -f "$PROC_CWD/dist/index.js" ]; then
-        echo "   Arbeitsverzeichnis gefunden: $PROC_CWD"
-        echo "   Stoppe Prozess..."
-        kill $NODE_PID 2>/dev/null || sudo kill $NODE_PID 2>/dev/null
-        sleep 2
-        
-        # Versuche Server neu zu starten
-        if [ -f "$PROC_CWD/package.json" ]; then
-          cd "$PROC_CWD"
-          echo "   Starte Server neu..."
-          # Versuche verschiedene Start-Methoden
-          if [ -f "package.json" ] && grep -q '"start"' package.json; then
-            nohup npm start > /dev/null 2>&1 &
-            echo "✅ Server gestartet mit 'npm start'"
-          elif [ -f "package.json" ] && grep -q '"dev"' package.json; then
-            nohup npm run dev > /dev/null 2>&1 &
-            echo "✅ Server gestartet mit 'npm run dev'"
-          else
-            nohup node dist/index.js > /dev/null 2>&1 &
-            echo "✅ Server gestartet mit 'node dist/index.js'"
-          fi
-        fi
-      else
-        echo "⚠️  Konnte Arbeitsverzeichnis nicht finden - Server muss manuell neu gestartet werden"
-        echo "   Prozess PID: $NODE_PID"
-      fi
-    fi
+    echo "⚠️  Node-Prozess gefunden (PID: $NODE_PID), aber kein systemd Service"
+    echo "   Der Server muss manuell neu gestartet werden, um die neuen Dateien zu laden"
+    echo "   Befehl zum Neustart: kill -HUP $NODE_PID oder kill $NODE_PID && [START_COMMAND]"
   else
     echo "⚠️  Kein laufender Node.js-Prozess gefunden"
     echo "   Die App läuft möglicherweise als statische Website oder über einen anderen Webserver"
-    echo "   Oder der Server wurde bereits gestoppt"
   fi
 fi
-
-# Warte kurz, damit Server Zeit hat zu starten
-sleep 3
 
 sleep 2
 echo "✅ Webserver-Reload abgeschlossen"
@@ -589,10 +544,23 @@ fi
 
 # KRITISCH: Verifiziere dass die Live-Seite die neuen Dateien zeigt
 echo "🌐 Prüfe Live-Seite nach Deployment..."
-sleep 3  # Warte kurz, damit Webserver Zeit hat zu aktualisieren
+sleep 5  # Warte länger, damit Webserver und Node.js Zeit haben zu aktualisieren
 
-LIVE_HTML=$(curl -s --max-time 10 "https://houston.manus.space/?nocache=$(date +%s)" 2>/dev/null || echo "")
-if [ ! -z "$LIVE_HTML" ]; then
+# Cache-Busting: Verwende mehrere Methoden um Browser-Cache zu umgehen
+CACHE_BUST=$(date +%s)
+CACHE_BUST_RANDOM=$(shuf -i 1000-9999 -n 1)
+
+# Versuche mehrere Cache-Busting-URLs
+LIVE_HTML=""
+for CACHE_PARAM in "?nocache=$CACHE_BUST" "?v=$CACHE_BUST_RANDOM" "?t=$CACHE_BUST&_=$CACHE_BUST_RANDOM" ""; do
+  LIVE_HTML=$(curl -s --max-time 10 -H "Cache-Control: no-cache" -H "Pragma: no-cache" "https://houston.manus.space/$CACHE_PARAM" 2>/dev/null || echo "")
+  if [ ! -z "$LIVE_HTML" ] && [ ${#LIVE_HTML} -gt 1000 ]; then
+    echo "✅ Live-Seite erfolgreich abgerufen (mit Cache-Busting: $CACHE_PARAM)"
+    break
+  fi
+done
+
+if [ ! -z "$LIVE_HTML" ] && [ ${#LIVE_HTML} -gt 1000 ]; then
   # Prüfe welche JavaScript-Datei die Live-Seite lädt
   LIVE_ASSET=$(echo "$LIVE_HTML" | grep -o 'src="[^"]*index-[^"]*\.js"' | head -1)
   echo "   Live-Seite lädt: $LIVE_ASSET"
@@ -606,8 +574,11 @@ if [ ! -z "$LIVE_HTML" ]; then
       echo "✅ Live-Seite lädt die neuen Assets!"
     else
       echo "⚠️  WARNUNG: Live-Seite lädt andere Assets als deployed!"
+      echo "   Live: $LIVE_ASSET"
+      echo "   Deployed: $DEPLOYED_ASSET"
       echo "   Möglicherweise wird ein anderes Verzeichnis vom Webserver verwendet"
-      echo "   Oder es gibt ein Caching-Problem"
+      echo "   Oder es gibt ein Caching-Problem (Browser/CDN/Proxy)"
+      echo "   Oder der Node.js Server wurde nicht neu gestartet"
     fi
   fi
   
@@ -617,9 +588,33 @@ if [ ! -z "$LIVE_HTML" ]; then
   elif echo "$LIVE_HTML" | grep -qi "Steigere deine Marketing-Performance"; then
     echo "⚠️  WARNUNG: Alte Überschrift noch auf Live-Seite!"
     echo "   Das Deployment-Verzeichnis könnte falsch sein oder es gibt ein Caching-Problem"
+    echo "   Oder der Node.js Server wurde nicht neu gestartet"
+    echo "   Oder die JavaScript-Datei wurde nicht aktualisiert"
+  else
+    echo "⚠️  WARNUNG: Konnte Überschrift nicht eindeutig identifizieren"
+  fi
+  
+  # Prüfe Cache-Control Header der Live-Seite
+  CACHE_HEADER=$(curl -s -I --max-time 10 "https://houston.manus.space/?nocache=$CACHE_BUST" 2>/dev/null | grep -i "cache-control" || echo "")
+  if [ ! -z "$CACHE_HEADER" ]; then
+    echo "   Cache-Control Header: $CACHE_HEADER"
+    if echo "$CACHE_HEADER" | grep -qi "no-cache\|no-store"; then
+      echo "✅ Cache-Control Header korrekt gesetzt (no-cache/no-store)"
+    else
+      echo "⚠️  WARNUNG: Cache-Control Header erlaubt möglicherweise Caching"
+    fi
   fi
 else
-  echo "⚠️  WARNUNG: Konnte Live-Seite nicht abrufen"
+  echo "⚠️  WARNUNG: Konnte Live-Seite nicht abrufen oder Antwort zu kurz"
+  echo "   Versuche direkten Zugriff auf index.html..."
+  
+  # Versuche direkt auf index.html zuzugreifen
+  DIRECT_HTML=$(curl -s --max-time 10 -H "Cache-Control: no-cache" "https://houston.manus.space/index.html?nocache=$CACHE_BUST" 2>/dev/null || echo "")
+  if [ ! -z "$DIRECT_HTML" ] && [ ${#DIRECT_HTML} -gt 1000 ]; then
+    echo "✅ Direkter Zugriff auf index.html erfolgreich"
+    DIRECT_ASSET=$(echo "$DIRECT_HTML" | grep -o 'src="[^"]*index-[^"]*\.js"' | head -1)
+    echo "   Direkte index.html lädt: $DIRECT_ASSET"
+  fi
 fi
 
 echo "✅ Deployment-Verifizierung abgeschlossen"
