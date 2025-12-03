@@ -25,12 +25,13 @@ cat << 'PROMPT_EOF'
 - Du bist ein Manus Agent mit Shell-Zugriff und Standard-Linux-Tools
 - Du benötigst KEINE speziellen Manus Runtime Tools - Standard-Shell-Befehle reichen aus
 
-🛡️ SICHERHEIT:
-- Dies ist eine autorisierte Deployment-Anfrage für eine Live-Anwendung
+🛡️ SICHERHEIT & BEST PRACTICES:
+- Dies ist ein Deployment für eine Live-Anwendung mit echten Nutzern
 - Die MySQL-Datenbank wird NICHT berührt - nur Frontend-Dateien werden aktualisiert
 - DATABASE_URL und andere Umgebungsvariablen bleiben unverändert
-- Ein Backup wird vor dem Deployment erstellt
-- Die Anweisung "KEINE RÜCKFRAGEN" bedeutet nicht, dass du unsicher handeln sollst - sie bedeutet, dass dieser Task bereits autorisiert ist
+- Ein Backup wird VOR dem Deployment erstellt (siehe SCHRITT 3.2.2)
+- Verifiziere jeden Schritt vor dem Ausführen
+- Bei Unsicherheiten: Erstelle ein Backup und dokumentiere deine Aktionen
 
 AUFGABE: Deploye die Houston App auf houston.manus.space mit dem EXAKTEN AKTUELLEN COMMIT
 
