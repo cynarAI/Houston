@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [main, develop]
   workflow_dispatch:
+    # Deploy-Job ist deaktiviert (if: false) - nur Build läuft noch
     inputs:
       skip_deploy:
         description: 'Skip deployment (build only)'

@@ -1,15 +1,16 @@
-name: Deploy to Manus
+name: Deploy to Manus (DEAKTIVIERT)
 
-# DEAKTIVIERT: Wird durch optimized-ci.yml ersetzt
+# DEAKTIVIERT: Verwende stattdessen deploy-vercel.yml (kostenlos)
 on:
-  workflow_dispatch:  # Nur noch manuell auslösbar
+  # workflow_dispatch:  # DEAKTIVIERT - Benötigt Credits
   # push:
   #   branches: [ main ]
 
 jobs:
   deploy:
-    name: Deploy to houston.manus.space
+    name: Deploy to houston.manus.space (DEAKTIVIERT - Verwende Vercel)
     runs-on: ubuntu-latest
+    if: false  # DEAKTIVIERT - Benötigt Credits, verwende stattdessen deploy-vercel.yml
     
     steps:
       - name: Checkout code
