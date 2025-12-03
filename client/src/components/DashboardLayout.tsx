@@ -211,9 +211,13 @@ function DashboardLayoutContent({
         {skipLinkText}
       </a>
 
-      {/* Static Background Gradient (no animated stars in Dashboard) */}
+      {/* Theme-aware Background Gradient */}
       <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#1a1a2e] to-[#0a0a0f]"></div>
+        {theme === 'dark' ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#1a1a2e] to-[#0a0a0f]" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100" />
+        )}
       </div>
       
       <nav className="relative z-10" ref={sidebarRef} aria-label={navLabel}>
@@ -222,7 +226,7 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="border-b border-white/10">
+          <SidebarHeader className="border-b border-border">
             <div className="flex flex-col gap-3 p-4">
               {/* Logo + Toggle */}
               <div className="flex items-center gap-3 w-full">
