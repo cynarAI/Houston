@@ -3,10 +3,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { KeyboardShortcutsModal } from "./components/KeyboardShortcutsModal";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 
@@ -72,12 +70,6 @@ function Router() {
 // - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
-  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
-
-  useKeyboardShortcuts({
-    onShowHelp: () => setShowShortcutsModal(true),
-  });
-
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light" switchable>
@@ -85,10 +77,6 @@ function App() {
           <Toaster />
           <OfflineIndicator />
           <InstallPrompt />
-          <KeyboardShortcutsModal
-            open={showShortcutsModal}
-            onOpenChange={setShowShortcutsModal}
-          />
           <Suspense fallback={<PageLoader />}>
             <Router />
           </Suspense>
