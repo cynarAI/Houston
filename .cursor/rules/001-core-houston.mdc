@@ -1,0 +1,173 @@
+---
+name: Houston Core
+description: Projektübersicht, Tech Stack und fundamentale Regeln
+ruleType: Always
+---
+
+# Houston - AI Marketing Coach
+
+Houston ist ein KI-gestützter Marketing-Coach für KMUs und Solo-Founder.
+Die App kombiniert eine öffentliche Landing Page mit einer internen Web-App,
+die Onboarding, Dashboard, Chat, Ziele, Todos und Strategie-Management bietet.
+
+## Zielgruppe
+
+- Kleine und mittlere Unternehmen (KMUs)
+- Solo-Founder und Freelancer
+- Marketing-Einsteiger ohne großes Budget
+- Teams, die strukturiertes Marketing-Coaching suchen
+
+## Tech Stack
+
+### Frontend
+| Technologie | Version | Zweck |
+|-------------|---------|-------|
+| React | 19.x | UI Framework |
+| Vite | 7.x | Build Tool |
+| Wouter | 3.x | Client-Side Routing |
+| Tailwind CSS | 4.x | Utility-First Styling |
+| shadcn/ui | - | UI Komponenten (Radix + Tailwind) |
+| TanStack Query | 5.x | Server State Management |
+| i18next | 25.x | Internationalisierung |
+
+### Backend
+| Technologie | Version | Zweck |
+|-------------|---------|-------|
+| Express | 4.x | HTTP Server |
+| tRPC | 11.x | Type-Safe API |
+| Drizzle ORM | 0.44.x | Database Access |
+| MySQL/TiDB | - | Datenbank |
+| Stripe | 20.x | Payments |
+| Manus OAuth | - | Authentifizierung |
+| Manus LLM | - | AI Integration |
+
+### Tooling
+| Tool | Zweck |
+|------|-------|
+| pnpm | Package Manager |
+| Vitest | Unit Testing |
+| Playwright | E2E Testing |
+| ESLint + Prettier | Code Quality |
+| Husky | Git Hooks |
+
+## Projekt-Struktur
+
+```
+houston/
+├── client/                 # React Frontend (Vite)
+│   └── src/
+│       ├── components/     # UI Komponenten
+│       │   └── ui/         # shadcn/ui Primitives
+│       ├── pages/          # Route Pages
+│       ├── locales/        # i18n (de.json, en.json)
+│       ├── lib/            # Utilities (trpc, i18n, analytics)
+│       ├── hooks/          # Custom React Hooks
+│       └── contexts/       # React Contexts
+├── server/                 # Express + tRPC Backend
+│   ├── routers/            # tRPC Route Handler
+│   ├── _core/              # Core Utilities (auth, llm, stripe)
+│   └── webhooks/           # Stripe Webhook Handler
+├── shared/                 # Shared Types und Constants
+├── drizzle/                # Database Schema + Migrations
+├── docs/                   # Dokumentation
+└── e2e/                    # Playwright Tests
+```
+
+## Domain-Module
+
+### 1. Houston Coach (AI Chat)
+Der Kern der App - KI-gestützter Marketing-Assistent.
+- **Server**: `server/routers/chat.ts`, `server/_core/llm.ts`
+- **Client**: `client/src/pages/Chats.tsx`, `client/src/components/AIChatBox.tsx`
+
+### 2. Goals & Todos
+SMART-Goal Management und Aufgabenverwaltung.
+- **Server**: `server/routers/goals.ts`, `server/routers/todos.ts`
+- **Client**: `client/src/pages/Goals.tsx`, `client/src/pages/Todos.tsx`
+
+### 3. Strategy
+Marketing-Strategie-Editor.
+- **Server**: `server/routers/strategy.ts`
+- **Client**: `client/src/pages/Strategy.tsx`
+
+### 4. Credits (Billing)
+Credit-basiertes Abrechnungssystem - **KRITISCH**.
+- **Server**: `server/creditService.ts`, `server/routers/credits.ts`
+- **Client**: `client/src/pages/Credits.tsx`, `client/src/components/CreditIndicator.tsx`
+
+### 5. Referrals
+Empfehlungsprogramm mit Credit-Bonus.
+- **Server**: `server/referralService.ts`, `server/routers/referrals.ts`
+- **Client**: `client/src/pages/Referrals.tsx`
+
+### 6. Workspaces
+Multi-Workspace Support pro User.
+- **Server**: `server/routers/workspaces.ts`
+- **Schema**: `drizzle/schema.ts` (workspaces table)
+
+### 7. Playbooks
+Vordefinierte Marketing-Strategien und Vorlagen.
+- **Server**: `server/routers/playbooks.ts`
+- **Client**: `client/src/pages/Playbooks.tsx`
+
+## Non-Negotiable Regeln
+
+### TypeScript
+- Kein `any` ohne expliziten Grund und Kommentar
+- Nutze Drizzle-generierte Typen: `import type { User, Goal } from "@shared/types"`
+- tRPC Typen automatisch über `trpc.routerName.procedureName`
+
+### Credit-System
+**Alle Credit-Operationen MÜSSEN über CreditService laufen:**
+```typescript
+// RICHTIG
+import { CreditService, CREDIT_COSTS } from "./creditService";
+const cost = CreditService.getCost("GOALS_GENERATION");
+await CreditService.charge(userId, "GOALS_GENERATION", cost);
+
+// FALSCH - niemals direkt DB-Updates für Credits
+await db.update(users).set({ credits: newBalance });
+```
+
+### Authentifizierung
+- Geschützte Endpoints: `protectedProcedure` aus `server/_core/trpc.ts`
+- Admin-Endpoints: `adminProcedure`
+- User-Context: `ctx.user` (garantiert vorhanden bei protectedProcedure)
+
+### Error Handling
+- Verwende `AppError` aus `@shared/_core/errors` für Business-Fehler
+- tRPC mappt AppError automatisch zu passenden HTTP-Codes
+- Keine rohen Exceptions an Client durchreichen
+
+### Datenbank
+- Schema-Änderungen nur in `drizzle/schema.ts`
+- Migrationen: `pnpm db:push` (generiert + migriert)
+- Relationen über Foreign Keys mit CASCADE/SET NULL
+
+## Datenfluss
+
+```
+Frontend (React)
+      │
+      │ tRPC Client
+      ▼
+Backend (Express + tRPC)
+      │
+      ├─► CreditService (für kostenpflichtige Features)
+      │
+      ├─► LLM Service (für AI-Features)
+      │
+      └─► Drizzle ORM
+            │
+            ▼
+      MySQL/TiDB
+```
+
+## Environment
+
+Kritische Environment-Variablen:
+- `DATABASE_URL` - MySQL Connection String
+- `JWT_SECRET` - Session Signing
+- `VITE_APP_ID` - Manus OAuth App ID
+- `STRIPE_SECRET_KEY` - Stripe API Key
+- `BUILT_IN_FORGE_API_KEY` - Manus LLM API Key

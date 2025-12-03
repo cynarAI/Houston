@@ -1,0 +1,278 @@
+---
+name: Frontend Rules
+description: React, Vite, shadcn/ui und Tailwind Patterns
+ruleType: Auto
+globs:
+  - "client/**"
+---
+
+# Frontend Architektur
+
+Das Frontend ist eine React 19 SPA mit Vite als Build-Tool.
+Routing erfolgt über Wouter, State Management über TanStack Query via tRPC.
+
+## Verzeichnis-Struktur
+
+```
+client/src/
+├── components/          # Wiederverwendbare Komponenten
+│   └── ui/              # shadcn/ui Primitives (Button, Card, Dialog, etc.)
+├── pages/               # Route-Komponenten (lazy-loaded)
+├── hooks/               # Custom React Hooks
+├── lib/                 # Utilities und Konfiguration
+│   ├── trpc.ts          # tRPC Client
+│   ├── i18n.ts          # i18next Setup
+│   ├── utils.ts         # cn() und Helpers
+│   └── analytics.ts     # Event Tracking
+├── contexts/            # React Contexts (Theme, etc.)
+├── locales/             # Übersetzungen (de.json, en.json)
+└── data/                # Statische Daten (z.B. playbooks.ts)
+```
+
+## Komponenten
+
+### shadcn/ui Komponenten verwenden
+Alle UI-Primitives liegen in `components/ui/`. Nutze diese statt eigene zu bauen:
+
+```tsx
+// RICHTIG - shadcn/ui Komponenten
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+
+// FALSCH - eigene Primitives bauen
+const MyButton = styled.button`...`;
+```
+
+### Verfügbare UI-Komponenten
+- Layout: `Card`, `Separator`, `Tabs`, `Accordion`, `Collapsible`
+- Forms: `Button`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`
+- Feedback: `Alert`, `Badge`, `Progress`, `Skeleton`, `Spinner`
+- Overlay: `Dialog`, `Sheet`, `Drawer`, `Popover`, `Tooltip`
+- Navigation: `Sidebar`, `NavigationMenu`, `Breadcrumb`
+- Data: `Table`, `ScrollArea`, `Avatar`
+
+### Komponenten-Pattern
+```tsx
+// Komponenten-Struktur
+import { useTranslation } from "react-i18next";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { trpc } from "@/lib/trpc";
+
+interface MyComponentProps {
+  workspaceId: number;
+  onSuccess?: () => void;
+}
+
+export function MyComponent({ workspaceId, onSuccess }: MyComponentProps) {
+  const { t } = useTranslation();
+  const { data, isLoading } = trpc.myRouter.myQuery.useQuery({ workspaceId });
+  
+  if (isLoading) return <Skeleton />;
+  
+  return (
+    <Card>
+      <h2>{t("myComponent.title")}</h2>
+      {/* ... */}
+    </Card>
+  );
+}
+```
+
+## Routing
+
+### Wouter für Client-Side Routing
+```tsx
+import { Route, Switch, useLocation } from "wouter";
+
+// Navigation
+const [location, setLocation] = useLocation();
+setLocation("/app/dashboard");
+
+// Route Definition (in App.tsx)
+<Route path="/app/goals" component={Goals} />
+```
+
+### Route-Struktur
+- `/` - Landing Page (öffentlich)
+- `/app/dashboard` - Dashboard (geschützt)
+- `/app/chats` - Houston Chat
+- `/app/goals` - Ziele
+- `/app/todos` - To-dos
+- `/app/strategy` - Strategie
+- `/app/credits` - Credits & Pläne
+- `/app/referrals` - Empfehlungen
+- `/app/settings` - Einstellungen
+
+### Lazy Loading
+Alle Pages werden lazy-loaded für bessere Performance:
+```tsx
+const Goals = lazy(() => import("./pages/Goals"));
+```
+
+## Data Fetching
+
+### tRPC + TanStack Query
+```tsx
+import { trpc } from "@/lib/trpc";
+
+// Query
+const { data, isLoading, error } = trpc.goals.list.useQuery({ workspaceId });
+
+// Mutation
+const createGoal = trpc.goals.create.useMutation({
+  onSuccess: () => {
+    // Invalidate cache
+    utils.goals.list.invalidate();
+  },
+});
+
+// Aufruf
+createGoal.mutate({ title: "Neues Ziel", workspaceId });
+```
+
+### Loading States
+```tsx
+import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+
+if (isLoading) return <LoadingState />;
+if (error) return <ErrorState error={error} />;
+```
+
+## Styling
+
+### Tailwind CSS + CSS Variables
+Design Tokens sind als CSS Variables in `index.css` definiert:
+
+```css
+/* Basis-Farben */
+--background, --foreground, --card, --primary, --secondary, --muted, --accent
+
+/* AIstronaut Brand */
+--aistronaut-cyan: 192 100% 50%;   /* #00D4FF */
+--aistronaut-purple: 258 87% 65%;  /* #8B5CF6 */
+--aistronaut-pink: 340 100% 70%;   /* #FF6B9D */
+
+/* Gradients */
+--gradient-aistronaut: linear-gradient(135deg, #FF6B9D 0%, #8B5CF6 50%, #00D4FF 100%);
+```
+
+### Utility Classes
+```tsx
+// Verwende cn() für conditional classes
+import { cn } from "@/lib/utils";
+
+<div className={cn(
+  "p-4 rounded-lg",
+  isActive && "bg-primary text-primary-foreground",
+  className
+)} />
+```
+
+### Custom CSS Classes
+```css
+/* Vordefinierte Klassen in index.css */
+.glass-card        /* Glassmorphism Effekt */
+.gradient-text-aistronaut  /* Gradient Text */
+.btn-aistronaut    /* Brand Button */
+.card-hover        /* Hover Animation */
+.animate-fade-in   /* Fade Animation */
+```
+
+## Responsive Design
+
+### Mobile-First Approach
+```tsx
+// Tailwind Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
+<div className="p-4 md:p-6 lg:p-8">
+  <h1 className="text-xl md:text-2xl lg:text-3xl">
+    {title}
+  </h1>
+</div>
+```
+
+### Mobile Detection Hook
+```tsx
+import { useIsMobile } from "@/hooks/useMobile";
+
+const isMobile = useIsMobile();
+if (isMobile) {
+  // Mobile-spezifische Logik
+}
+```
+
+## Theming
+
+### Theme Context
+```tsx
+import { useTheme } from "@/contexts/ThemeContext";
+
+const { theme, toggleTheme, switchable } = useTheme();
+// theme: "light" | "dark"
+```
+
+### Dark Mode
+Dark Mode Styles sind automatisch via `.dark` Klasse aktiv:
+```css
+.dark {
+  --background: 0 0% 4%;
+  --foreground: 0 0% 98%;
+  /* ... */
+}
+```
+
+## Formulare
+
+### React Hook Form + Zod
+```tsx
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const schema = z.object({
+  title: z.string().min(1, "Titel erforderlich"),
+  description: z.string().optional(),
+});
+
+const form = useForm({
+  resolver: zodResolver(schema),
+  defaultValues: { title: "", description: "" },
+});
+```
+
+## Accessibility
+
+### Focus States
+Alle interaktiven Elemente haben `:focus-visible` Styles:
+```css
+a:focus-visible, button:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+```
+
+### Skip Link
+```tsx
+<a href="#main-content" className="skip-link">
+  Zum Hauptinhalt springen
+</a>
+```
+
+### ARIA Labels
+```tsx
+<button aria-label={t("common.close")}>
+  <X className="h-4 w-4" />
+</button>
+```
+
+## Best Practices
+
+1. **Komponenten klein halten** - Eine Aufgabe pro Komponente
+2. **Props typisieren** - Interface für alle Props
+3. **Keys für Listen** - Stabile, eindeutige Keys
+4. **Memoization sparsam** - Nur bei Performance-Problemen
+5. **Error Boundaries** - Für kritische Bereiche
+6. **i18n** - Alle User-facing Texte über `t()`
