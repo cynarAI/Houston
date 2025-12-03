@@ -262,12 +262,13 @@ jobs:
           
           METHODE 1 (BEVORZUGT - Manus Runtime API via curl):
           Falls du Shell-Zugriff hast und curl verfügbar ist:
-          - Nutze die Manus Runtime API direkt:
+          - Prüfe ob MANUS_API_KEY als Umgebungsvariable verfügbar ist: echo \\\$MANUS_API_KEY | head -c 10
+          - Falls verfügbar, nutze die Manus Runtime API direkt:
             curl -X POST https://api.manus.ai/v1/publish \\
               -H \"API_KEY: \\\$MANUS_API_KEY\" \\
               -H \"Content-Type: application/json\" \\
               -d '{\"project_id\": \"9Ye7dFtLEUdP6ojxHpkQhu\", \"directory\": \"\$(pwd)/dist/public\", \"target\": \"houston.manus.space\"}'
-          - Falls MANUS_API_KEY nicht als Umgebungsvariable verfügbar ist, nutze die nächste Methode
+          - Falls MANUS_API_KEY nicht verfügbar ist oder der API-Call fehlschlägt, nutze METHODE 2
           
           METHODE 2 (ALTERNATIVE - Manus Publish Tool):
           Falls du ein Manus Publish-Tool oder eine ähnliche Funktion in deinen verfügbaren Tools hast:
@@ -276,21 +277,49 @@ jobs:
             - Ziel: houston.manus.space
             - Typ: static (für statische Frontend-Dateien)
           
-          METHODE 3 (FALLBACK - Manus Runtime Verzeichnis finden und kopieren):
-          Falls keine API/Tools verfügbar sind:
-          - Finde das Manus Runtime Verzeichnis für dieses Projekt (normalerweise unter /home/ubuntu/manus-runtime oder ähnlich)
-          - Suche nach dem Projekt-Verzeichnis für Projekt-ID 9Ye7dFtLEUdP6ojxHpkQhu
-          - Finde das aktuelle Deployment-Verzeichnis (z.B. /var/www/houston oder /home/ubuntu/manus-runtime/projects/9Ye7dFtLEUdP6ojxHpkQhu)
-          - Backup erstellen: cp -r [DEPLOYMENT_VERZEICHNIS] [DEPLOYMENT_VERZEICHNIS].backup.\$(date +%s)
-          - Neue Dateien kopieren: cp -r \$(pwd)/dist/public/* [DEPLOYMENT_VERZEICHNIS]/
-          - Stelle sicher, dass der Express Server neu gestartet wird (falls nötig: pkill -f node oder ähnlich)
+          METHODE 3 (FALLBACK - Finde Deployment-Verzeichnis und kopiere Dateien):
+          Falls keine API/Tools verfügbar sind, finde das aktuelle Deployment-Verzeichnis:
+          
+          Schritt 3.2.1: Suche nach dem Deployment-Verzeichnis
+          - Prüfe Standard-Webserver-Verzeichnisse:
+            - ls -la /var/www/ 2>/dev/null | grep -i houston || echo \"Nicht gefunden\"
+            - ls -la /var/www/html/ 2>/dev/null | head -5
+            - ls -la /home/ubuntu/ 2>/dev/null | grep -i manus || echo \"Nicht gefunden\"
+            - find /home -type d -name \"*houston*\" 2>/dev/null | head -5
+            - find /var/www -type d -name \"*houston*\" 2>/dev/null | head -5
+            - find /opt -type d -name \"*houston*\" 2>/dev/null | head -5
+          
+          Schritt 3.2.2: Prüfe laufende Prozesse um das Deployment-Verzeichnis zu finden
+          - ps aux | grep -i node | grep -v grep
+          - ps aux | grep -i \"houston\" | grep -v grep
+          - lsof -i :80 -i :443 2>/dev/null | head -10
+          - netstat -tlnp 2>/dev/null | grep -E \":80|:443\" | head -5
+          
+          Schritt 3.2.3: Prüfe nginx/apache Konfiguration
+          - cat /etc/nginx/sites-enabled/* 2>/dev/null | grep -i houston || echo \"Nginx config nicht gefunden\"
+          - cat /etc/apache2/sites-enabled/* 2>/dev/null | grep -i houston || echo \"Apache config nicht gefunden\"
+          
+          Schritt 3.2.4: Falls Deployment-Verzeichnis gefunden wurde:
+          - DEPLOY_DIR=\"[GEFUNDENES_VERZEICHNIS]\"
+          - Backup erstellen: cp -r \\\$DEPLOY_DIR \\\$DEPLOY_DIR.backup.\$(date +%s)
+          - Neue Dateien kopieren: cp -r \$(pwd)/dist/public/* \\\$DEPLOY_DIR/
+          - Setze korrekte Berechtigungen: chmod -R 755 \\\$DEPLOY_DIR
+          - Stelle sicher, dass der Webserver neu geladen wird (falls nötig: sudo systemctl reload nginx || sudo systemctl reload apache2)
+          
+          Schritt 3.2.5: Falls kein Deployment-Verzeichnis gefunden wurde, kopiere zu Standard-Webserver-Verzeichnis:
+          - Versuche: sudo cp -r \$(pwd)/dist/public/* /var/www/html/ 2>/dev/null || cp -r \$(pwd)/dist/public/* /var/www/html/
+          - Oder: sudo cp -r \$(pwd)/dist/public/* /var/www/houston.manus.space/ 2>/dev/null || mkdir -p /var/www/houston.manus.space && cp -r \$(pwd)/dist/public/* /var/www/houston.manus.space/
+          - Setze Berechtigungen: chmod -R 755 /var/www/html/ || chmod -R 755 /var/www/houston.manus.space/
+          - Lade Webserver neu: sudo systemctl reload nginx 2>/dev/null || sudo systemctl reload apache2 2>/dev/null || echo \"Webserver reload versucht\"
           
           ⚠️ WICHTIG: 
           - Der API Key wurde bereits im HTTP Header bereitgestellt, als dieser Task erstellt wurde
+          - Falls MANUS_API_KEY nicht als Umgebungsvariable verfügbar ist, ist das OK - nutze dann METHODE 3
           - Du musst den API Key NICHT selbst setzen - er ist bereits autorisiert
-          - Falls du den API Key benötigst, ist er in der Umgebungsvariable MANUS_API_KEY verfügbar
+          - Falls du den API Key benötigst, prüfe: env | grep MANUS_API_KEY oder printenv | grep MANUS_API_KEY
           - FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
           - Nach dem Deployment: Verifiziere dass https://houston.manus.space erreichbar ist und den aktuellen Stand zeigt!
+          - Falls alle Methoden fehlschlagen, kopiere die Dateien einfach zu /var/www/html/ oder einem ähnlichen Standard-Webserver-Verzeichnis
           
           NACH dem Deployment:
           - Prüfe dass die Seite unter https://houston.manus.space erreichbar ist
