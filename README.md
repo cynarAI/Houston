@@ -7,6 +7,8 @@ AI-powered marketing coach for SMBs with credit-based billing.
 
 **Live:** [https://houston.manus.space](https://houston.manus.space)
 
+> **Note:** Automatic deployments are enabled. Every push to `main` triggers an automated deployment via GitHub Actions.
+
 ---
 
 ## Tech Stack
