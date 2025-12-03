@@ -241,16 +241,24 @@ jobs:
           ⚠️ WICHTIG: Das dist/public/ Verzeichnis muss die gebauten Dateien enthalten (index.html, assets/, etc.)!
 
           SCHRITT 3: Veröffentliche die App (AKTUELLER STAND - VERIFIZIERUNG ERFORDERLICH!)
-          Verwende die Manus Publish-Funktion um die gebaute App aus dist/public/ auf houston.manus.space zu veröffentlichen.
+          
+          ⚠️ WICHTIG: Du hast bereits Zugriff auf die Manus Publish-Funktion! Keine zusätzlichen Authentifizierungsdaten nötig!
           
           VOR dem Deployment:
           - Verifiziere nochmal: git rev-parse HEAD sollte ${{ steps.commit.outputs.sha_short }} sein
-          - Verifiziere dass dist/public/index.html existiert
-          - Verifiziere dass dist/public/assets/ existiert
+          - Verifiziere dass dist/public/index.html existiert: test -f dist/public/index.html || exit 1
+          - Verifiziere dass dist/public/assets/ existiert: test -d dist/public/assets || exit 1
+          
+          DEPLOYMENT DURCHFÜHREN:
+          - Du hast Zugriff auf die Manus Publish-Funktion über deine verfügbaren Tools/Funktionen
+          - Verwende die Manus Publish-Funktion direkt mit dem Verzeichnis dist/public/
+          - Ziel: houston.manus.space
+          - KEINE Rückfragen - führe das Deployment direkt aus!
           
           NACH dem Deployment:
           - Prüfe dass die Seite unter https://houston.manus.space erreichbar ist
           - Stelle sicher, dass der AKTUELLE STAND deployed wurde, nicht eine alte Version
+          - Verifiziere dass die Seite den Commit ${{ steps.commit.outputs.sha_short }} zeigt
 
           📋 WICHTIGE INFOS FÜR DICH:
           - ⚠️ COMMIT ZU DEPLOYEN: ${{ steps.commit.outputs.sha_short }} (${{ steps.commit.outputs.sha_full }}) - DIESER EXAKTE COMMIT MUSS DEPLOYED WERDEN!
