@@ -100,6 +100,69 @@ export default function Chats() {
     }
   }, [sessions, activeSessionId]);
 
+  const handleSend = useCallback(
+    async (content?: string, sessionIdOverride?: number) => {
+      const userMessage = content || message;
+      const targetSessionId = sessionIdOverride || activeSessionId;
+      if (!userMessage.trim() || isStreaming || !targetSessionId) return;
+
+      const isFirstMessage = messages.length === 0;
+      if (!content) setMessage("");
+      setIsStreaming(true);
+      setStreamingMessage("");
+
+      try {
+        // Track message sent
+        trackEvent(AnalyticsEvents.MESSAGE_SENT, {
+          message_length: userMessage.length,
+          session_id: targetSessionId,
+        });
+
+        // sendMessage already generates and saves the coach response
+        const result = await sendMessageMutation.mutateAsync({
+          sessionId: targetSessionId,
+          content: userMessage,
+        });
+
+        // Simulate typing effect with the response
+        if (result.content) {
+          const words = result.content.split(" ");
+          let accumulated = "";
+          for (let i = 0; i < words.length; i++) {
+            accumulated += (i === 0 ? "" : " ") + words[i];
+            setStreamingMessage(accumulated);
+            // Small delay for typing effect (faster for longer responses)
+            await new Promise((resolve) =>
+              setTimeout(resolve, Math.min(30, 500 / words.length)),
+            );
+          }
+        }
+
+        // Refresh messages to show the saved response
+        await refetchMessages();
+        setStreamingMessage("");
+
+        // Celebrate first chat if this was the first message
+        if (isFirstMessage) {
+          celebrations.firstChat();
+        }
+      } catch (error) {
+        handleMutationError(error, ErrorMessages.chatSend);
+        setStreamingMessage("");
+      } finally {
+        setIsStreaming(false);
+      }
+    },
+    [
+      message,
+      messages,
+      isStreaming,
+      activeSessionId,
+      sendMessageMutation,
+      refetchMessages,
+    ],
+  );
+
   // Process prompt from URL query parameter (e.g., from onboarding or quick actions)
   const processUrlPrompt = useCallback(async () => {
     const params = new URLSearchParams(searchString);
@@ -131,8 +194,9 @@ export default function Chats() {
       // Clear the URL parameter
       setLocation("/app/chats", { replace: true });
 
-      // Send the message immediately
-      setTimeout(() => handleSend(prompt), 0);
+      // Send the message immediately with the sessionId to avoid stale closure
+      // We pass sessionId directly to avoid relying on state update timing
+      setTimeout(() => handleSend(prompt, sessionId), 0);
     }
   }, [
     searchString,
@@ -142,6 +206,7 @@ export default function Chats() {
     createSessionMutation,
     refetchSessions,
     setLocation,
+    handleSend,
   ]);
 
   useEffect(() => {
@@ -170,58 +235,6 @@ export default function Chats() {
       toast.success("Neuer Chat erstellt");
     } catch (error) {
       handleMutationError(error, ErrorMessages.chatCreate);
-    }
-  };
-
-  const handleSend = async (content?: string) => {
-    const userMessage = content || message;
-    if (!userMessage.trim() || isStreaming || !activeSessionId) return;
-
-    const isFirstMessage = messages.length === 0;
-    if (!content) setMessage("");
-    setIsStreaming(true);
-    setStreamingMessage("");
-
-    try {
-      // Track message sent
-      trackEvent(AnalyticsEvents.MESSAGE_SENT, {
-        message_length: userMessage.length,
-        session_id: activeSessionId,
-      });
-
-      // sendMessage already generates and saves the coach response
-      const result = await sendMessageMutation.mutateAsync({
-        sessionId: activeSessionId,
-        content: userMessage,
-      });
-
-      // Simulate typing effect with the response
-      if (result.content) {
-        const words = result.content.split(" ");
-        let accumulated = "";
-        for (let i = 0; i < words.length; i++) {
-          accumulated += (i === 0 ? "" : " ") + words[i];
-          setStreamingMessage(accumulated);
-          // Small delay for typing effect (faster for longer responses)
-          await new Promise((resolve) =>
-            setTimeout(resolve, Math.min(30, 500 / words.length)),
-          );
-        }
-      }
-
-      // Refresh messages to show the saved response
-      await refetchMessages();
-      setStreamingMessage("");
-
-      // Celebrate first chat if this was the first message
-      if (isFirstMessage) {
-        celebrations.firstChat();
-      }
-    } catch (error) {
-      handleMutationError(error, ErrorMessages.chatSend);
-      setStreamingMessage("");
-    } finally {
-      setIsStreaming(false);
     }
   };
 
