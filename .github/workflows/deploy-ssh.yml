@@ -88,9 +88,16 @@ jobs:
 
       - name: 🔍 Test SSH connection
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "echo '✅ SSH connection successful'"
+          echo "🔍 Testing SSH connection to ${{ secrets.SSH_HOST }}:${{ secrets.SSH_PORT || 22 }}..."
+          ssh -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=10 \
+              -p ${{ secrets.SSH_PORT || 22 }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+              "echo '✅ SSH connection successful' && hostname && whoami" || {
+            echo "::error::SSH connection failed. Check if SSH is accessible and port is correct."
+            echo "💡 Tip: Contact Manus Support if SSH port 22 is not publicly accessible."
+            exit 1
+          }
 
       - name: 📦 Create deployment package
         run: |
