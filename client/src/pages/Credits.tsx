@@ -25,7 +25,8 @@ export default function Credits() {
   const createCheckoutSession = trpc.stripe.createCheckoutSession.useMutation();
 
   const credits = balance ?? 0;
-  const isLow = credits < 20;
+  const isLow = credits < 20 && credits > 0;
+  const isEmpty = credits === 0;
   
   const handlePurchase = async (productKey: "orbit_pack" | "galaxy_pack" | "mini_booster" | "power_booster" | "mega_booster") => {
     try {
@@ -63,6 +64,11 @@ export default function Credits() {
                   <h2 className="text-4xl font-bold gradient-text">
                     {credits} Credits
                   </h2>
+                  {isEmpty && (
+                    <Badge variant="outline" className="mt-2 border-red-500/50 text-red-400">
+                      Keine Credits
+                    </Badge>
+                  )}
                   {isLow && (
                     <Badge variant="outline" className="mt-2 border-orange-500/50 text-orange-400">
                       Guthaben knapp

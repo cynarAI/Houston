@@ -258,7 +258,7 @@ export default function Dashboard() {
                     <div>
                       <h4 className="font-semibold text-sm mb-1">Du bist auf Kurs!</h4>
                       <p className="text-sm text-muted-foreground">
-                        Super Fortschritt! Du hast {activeGoals} aktive{activeGoals === 1 ? 's Ziel' : ' Ziele'} und {openTodos} offene {openTodos === 1 ? 'Aufgabe' : 'Aufgaben'}. Weiter so!
+                        Super Fortschritt! Du hast {activeGoals} {activeGoals === 1 ? 'aktives Ziel' : 'aktive Ziele'} und {openTodos} {openTodos === 1 ? 'offene Aufgabe' : 'offene Aufgaben'}. Weiter so!
                       </p>
                       <Link href="/app/strategy">
                         <Button variant="link" size="sm" className="px-0 mt-2">
@@ -346,7 +346,7 @@ export default function Dashboard() {
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                     <Target className="h-5 w-5 text-blue-400" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">{activeGoals} aktive{activeGoals === 1 ? 's Ziel' : ' Ziele'}</p>
+                      <p className="text-sm font-medium">{activeGoals} {activeGoals === 1 ? 'aktives Ziel' : 'aktive Ziele'}</p>
                       <p className="text-xs text-muted-foreground">Bleib dran und erreiche deine Marketing-Ziele</p>
                     </div>
                   </div>
