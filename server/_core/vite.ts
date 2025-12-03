@@ -57,47 +57,10 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Configure static file serving with appropriate cache headers
-  // - HTML files: no-cache (always revalidate) to ensure latest version
-  // - Assets with hashes: long cache (1 year) since Vite generates unique hashes
-  // - Other files: short cache (1 day) with revalidation
-  app.use(
-    express.static(distPath, {
-      maxAge: "1d", // Default cache for 1 day
-      etag: true, // Enable ETag for cache validation
-      lastModified: true, // Enable Last-Modified header
-      setHeaders: (res, filePath) => {
-        // HTML files should not be cached (always check for updates)
-        if (filePath.endsWith(".html")) {
-          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-          res.setHeader("Pragma", "no-cache");
-          res.setHeader("Expires", "0");
-        }
-        // Assets with hashes (Vite generates unique filenames) can be cached longer
-        else if (
-          filePath.match(
-            /\/assets\/.*-[a-zA-Z0-9]+\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/,
-          )
-        ) {
-          res.setHeader("Cache-Control", "public, max-age=31536000, immutable"); // 1 year
-        }
-        // Other static files: short cache with revalidation
-        else {
-          res.setHeader(
-            "Cache-Control",
-            "public, max-age=86400, must-revalidate",
-          ); // 1 day
-        }
-      },
-    }),
-  );
+  app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
-    // Ensure index.html is never cached
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
