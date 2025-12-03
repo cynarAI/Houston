@@ -392,10 +392,25 @@ fi
 
 # Lade Webserver neu
 if [ "$WEBSERVER" = "nginx" ]; then
+  # Lösche Nginx Cache (falls vorhanden)
+  if [ -d "/var/cache/nginx" ]; then
+    sudo rm -rf /var/cache/nginx/* 2>/dev/null && echo "✅ Nginx Cache gelöscht" || echo "⚠️  Nginx Cache konnte nicht gelöscht werden"
+  fi
   sudo systemctl reload nginx 2>/dev/null && echo "✅ Nginx reloaded" || echo "⚠️  Nginx reload fehlgeschlagen"
 elif [ "$WEBSERVER" = "apache2" ]; then
+  # Lösche Apache Cache (falls vorhanden)
+  if [ -d "/var/cache/apache2" ]; then
+    sudo rm -rf /var/cache/apache2/* 2>/dev/null && echo "✅ Apache Cache gelöscht" || echo "⚠️  Apache Cache konnte nicht gelöscht werden"
+  fi
   sudo systemctl reload apache2 2>/dev/null && echo "✅ Apache reloaded" || echo "⚠️  Apache reload fehlgeschlagen"
 else
+  # Versuche beide mit Cache-Clearing
+  if [ -d "/var/cache/nginx" ]; then
+    sudo rm -rf /var/cache/nginx/* 2>/dev/null || true
+  fi
+  if [ -d "/var/cache/apache2" ]; then
+    sudo rm -rf /var/cache/apache2/* 2>/dev/null || true
+  fi
   sudo systemctl reload nginx 2>/dev/null && echo "✅ Nginx reloaded" || true
   sudo systemctl reload apache2 2>/dev/null && echo "✅ Apache reloaded" || true
 fi
