@@ -53,51 +53,84 @@ echo "✅ Commit verifiziert: $ACTUAL_SHA"
 git log -1 --oneline
 echo "📝 Commit-Nachricht: COMMIT_MESSAGE"
 
-SCHRITT 2: Dependencies installieren und App bauen (PRODUCTION BUILD!)
+SCHRITT 2: Verwende bereits gebaute Artefakte ODER baue neu (PRODUCTION BUILD!)
 ═══════════════════════════════════════════════════════════════════
 
-⚠️ KRITISCH: Du MUSST einen PRODUCTION BUILD erstellen, NICHT einen Dev-Server!
-⚠️ KRITISCH: Verwende NODE_ENV=production um sicherzustellen, dass Vite im Production-Modus baut!
-⚠️ KRITISCH: Verwende NUR "pnpm build", NIEMALS "pnpm dev"!
+⚠️ KRITISCH: Prüfe ZUERST ob dist/public/ bereits existiert (vom GitHub Actions Build)!
+⚠️ KRITISCH: Wenn dist/public/ bereits existiert, verwende diese Dateien - baue NICHT nochmal!
+⚠️ KRITISCH: Nur wenn dist/public/ NICHT existiert, baue neu mit NODE_ENV=production!
 
-# Setze Production-Umgebung
-export NODE_ENV=production
-echo "✅ NODE_ENV gesetzt: $NODE_ENV"
+# Prüfe ob Build-Artefakte bereits vorhanden sind
+if [ -f dist/public/index.html ] && [ -d dist/public/assets ]; then
+  echo "✅ Build-Artefakte bereits vorhanden (vom GitHub Actions Build)!"
+  echo "📁 Verwende vorhandene Build-Artefakte..."
+  echo "📊 Anzahl Dateien im vorhandenen Build:"
+  find dist/public -type f | wc -l
+  echo "📁 Build-Verzeichnis-Inhalt:"
+  ls -la dist/public/ | head -10
+  
+  # Verifiziere dass es ein Production-Build ist
+  if grep -r "vite" dist/public/*.html 2>/dev/null | grep -q "dev"; then
+    echo "⚠️  WARNUNG: Möglicherweise Dev-Mode erkannt in vorhandenem Build!"
+    echo "   Baue neu mit Production-Modus..."
+    BUILD_NEEDED=true
+  else
+    echo "✅ Vorhandene Build-Artefakte sind Production-Builds - verwende diese!"
+    BUILD_NEEDED=false
+  fi
+else
+  echo "⚠️  Build-Artefakte nicht vorhanden - baue neu..."
+  BUILD_NEEDED=true
+fi
 
-# Installiere Dependencies
-pnpm install --frozen-lockfile
+# Nur bauen wenn nötig
+if [ "$BUILD_NEEDED" = "true" ]; then
+  echo "🏗️ Starte PRODUCTION BUILD..."
+  
+  # Setze Production-Umgebung
+  export NODE_ENV=production
+  echo "✅ NODE_ENV gesetzt: $NODE_ENV"
+  
+  # Installiere Dependencies
+  pnpm install --frozen-lockfile
+  
+  # Baue die App im PRODUCTION-Modus
+  pnpm build
+  
+  # Verifiziere dass dist/public/ existiert und Production-Build enthält
+  echo "🔍 Verifiziere Build-Artefakte..."
+  if [ ! -f dist/public/index.html ]; then
+    echo "❌ FEHLER: index.html fehlt nach Build!"
+    echo "   Build ist fehlgeschlagen oder wurde nicht ausgeführt!"
+    exit 1
+  fi
+  
+  if [ ! -d dist/public/assets ]; then
+    echo "⚠️  WARNUNG: assets/ Verzeichnis fehlt nach Build!"
+    echo "   Das könnte bedeuten, dass der Build nicht vollständig war!"
+  fi
+  
+  # Zeige Build-Informationen
+  echo "✅ Build erfolgreich!"
+  echo "📁 Build-Verzeichnis-Inhalt:"
+  ls -la dist/public/ | head -10
+  echo "📊 Anzahl Dateien im Build:"
+  find dist/public -type f | wc -l
+  
+  # Verifiziere dass es ein Production-Build ist (keine Dev-Dateien)
+  if grep -r "vite" dist/public/*.html 2>/dev/null | grep -q "dev"; then
+    echo "⚠️  WARNUNG: Möglicherweise Dev-Mode erkannt in HTML!"
+  fi
+fi
 
-# Baue die App im PRODUCTION-Modus
-echo "🏗️ Starte PRODUCTION BUILD..."
-pnpm build
-
-# Verifiziere dass dist/public/ existiert und Production-Build enthält
-echo "🔍 Verifiziere Build-Artefakte..."
+# Finale Verifikation
 if [ ! -f dist/public/index.html ]; then
-  echo "❌ FEHLER: index.html fehlt nach Build!"
-  echo "   Build ist fehlgeschlagen oder wurde nicht ausgeführt!"
+  echo "❌ FEHLER: index.html fehlt nach Build/Verifikation!"
   exit 1
 fi
 
-if [ ! -d dist/public/assets ]; then
-  echo "⚠️  WARNUNG: assets/ Verzeichnis fehlt nach Build!"
-  echo "   Das könnte bedeuten, dass der Build nicht vollständig war!"
-fi
-
-# Zeige Build-Informationen
-echo "✅ Build erfolgreich!"
-echo "📁 Build-Verzeichnis-Inhalt:"
-ls -la dist/public/ | head -10
-echo "📊 Anzahl Dateien im Build:"
-find dist/public -type f | wc -l
-
-# Verifiziere dass es ein Production-Build ist (keine Dev-Dateien)
-if grep -r "vite" dist/public/*.html 2>/dev/null | grep -q "dev"; then
-  echo "⚠️  WARNUNG: Möglicherweise Dev-Mode erkannt in HTML!"
-fi
-
 ⚠️ WICHTIG: Das dist/public/ Verzeichnis muss die PRODUCTION-BUILD-Dateien enthalten (index.html, assets/, etc.)!
-⚠️ WICHTIG: Stelle sicher, dass NODE_ENV=production gesetzt war während des Builds!
+⚠️ WICHTIG: Verwende die bereits gebauten Artefakte wenn vorhanden - baue nur wenn nötig!
 
 SCHRITT 3: App veröffentlichen
 
