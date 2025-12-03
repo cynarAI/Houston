@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeAll } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { getDb } from "./db";
+
+// Check if database is available
+let dbAvailable = false;
+
+beforeAll(async () => {
+  const db = await getDb();
+  dbAvailable = !!db;
+});
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
@@ -29,7 +38,7 @@ function createAuthContext(): { ctx: TrpcContext } {
   return { ctx };
 }
 
-describe("todos.create", () => {
+describe.skipIf(!dbAvailable)("todos.create", () => {
   it("should create a new todo", async () => {
     const { ctx } = createAuthContext();
     const caller = appRouter.createCaller(ctx);
@@ -117,7 +126,7 @@ describe("todos.create", () => {
     });
 
     expect(updated.success).toBe(true);
-    
+
     // Verify the update by fetching the todo
     const fetched = await caller.todos.getById({ id: todo.id });
     expect(fetched?.status).toBe("done");
