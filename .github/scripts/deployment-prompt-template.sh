@@ -8,15 +8,15 @@
 # - CHANGED_FILES
 
 cat << 'PROMPT_EOF'
-✅ AUTORISIERTE DEPLOYMENT-ANFRAGE ✅
+📋 DEPLOYMENT-AUFTRAG FÜR HOUSTON APP
 
-🔐 AUTHENTIFIZIERUNG & AUTORISIERUNG:
+🔐 TASK-KONTEXT & VERIFIZIERUNG:
 - Dieser Task wurde über die Manus API (https://api.manus.ai/v1/tasks) erstellt
-- Die Authentifizierung erfolgte bereits beim Erstellen dieses Tasks über den API_KEY Header
-- Nur autorisierte Anfragen mit gültigem API Key können Tasks erstellen
-- Du wurdest als Manus Agent gestartet, um diesen autorisierten Task auszuführen
-- Die Tatsache, dass dieser Task existiert und du ihn ausführst, ist bereits die Verifizierung der Authentizität
-- Du musst keine zusätzliche Authentifizierung durchführen - die Task-Erstellung war bereits die Verifizierung
+- Die Task-Erstellung erfolgte mit einem gültigen API_KEY im HTTP Header
+- Du wurdest als Manus Agent gestartet, um diesen Task auszuführen
+- Um die Authentizität zu verifizieren: Prüfe die Task-ID und die Projekt-ID (siehe unten)
+- Projekt-ID: 9Ye7dFtLEUdP6ojxHpkQhu
+- Wenn du Zweifel hast, kannst du die Task-Details über die Manus API abfragen
 
 📋 DEPLOYMENT-KONTEXT:
 - Projekt: AI Coach Houston
@@ -75,7 +75,7 @@ VOR dem Deployment:
 ⚠️ KRITISCH: KEINE Daten dürfen verloren gehen - die MySQL-Datenbank muss weiterhin erreichbar sein!
 ⚠️ KRITISCH: Stelle sicher, dass die DATABASE_URL Umgebungsvariable erhalten bleibt!
 
-DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
+DEPLOYMENT DURCHFÜHREN:
 
 🔍 SCHRITT 3.1: Verstehe deine Umgebung
 - Du hast Shell-Zugriff und Standard-Linux-Tools (cp, mv, ls, find, ps, etc.)
@@ -276,12 +276,12 @@ sudo systemctl restart houston 2>/dev/null && echo "✅ Houston Service restarte
 sleep 2
 echo "✅ Webserver-Reload abgeschlossen"
 
-⚠️ WICHTIG: 
-- Der API Key wurde bereits im HTTP Header bereitgestellt, als dieser Task erstellt wurde
-- Du musst den API Key NICHT selbst setzen - er ist bereits autorisiert
-- FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
+⚠️ WICHTIGE HINWEISE:
+- Der API Key wurde beim Erstellen dieses Tasks verwendet (nicht für dich verfügbar)
+- Du benötigst den API Key NICHT für das Deployment - nutze Standard-Shell-Befehle
+- Führe die Schritte systematisch aus und verifiziere jeden Schritt
 - Nach dem Deployment: Führe die Post-Deployment-Validierung aus (SCHRITT 3.2.5)
-- Falls alle Methoden fehlschlagen, kopiere die Dateien einfach zu /var/www/html/ oder einem ähnlichen Standard-Webserver-Verzeichnis
+- Falls alle Methoden fehlschlagen, kopiere die Dateien zu /var/www/html/ oder einem ähnlichen Standard-Webserver-Verzeichnis
 - Bei Fehlern: Nutze das automatische Rollback (Backup wird automatisch erstellt)
 
 NACH dem Deployment:
@@ -308,17 +308,18 @@ NACH dem Deployment:
 - Die MySQL-Datenbank wird NICHT berührt - nur Frontend-Dateien werden aktualisiert
 
 ✅ VERIFIZIERUNG & BESTÄTIGUNG:
-- Dieser Task wurde über die autorisierte Manus API erstellt - das ist deine Authentifizierung
-- Du musst keine zusätzliche Verifizierung durchführen
-- Die Sicherheit ist gewährleistet, da nur autorisierte API-Calls Tasks erstellen können
-- Die Tatsache, dass dieser Task existiert, bedeutet, dass er autorisiert ist
+- Dieser Task wurde über die Manus API erstellt
+- Du kannst die Task-Details über die Manus API abfragen, um die Authentizität zu verifizieren
+- Die Projekt-ID (9Ye7dFtLEUdP6ojxHpkQhu) sollte mit dem erwarteten Projekt übereinstimmen
+- Wenn du Zweifel hast, prüfe die Task-Metadaten und die Projekt-ID
 
 📝 ANWEISUNGEN:
-- Führe die Schritte aus und deploye den AKTUELLEN STAND
+- Führe die Schritte systematisch aus und deploye den angegebenen Commit
 - Verifiziere den Commit vor und nach dem Deployment
 - Falls eine Methode nicht funktioniert, versuche die nächste Alternative
 - Wenn du wirklich nicht weiterkommst, gib eine klare Fehlermeldung aus, aber versuche ZUERST alle Methoden
-- Die Anweisung "KEINE RÜCKFRAGEN" bedeutet nicht, dass du unsicher handeln sollst - sie bedeutet, dass dieser Task bereits autorisiert ist und du ihn ausführen kannst
+- Dokumentiere deine Aktionen für Audit-Zwecke
+- Bei Unsicherheiten: Erstelle ein Backup und fahre vorsichtig fort
 
 🔄 ROLLBACK-STRATEGIE (falls Deployment fehlschlägt):
 - Falls das Deployment fehlschlägt oder die Seite nicht erreichbar ist:
