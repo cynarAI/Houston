@@ -310,13 +310,19 @@ export default function Dashboard() {
         <CreditBanner threshold={20} />
 
         {/* ============ TODAY'S FOCUS - Hero Element ============ */}
-        {/* Steve Jobs: Eine visuelle Schicht - nur elevated, kein Glassmorphism + Gradient */}
-        <Card variant="elevated" className="hero-entrance">
-          <CardContent className="!py-6 md:!py-8">
+        {/* Glassmorphism + AI-Gradient für visuelles Highlight */}
+        <Card
+          variant="glass"
+          className="relative overflow-hidden hero-entrance bg-gradient-to-br from-[#FF6B9D]/5 via-background to-[#00D4FF]/5 dark:from-[#FF6B9D]/10 dark:via-[#1a1a2e]/80 dark:to-[#00D4FF]/10"
+        >
+          {/* Subtle gradient overlay */}
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#8B5CF6]/5 to-transparent pointer-events-none" />
+          <CardContent className="!py-6 md:!py-8 relative">
             <div className="flex flex-col md:flex-row md:items-center gap-6">
               {/* Left: Focus Content */}
               <div className="flex-1">
                 <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                   {getTimeGreeting()}, {user?.name?.split(" ")[0] || "Captain"}
                 </p>
 
@@ -502,8 +508,12 @@ export default function Dashboard() {
         ) : null}
 
         {/* AI Insights Card - Prominent */}
-        {/* Steve Jobs: Eine visuelle Schicht - nur glass, kein elevated */}
-        <Card variant="glass" className="relative overflow-hidden">
+        <Card
+          variant="glass"
+          className="relative overflow-hidden bg-gradient-to-br from-[#8B5CF6]/5 via-background to-[#00D4FF]/5"
+        >
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#8B5CF6]/10 to-transparent rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -597,7 +607,10 @@ export default function Dashboard() {
 
         {/* Recommended Playbooks */}
         {suggestedPlaybooks.length > 0 && (
-          <Card variant="glass">
+          <Card
+            variant="glass"
+            className="bg-gradient-to-br from-[#FF6B9D]/5 via-background to-[#C44FE2]/5"
+          >
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -637,7 +650,10 @@ export default function Dashboard() {
         {/* Secondary Content Grid - Just 2 essential cards */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Goals & Progress */}
-          <Card variant="elevated">
+          <Card
+            variant="elevated"
+            className="bg-gradient-to-br from-[#00D4FF]/5 via-background to-[#8B5CF6]/5"
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="space-y-1">
                 <CardTitle>Goals & Progress</CardTitle>
@@ -730,7 +746,10 @@ export default function Dashboard() {
           </Card>
 
           {/* Recent Conversations with Houston */}
-          <Card variant="elevated">
+          <Card
+            variant="elevated"
+            className="bg-gradient-to-br from-[#FF6B9D]/5 via-background to-[#C44FE2]/5"
+          >
             <CardHeader>
               <CardTitle>Conversations with Houston</CardTitle>
               <CardDescription>Your chat history</CardDescription>
