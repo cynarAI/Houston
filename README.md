@@ -9,6 +9,8 @@ AI-powered marketing coach for SMBs with credit-based billing.
 
 > **Hosting:** Manus Platform – einfaches Deployment mit einem Befehl.
 
+> **Development:** Cursor AI ist konfiguriert als Senior Full-Stack Expert mit vollständigem App-Wissen, Manus 1.5 Platform Expertise und Steve Jobs Vision für Intuitivität und Einfachheit.
+
 ---
 
 ## Tech Stack
@@ -115,7 +117,9 @@ Copy `env.example` to `.env` and configure:
 
 ## Deployment
 
-Houston wird auf **Manus** gehostet – einer All-in-One Plattform für Full-Stack Webapplikationen.
+Houston wird auf **Manus 1.5** gehostet – einer All-in-One Plattform für Full-Stack Webapplikationen.
+
+**KRITISCH:** Houston wird ausschließlich auf Manus 1.5 entwickelt und deployed. Keine anderen Cloud-Provider (AWS, Vercel, Railway, etc.).
 
 ### Deployment durchführen
 
@@ -165,6 +169,14 @@ All documentation is organized in the `docs/` folder:
 - [Credit System Design](./docs/features/CREDIT_SYSTEM_DESIGN.md)
 - [QA Release Checklist](./docs/qa/QA_CHECKLIST.md) - Critical user flows & testing
 - [Full Documentation](./docs/README.md)
+
+**Cursor Rules:**
+
+- [Cursor Rules Index](./.cursor/rules/000-instructions.mdc) - Übersicht aller Rules
+- [Manus 1.5 Platform](./.cursor/rules/002-manus-platform.mdc) - Platform-Standard
+- [Expert Mode](./.cursor/rules/003-expert-mode.mdc) - Senior Developer Rolle
+- [App Knowledge](./.cursor/rules/004-app-knowledge.mdc) - Vollständiges App-Wissen
+- [Steve Jobs Vision](./.cursor/rules/005-steve-jobs-vision.mdc) - Intuitivität & Einfachheit
 
 ---
 
@@ -223,6 +235,47 @@ Located in `e2e/`:
 
 Tests run automatically on GitHub Actions (see `.github/workflows/ci.yml`).
 The CI pipeline includes TypeScript check, linting, unit tests, and build verification.
+
+---
+
+## Cursor Rules & AI Development
+
+Houston nutzt umfassende Cursor Rules für konsistente Entwicklung und AI-gestütztes Coding:
+
+### Cursor Rules Übersicht
+
+| Rule                        | Zweck                                                                        |
+| --------------------------- | ---------------------------------------------------------------------------- |
+| `001-core-houston.mdc`      | Projekt-Kern, Tech Stack, Domänen                                            |
+| `002-manus-platform.mdc`    | **Manus 1.5 Standard-Plattform** - Architektur, Deployment, App-Builder      |
+| `003-expert-mode.mdc`       | **Senior Full-Stack Expert** - Proaktiv, zuverlässig, Vibe Coding            |
+| `004-app-knowledge.mdc`     | **Vollständiges App-Wissen** - Landing Page, Branding, Zielgruppen, Features |
+| `005-steve-jobs-vision.mdc` | **Steve Jobs Vision** - Intuitivität, Einfachheit, Perfektionismus           |
+| `010-frontend.mdc`          | React/Vite/shadcn/ui Patterns                                                |
+| `020-backend.mdc`           | tRPC/Drizzle/CreditService                                                   |
+| `030-testing.mdc`           | Vitest/Playwright Guidelines                                                 |
+| `040-ux-copy.mdc`           | i18n, Houston Persona, Copy                                                  |
+| `050-ai-engineering.mdc`    | AI Engineering & Agent Best Practices                                        |
+
+### Was Cursor weiß
+
+- ✅ **Manus 1.5 Platform** - Ausschließlich Manus als Plattform, keine anderen Cloud-Provider
+- ✅ **Vollständiges App-Wissen** - Landing Page, Branding, Zielgruppen, Features, User Flows
+- ✅ **Steve Jobs Vision** - Intuitivität und Einfachheit über alles - "It just works"
+- ✅ **Expert Mode** - Proaktive Führung, vollständige Implementierung, Vibe Coding
+- ✅ **Architektur-Patterns** - Manus-kompatible Strukturen, Best Practices
+
+### Entwicklung mit Cursor
+
+Cursor agiert als:
+
+- 🎯 **Senior Full-Stack Developer** - Triff technische Entscheidungen selbstständig
+- 🔍 **Proaktiver Experte** - Recherchiert Manus-Docs und Web-Best-Practices
+- 💪 **Zuverlässiger Partner** - Production-ready Code, keine Halbheiten
+- 🎨 **Vibe Coding Enabler** - Entspanntes, kreatives Arbeiten ohne technische Sorgen
+- 🍎 **Steve Jobs Vision** - Jede Entscheidung folgt dem Prinzip: "It just works"
+
+Siehe `.cursor/rules/` für vollständige Dokumentation.
 
 ---
 
