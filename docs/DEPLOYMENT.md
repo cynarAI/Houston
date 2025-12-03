@@ -2,6 +2,20 @@
 
 Dieses Dokument beschreibt das neue, optimierte Deployment-System für die Houston App. Das System ist darauf ausgelegt, Deployments schneller, ressourcenschonender und flexibler zu gestalten.
 
+## ⚠️ WICHTIG: Permanentes Deployment & Datenintegrität
+
+**Die Houston App wird von echten Nutzern verwendet.** Daher ist es kritisch, dass:
+
+1. **Deployments sind permanent** - nicht temporär. Die Seite muss dauerhaft verfügbar sein.
+2. **Keine Datenverluste** - Bei jedem Deployment müssen alle Nutzerdaten erhalten bleiben:
+   - Nutzerkonten und Authentifizierung
+   - Credits und Transaktionen
+   - Chat-Sessions und Nachrichten
+   - Goals, Todos, Strategien
+   - Onboarding-Daten
+   - Content Library
+3. **Datenbankverbindung bleibt erhalten** - Die `DATABASE_URL` Umgebungsvariable muss bei jedem Deployment erhalten bleiben und darf nicht überschrieben werden.
+
 ## Übersicht
 
 Das neue System bietet zwei primäre Methoden für das Deployment:
