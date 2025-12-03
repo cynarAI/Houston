@@ -7,6 +7,7 @@
     "getStarted": "Kostenlos starten",
     "dashboard": "Dashboard",
     "chats": "Chats",
+    "playbooks": "Playbooks",
     "goals": "Ziele",
     "todos": "To-dos",
     "strategy": "Strategie",
@@ -173,70 +174,150 @@
     "exportPDF": "Als PDF exportieren",
     "noStrategy": "Noch keine Strategie definiert"
   },
+  "playbooks": {
+    "title": "Marketing-Playbooks",
+    "subtitle": "Bewährte Strategien und Schritt-für-Schritt-Anleitungen für dein Marketing. Wähle ein Playbook und starte deine Mission.",
+    "searchPlaceholder": "Playbooks durchsuchen...",
+    "allCategories": "Alle Kategorien",
+    "allLevels": "Alle Level",
+    "activeFilters": "Aktive Filter",
+    "resetFilters": "Alle zurücksetzen",
+    "resultsCount": "{{count}} von {{total}} Playbooks",
+    "noResults": "Keine Playbooks gefunden",
+    "noResultsHint": "Versuche andere Filter oder eine andere Suche.",
+    "startMission": "Mission starten",
+    "viewDetails": "Details ansehen",
+    "askHouston": "Houston fragen",
+    "notSure": "Nicht sicher, welches Playbook?",
+    "notSureHint": "Frag Houston! Er analysiert deine Situation und empfiehlt dir das passende Playbook.",
+    "askHoustonPrompt": "Welches Marketing-Playbook passt am besten zu meiner Situation?",
+    "noWorkspace": "Kein Workspace gefunden. Bitte erstelle zuerst einen Workspace.",
+    "missionStarted": "Mission \"{{title}}\" gestartet! {{count}} Aufgaben wurden erstellt.",
+    "missionError": "Mission konnte nicht gestartet werden. Bitte versuche es erneut.",
+    "recommended": "Empfohlene Playbooks",
+    "recommendedSubtitle": "Bewährte Marketing-Strategien für deinen nächsten Schritt",
+    "allPlaybooks": "Alle Playbooks",
+    "tabs": {
+      "overview": "Übersicht",
+      "steps": "Schritte",
+      "goals": "Ziele",
+      "houstonHelp": "Houston-Hilfe"
+    },
+    "modal": {
+      "description": "Beschreibung",
+      "benefits": "Das bringt dir dieses Playbook",
+      "tags": "Tags",
+      "tasksCreated": "{{count}} Aufgaben werden für dich erstellt",
+      "close": "Schließen",
+      "askHoustonHint": "Frag Houston nach Unterstützung für dieses Playbook. Klicke auf einen Vorschlag oder formuliere deine eigene Frage."
+    },
+    "difficulty": {
+      "easy": "Einfach",
+      "medium": "Mittel",
+      "advanced": "Fortgeschritten"
+    },
+    "category": {
+      "content": "Content Marketing",
+      "leadgen": "Lead-Generierung",
+      "campaign": "Kampagnen",
+      "nurturing": "Nurturing",
+      "social": "Social Media"
+    },
+    "meta": {
+      "duration": "{{days}} Tage",
+      "steps": "{{count}} Schritte",
+      "goals": "{{count}} Ziel",
+      "goalsPlural": "{{count}} Ziele"
+    },
+    "smart": {
+      "specific": "Spezifisch",
+      "measurable": "Messbar",
+      "achievable": "Erreichbar",
+      "relevant": "Relevant",
+      "timeBound": "Zeitgebunden"
+    }
+  },
   "credits": {
     "title": "Credits & Pläne",
-    "subtitle": "Verwalte deine Houston Credits",
+    "subtitle": "Dein Guthaben für Houston – transparent und flexibel",
     "balance": {
-      "title": "Aktuelles Guthaben",
+      "title": "Dein Guthaben",
       "credits": "Credits",
-      "low": "Niedrig",
-      "empty": "Leer"
+      "low": "Wird knapp",
+      "empty": "Aufgebraucht"
     },
     "usage": {
-      "title": "Credit-Nutzung",
-      "lifetime": "Lifetime verwendet",
+      "title": "Deine Nutzung",
+      "lifetime": "Insgesamt verbraucht",
       "thisMonth": "Diesen Monat"
     },
     "costs": {
-      "title": "Feature-Kosten",
-      "chatBasic": "Chat (Basic)",
-      "chatDeep": "Chat (Deep Analysis)",
-      "pdfExport": "PDF Export",
-      "aiInsights": "AI Insights",
+      "title": "So nutzt du deine Credits",
+      "subtitle": "Transparente Übersicht – keine versteckten Kosten",
+      "chatBasic": "Chat-Nachrichten",
+      "chatDeep": "Tiefenanalyse im Chat",
+      "pdfExport": "PDF-Export",
+      "aiInsights": "KI-Empfehlungen",
       "goalsGeneration": "Ziele generieren",
       "strategyAnalysis": "Strategie-Analyse",
       "free": "Kostenlos"
     },
     "packs": {
-      "title": "Credit Packs",
+      "title": "Monatliche Pläne",
+      "subtitle": "Regelmäßige Credits für kontinuierliches Marketing",
       "starter": {
         "name": "Starter",
         "price": "Kostenlos",
         "credits": "50 Credits",
-        "description": "Kostenlose Starter-Credits",
+        "description": "Perfekt zum Ausprobieren",
         "cta": "Kostenlos starten"
       },
       "orbit": {
-        "name": "Orbit Pack",
+        "name": "Solo",
         "price": "€9.99/Monat",
         "credits": "100 Credits",
-        "description": "Erneuert sich monatlich",
-        "badge": "Beliebteste",
-        "cta": "Orbit Pack holen"
+        "description": "Ideal für Solo-Marketer mit 2-3 Projekten pro Monat",
+        "badge": "Empfohlen",
+        "cta": "Plan wählen",
+        "useCase": "Perfekt für Einzelunternehmer und kleine Teams"
       },
       "galaxy": {
-        "name": "Galaxy Pack",
+        "name": "Team",
         "price": "€39.99/Monat",
         "credits": "500 Credits",
-        "description": "Für Agenturen & Teams",
-        "cta": "Galaxy Pack holen"
+        "description": "Für wachsende Teams und Agenturen mit vielen Kampagnen",
+        "cta": "Plan wählen",
+        "useCase": "Ideal für Agenturen und größere Marketing-Teams"
       }
     },
     "boosters": {
-      "title": "Mission Boosters",
-      "subtitle": "Einmalige Top-ups",
+      "title": "Credit-Booster",
+      "subtitle": "Einmalige Aufladungen – verfallen nicht",
       "small": "50 Credits",
       "medium": "150 Credits",
       "large": "300 Credits",
-      "cta": "Kaufen"
+      "cta": "Jetzt kaufen",
+      "bestValue": "Beste Ersparnis"
     },
     "history": {
-      "title": "Transaktions-Historie",
-      "type": "Typ",
+      "title": "Deine Transaktionen",
+      "type": "Art",
       "amount": "Betrag",
       "date": "Datum",
       "description": "Beschreibung",
-      "noHistory": "Noch keine Transaktionen"
+      "noHistory": "Noch keine Transaktionen – starte mit deinem ersten Feature!"
+    },
+    "trust": {
+      "secure": "Sichere Zahlung via Stripe",
+      "cancel": "Jederzeit kündbar",
+      "noHidden": "Keine versteckten Kosten",
+      "noExpire": "Gekaufte Credits verfallen nicht"
+    },
+    "lowCredits": {
+      "title": "Guthaben knapp",
+      "message": "Mit mehr Credits kann Houston dich besser unterstützen.",
+      "empty": "Credits aufgebraucht",
+      "emptyMessage": "Lade dein Guthaben auf, um alle Features zu nutzen."
     }
   },
   "referrals": {
@@ -310,42 +391,148 @@
   },
   "landing": {
     "nav": {
-      "features": "Features",
-      "pricing": "Pricing",
-      "login": "Login",
-      "dashboard": "Zum Dashboard"
+      "features": "Funktionen",
+      "howItWorks": "So funktioniert's",
+      "pricing": "Preise",
+      "faq": "FAQ",
+      "login": "Anmelden",
+      "dashboard": "Zum Dashboard",
+      "screenshots": "Screenshots",
+      "testimonials": "Referenzen"
     },
     "hero": {
-      "badge": "AI-Powered Marketing Coach",
+      "badge": "Dein KI-Marketing-Copilot",
       "title": {
-        "part1": "Steigere deine Marketing-Performance um",
-        "highlight": "300%",
-        "part2": "mit KI-gestützter Strategie"
+        "part1": "Dein",
+        "highlight": "KI-Marketing-Copilot",
+        "part2": "für den Alltag"
       },
-      "subtitle": "Schluss mit Trial & Error – Houston analysiert deine Ziele, erstellt datenbasierte Strategien und gibt dir konkrete Handlungsempfehlungen. Spare 10h/Woche und erreiche messbare Ergebnisse.",
+      "subtitle": "Houston plant Strategien, erstellt To-dos und begleitet dich täglich – damit dein Marketing nicht liegen bleibt.",
       "cta": {
-        "start": "Kostenlos testen – keine Kreditkarte nötig",
-        "learn": "Siehe Houston in Aktion",
+        "start": "Kostenlos starten mit 50 Credits",
+        "learn": "So funktioniert's",
         "dashboard": "Zum Dashboard"
+      },
+      "trustBadges": {
+        "noCard": "Keine Kreditkarte nötig",
+        "freeCredits": "50 Credits geschenkt",
+        "cancelAnytime": "Jederzeit kündbar"
       }
     },
-    "features": {
+    "howItWorks": {
       "title": {
-        "part1": "Funktionen, die dich",
-        "highlight": "weiterbringen"
+        "part1": "So funktioniert",
+        "highlight": "Houston"
       },
-      "subtitle": "Konkrete Tools, die dir Zeit sparen und messbare Ergebnisse liefern.",
-      "feature1": {
-        "title": "SMART-Goals in 60 Sekunden",
-        "description": "Erstelle messbare Marketing-Ziele mit KI-Unterstützung – statt 2 Stunden manueller Arbeit. Houston analysiert deine Branche und schlägt konkrete KPIs vor."
+      "subtitle": "In 4 einfachen Schritten zu deinem Marketing-Erfolg",
+      "step1": {
+        "title": "Ziel erzählen",
+        "description": "Sag Houston, was du erreichen willst – mehr Kunden, bessere Sichtbarkeit, oder eine neue Kampagne."
       },
-      "feature2": {
-        "title": "5 Handlungsempfehlungen pro Woche",
-        "description": "Erhalte wöchentlich konkrete Aufgaben basierend auf deinen Zielen. Houston priorisiert automatisch und zeigt dir, was jetzt wichtig ist."
+      "step2": {
+        "title": "Plan erhalten",
+        "description": "Houston analysiert deine Situation und erstellt eine Strategie mit konkreten To-dos."
       },
-      "feature3": {
-        "title": "Tracke 20+ KPIs automatisch",
-        "description": "Kein Excel-Chaos mehr. Houston überwacht deine Marketing-Performance in Echtzeit und warnt dich, wenn Ziele gefährdet sind."
+      "step3": {
+        "title": "Umsetzen",
+        "description": "Arbeite die Schritte mit Houston ab. Bei Fragen ist er immer für dich da."
+      },
+      "step4": {
+        "title": "Optimieren",
+        "description": "Houston wertet deine Fortschritte aus und schlägt Verbesserungen vor."
+      }
+    },
+    "benefits": {
+      "title": {
+        "part1": "Das bringt dir",
+        "highlight": "Houston"
+      },
+      "subtitle": "Konkrete Ergebnisse statt leerer Versprechen",
+      "benefit1": {
+        "title": "Dein Marketing bleibt nicht mehr liegen",
+        "description": "Keine vergessenen Kampagnen mehr. Houston erinnert dich an nächste Schritte und hält dich auf Kurs."
+      },
+      "benefit2": {
+        "title": "Klarer Plan statt Überforderung",
+        "description": "Schluss mit Grübeln. Houston gibt dir jeden Tag konkrete Aufgaben, die zu deinen Zielen passen."
+      },
+      "benefit3": {
+        "title": "Weniger Grübeln, mehr Umsetzen",
+        "description": "Houston denkt mit – du setzt um. So sparst du Stunden an Planungszeit pro Woche."
+      }
+    },
+    "forWhom": {
+      "title": {
+        "part1": "Für wen ist",
+        "highlight": "Houston?"
+      },
+      "subtitle": "Houston ist für alle, die Marketing machen müssen – aber keine eigene Marketingabteilung haben",
+      "persona1": {
+        "title": "Solo-Coach & Berater",
+        "description": "Du hast viele Ideen, aber keine Zeit für Marketingplanung. Houston hilft dir, fokussiert zu bleiben."
+      },
+      "persona2": {
+        "title": "Kleine Agentur",
+        "description": "Mehrere Kunden, wenig Zeit. Houston hilft dir, Projekte strukturiert zu betreuen."
+      },
+      "persona3": {
+        "title": "Lokales Business",
+        "description": "Du willst mehr Kunden, aber Marketing überfordert dich. Houston macht es einfach."
+      }
+    },
+    "screenshots": {
+      "title": {
+        "part1": "Deine",
+        "highlight": "Mission Control"
+      },
+      "subtitle": "Sieht aus wie ein Cockpit – fühlt sich aber einfach an",
+      "dashboard": {
+        "title": "Dashboard & Insights",
+        "description": "Behalte alle wichtigen Metriken im Blick und erhalte personalisierte KI-Empfehlungen."
+      },
+      "chat": {
+        "title": "Chat mit Houston",
+        "description": "Stelle Fragen und erhalte sofort konkrete Marketing-Strategien und Handlungsempfehlungen."
+      },
+      "goals": {
+        "title": "Ziele & Fortschritt",
+        "description": "Erstelle und verfolge messbare Marketing-Ziele mit visuellen Fortschrittsanzeigen."
+      },
+      "strategy": {
+        "title": "Strategie-Planung",
+        "description": "Definiere Positionierung, Zielgruppen und Kanäle an einem Ort."
+      }
+    },
+    "creditsExplained": {
+      "title": {
+        "part1": "Credits",
+        "highlight": "einfach erklärt"
+      },
+      "subtitle": "Transparent und fair – du zahlst nur, was du nutzt",
+      "whatAreCredits": {
+        "title": "Was sind Credits?",
+        "description": "Credits sind deine Währung für Premium-Features. Einfache Chats sind kostenlos, nur tiefere Analysen kosten Credits."
+      },
+      "whatCanYouDo": {
+        "title": "Was kannst du mit 50 Credits machen?",
+        "examples": {
+          "deepAnalysis": "~16 Tiefenanalysen",
+          "aiInsights": "~16 KI-Empfehlungen",
+          "strategyAnalysis": "~6 Strategie-Analysen",
+          "pdfExports": "~25 PDF-Exporte"
+        }
+      },
+      "costs": {
+        "chat": "Chat-Nachrichten",
+        "chatCost": "Kostenlos",
+        "deepAnalysis": "Tiefenanalyse",
+        "deepAnalysisCost": "3 Credits",
+        "aiInsights": "KI-Empfehlungen",
+        "aiInsightsCost": "3 Credits",
+        "strategyAnalysis": "Strategie-Analyse",
+        "strategyAnalysisCost": "8 Credits",
+        "pdfExport": "PDF-Export",
+        "pdfExportCost": "2 Credits"
       }
     },
     "pricing": {
@@ -353,30 +540,61 @@
         "part1": "Wähle deinen",
         "highlight": "Plan"
       },
-      "subtitle": "Starte kostenlos oder upgrade für mehr Features.",
-      "satellite": {
+      "subtitle": "Starte kostenlos – upgrade, wenn du mehr brauchst",
+      "trustSignals": {
+        "cancelAnytime": "Jederzeit kündbar",
+        "securePayment": "Sichere Zahlung via Stripe",
+        "noHiddenCosts": "Keine versteckten Kosten"
+      },
+      "starter": {
+        "name": "Starter",
         "price": "Kostenlos",
         "description": "Perfekt zum Ausprobieren",
-        "feature1": "1 Kampagne oder Produkt",
-        "feature2": "~5 Strategien pro Monat (20 Chats)",
-        "feature3": "Basis-Analytics & Goal-Tracking",
+        "credits": "50 Credits",
+        "creditsNote": "Geschenk zum Start",
+        "feature1": "~16 Tiefenanalysen",
+        "feature2": "Unbegrenzt chatten",
+        "feature3": "Keine Kreditkarte nötig",
         "cta": "Kostenlos starten"
       },
-      "rocket": {
-        "badge": "Spart dir €2.000/Monat",
-        "price": "€49/Monat",
-        "description": "Für ambitionierte Teams",
-        "feature1": "3 Kampagnen parallel",
-        "feature2": "~50 Strategien pro Monat (200 Chats)",
-        "feature3": "Erweiterte Analytics & Priorisierung",
-        "roi": "ROI: 10h/Woche gespart = €2.000/Monat Arbeitszeit",
-        "cta": "14 Tage kostenlos testen"
+      "solo": {
+        "name": "Solo",
+        "badge": "Empfohlen",
+        "price": "€9,99",
+        "period": "pro Monat",
+        "description": "Für Solo-Marketer und kleine Teams",
+        "credits": "100 Credits",
+        "creditsNote": "Erneuert sich monatlich",
+        "feature1": "~33 Tiefenanalysen/Monat",
+        "feature2": "Alle KI-Features inklusive",
+        "feature3": "Jederzeit kündbar",
+        "useCase": "Ideal für Solo-Marketer mit 2-3 Projekten pro Monat.",
+        "cta": "Solo Plan wählen"
+      },
+      "team": {
+        "name": "Team",
+        "price": "€39,99",
+        "period": "pro Monat",
+        "description": "Für Agenturen und wachsende Teams",
+        "credits": "500 Credits",
+        "creditsNote": "Erneuert sich monatlich",
+        "feature1": "~166 Tiefenanalysen/Monat",
+        "feature2": "Ideal für Agenturen & Teams",
+        "feature3": "Prioritäts-Support",
+        "useCase": "Perfekt für Agenturen und Marketing-Teams mit vielen parallelen Kampagnen.",
+        "cta": "Team Plan wählen"
+      },
+      "boosters": {
+        "title": "Mehr Flexibilität?",
+        "subtitle": "Hol dir Credit-Booster (einmalige Aufladungen, verfallen nicht)",
+        "small": "50 Credits",
+        "smallPrice": "€5,99",
+        "medium": "150 Credits",
+        "mediumPrice": "€14,99",
+        "large": "300 Credits",
+        "largePrice": "€24,99",
+        "bestValue": "Beste Ersparnis"
       }
-    },
-    "footer": {
-      "rights": "Alle Rechte vorbehalten.",
-      "privacy": "Datenschutz",
-      "terms": "AGB"
     },
     "faq": {
       "title": {
@@ -386,11 +604,15 @@
       "subtitle": "Alles, was du über Houston wissen musst",
       "whatIs": {
         "question": "Was ist Houston und wie funktioniert es?",
-        "answer": "Houston ist dein KI-gestützter Marketing-Assistent, der dir hilft, Marketing-Strategien zu planen, umzusetzen und zu optimieren. Houston analysiert deine Geschäftsziele, schlägt umsetzbare Strategien vor und gibt dir datenbasierte Empfehlungen zur Verbesserung deiner Marketing-Performance."
+        "answer": "Houston ist dein KI-gestützter Marketing-Copilot, der dir hilft, Marketing-Strategien zu planen, umzusetzen und zu optimieren. Du sagst Houston, was du erreichen willst, und er erstellt einen Plan mit konkreten To-dos. Bei Fragen ist er jederzeit für dich da."
       },
       "credits": {
         "question": "Wie funktioniert das Credit-System?",
-        "answer": "Houston nutzt ein flexibles Credit-System. Du erhältst 50 kostenlose Starter-Credits bei der Registrierung. Einfache Chat-Nachrichten sind kostenlos, während Premium-Features wie Deep Analysis (3 Credits), AI Insights (3 Credits) oder Strategie-Analyse (8 Credits) Credits kosten. Mit dem Orbit Pack (€9.99/Monat) erhältst du 100 Credits, mit dem Galaxy Pack (€39.99/Monat) 500 Credits monatlich."
+        "answer": "Houston nutzt ein flexibles Credit-System. Du erhältst 50 kostenlose Starter-Credits bei der Registrierung. Einfache Chat-Nachrichten sind kostenlos, während Premium-Features wie Tiefenanalyse (3 Credits), KI-Empfehlungen (3 Credits) oder Strategie-Analyse (8 Credits) Credits kosten. Mit dem Solo Plan (€9,99/Monat) erhältst du 100 Credits, mit dem Team Plan (€39,99/Monat) 500 Credits monatlich."
+      },
+      "whoIsItFor": {
+        "question": "Für wen ist Houston geeignet?",
+        "answer": "Houston ist für alle, die Marketing machen müssen, aber keine eigene Marketingabteilung haben: Solo-Coaches, Berater, kleine Agenturen, lokale Businesses und Startups. Wenn du wenig Zeit hast und dein Marketing nicht liegen bleiben soll, ist Houston für dich."
       },
       "security": {
         "question": "Sind meine Daten bei Houston sicher?",
@@ -398,31 +620,23 @@
       },
       "cancel": {
         "question": "Kann ich mein Abonnement jederzeit kündigen?",
-        "answer": "Absolut! Du kannst dein Credit-Pack-Abonnement (Orbit oder Galaxy) jederzeit ohne Angabe von Gründen kündigen. Dein Abonnement bleibt bis zum Ende des Abrechnungszeitraums aktiv, und du kannst alle deine Daten exportieren. Keine versteckten Gebühren oder Kündigungskosten. Nicht genutzte Credits aus Einmal-Käufen (Mission Boosters) verfallen nicht."
-      },
-      "strategies": {
-        "question": "Bei welchen Marketing-Strategien kann Houston helfen?",
-        "answer": "Houston unterstützt alle wichtigen Marketing-Strategien, einschließlich Content-Marketing, Social-Media-Kampagnen, E-Mail-Marketing, SEO-Optimierung, bezahlte Werbung und Markenpositionierung. Die KI analysiert deinen spezifischen Geschäftskontext und liefert maßgeschneiderte Empfehlungen für deine Branche und Zielgruppe."
+        "answer": "Absolut! Du kannst dein Abonnement (Solo oder Team Plan) jederzeit ohne Angabe von Gründen kündigen. Dein Plan bleibt bis zum Ende des Abrechnungszeitraums aktiv, und du kannst alle deine Daten exportieren. Keine versteckten Gebühren oder Kündigungskosten. Credit-Booster (Einmalkäufe) verfallen nicht."
       },
       "technical": {
         "question": "Brauche ich technisches Wissen, um Houston zu nutzen?",
-        "answer": "Überhaupt nicht! Houston ist für Marketer entwickelt, nicht für Entwickler. Die Oberfläche ist intuitiv und konversationell – chatte einfach mit Houston wie mit einem menschlichen Marketing-Berater. Kein Programmieren, keine komplexe Einrichtung, kein Fachjargon. Wenn du eine Chat-App bedienen kannst, kannst du auch Houston nutzen."
-      },
-      "creditUsage": {
-        "question": "Wie werden Credits verbraucht?",
-        "answer": "Credits werden je nach Feature unterschiedlich berechnet: Einfache Chat-Nachrichten sind kostenlos. Deep Analysis (Strategie, Audit, Wettbewerb) kostet 3 Credits, PDF-Export 2 Credits, AI Insights 3 Credits, Ziele-Generierung 5 Credits und Strategie-Analyse 8 Credits. Du siehst immer vor einer Aktion, wie viele Credits sie kostet. Bei niedrigem Guthaben (<20 Credits) wirst du benachrichtigt."
+        "answer": "Überhaupt nicht! Houston ist für Marketer entwickelt, nicht für Entwickler. Die Oberfläche ist intuitiv und konversationell – chatte einfach mit Houston wie mit einem menschlichen Marketing-Berater. Kein Programmieren, keine komplexe Einrichtung, kein Fachjargon."
       }
     },
     "testimonials": {
       "title": {
-        "part1": "Beliebt bei",
-        "highlight": "Marketing-Teams"
+        "part1": "Das sagen",
+        "highlight": "unsere Nutzer"
       },
-      "subtitle": "Das sagen unsere Nutzer über Houston",
+      "subtitle": "Echte Ergebnisse von echten Marketing-Teams",
       "testimonial1": {
         "name": "Sarah Müller",
         "role": "Marketing-Leiterin",
-        "quote": "Houston hat unsere Marketing-Strategie transformiert. Wir haben unsere Conversion-Rate in nur 3 Monaten um 300% gesteigert!"
+        "quote": "Houston hat unsere Marketing-Strategie transformiert. Endlich bleibt nichts mehr liegen!"
       },
       "testimonial2": {
         "name": "Jan Weber",
@@ -431,25 +645,51 @@
       },
       "testimonial3": {
         "name": "Lisa Schmidt",
-        "role": "Growth Marketerin",
-        "quote": "Das beste Marketing-Tool, das ich je benutzt habe. Das Goal-Tracking und die KI-Empfehlungen sind echte Game-Changer!"
+        "role": "Solo-Coach",
+        "quote": "Das beste Marketing-Tool, das ich je benutzt habe. Endlich habe ich einen klaren Plan statt Überforderung!"
       }
     },
     "stats": {
       "activeUsers": "Aktive Nutzer",
-      "marketingGoals": "Marketing-Ziele",
-      "successRate": "Erfolgsrate",
+      "marketingGoals": "Marketing-Ziele erstellt",
+      "successRate": "Zufriedenheit",
       "aiSupport": "KI-Support"
     },
     "trust": {
-      "security": "🔒 Enterprise-Sicherheit",
-      "uptime": "⚡ 99.9% Verfügbarkeit"
+      "security": "Enterprise-Sicherheit",
+      "uptime": "99.9% Verfügbarkeit",
+      "gdpr": "DSGVO-konform"
+    },
+    "footer": {
+      "tagline": "Dein KI-Assistent für strategisches Marketing.",
+      "product": "Produkt",
+      "company": "Unternehmen",
+      "legal": "Rechtliches",
+      "features": "Funktionen",
+      "pricing": "Preise",
+      "roadmap": "Roadmap",
+      "changelog": "Changelog",
+      "about": "Über uns",
+      "blog": "Blog",
+      "contact": "Kontakt",
+      "careers": "Karriere",
+      "privacy": "Datenschutz",
+      "terms": "AGB",
+      "cookies": "Cookie-Richtlinie",
+      "rights": "Alle Rechte vorbehalten."
     },
     "newsletter": {
       "title": "Bleib auf dem Laufenden",
       "subtitle": "Erhalte die neuesten Marketing-Insights und KI-Tipps.",
       "placeholder": "Deine E-Mail-Adresse",
       "cta": "Abonnieren"
+    },
+    "cta": {
+      "final": {
+        "title": "Bereit, dein Marketing auf Kurs zu bringen?",
+        "subtitle": "Starte kostenlos mit 50 Credits – keine Kreditkarte nötig.",
+        "button": "Jetzt kostenlos starten"
+      }
     }
   }
 }
