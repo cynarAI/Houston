@@ -53,16 +53,51 @@ echo "✅ Commit verifiziert: $ACTUAL_SHA"
 git log -1 --oneline
 echo "📝 Commit-Nachricht: COMMIT_MESSAGE"
 
-SCHRITT 2: Dependencies installieren und App bauen
-- pnpm install --frozen-lockfile
-- pnpm build
+SCHRITT 2: Dependencies installieren und App bauen (PRODUCTION BUILD!)
+═══════════════════════════════════════════════════════════════════
 
-# Verifiziere dass dist/public/ existiert
-test -f dist/public/index.html && echo "✅ index.html gefunden" || (echo "❌ index.html fehlt!" && exit 1)
-test -d dist/public/assets && echo "✅ assets/ Verzeichnis gefunden" || echo "⚠️  assets/ Verzeichnis fehlt"
+⚠️ KRITISCH: Du MUSST einen PRODUCTION BUILD erstellen, NICHT einen Dev-Server!
+⚠️ KRITISCH: Verwende NODE_ENV=production um sicherzustellen, dass Vite im Production-Modus baut!
+⚠️ KRITISCH: Verwende NUR "pnpm build", NIEMALS "pnpm dev"!
+
+# Setze Production-Umgebung
+export NODE_ENV=production
+echo "✅ NODE_ENV gesetzt: $NODE_ENV"
+
+# Installiere Dependencies
+pnpm install --frozen-lockfile
+
+# Baue die App im PRODUCTION-Modus
+echo "🏗️ Starte PRODUCTION BUILD..."
+pnpm build
+
+# Verifiziere dass dist/public/ existiert und Production-Build enthält
+echo "🔍 Verifiziere Build-Artefakte..."
+if [ ! -f dist/public/index.html ]; then
+  echo "❌ FEHLER: index.html fehlt nach Build!"
+  echo "   Build ist fehlgeschlagen oder wurde nicht ausgeführt!"
+  exit 1
+fi
+
+if [ ! -d dist/public/assets ]; then
+  echo "⚠️  WARNUNG: assets/ Verzeichnis fehlt nach Build!"
+  echo "   Das könnte bedeuten, dass der Build nicht vollständig war!"
+fi
+
+# Zeige Build-Informationen
+echo "✅ Build erfolgreich!"
+echo "📁 Build-Verzeichnis-Inhalt:"
 ls -la dist/public/ | head -10
+echo "📊 Anzahl Dateien im Build:"
+find dist/public -type f | wc -l
 
-⚠️ WICHTIG: Das dist/public/ Verzeichnis muss die gebauten Dateien enthalten (index.html, assets/, etc.)!
+# Verifiziere dass es ein Production-Build ist (keine Dev-Dateien)
+if grep -r "vite" dist/public/*.html 2>/dev/null | grep -q "dev"; then
+  echo "⚠️  WARNUNG: Möglicherweise Dev-Mode erkannt in HTML!"
+fi
+
+⚠️ WICHTIG: Das dist/public/ Verzeichnis muss die PRODUCTION-BUILD-Dateien enthalten (index.html, assets/, etc.)!
+⚠️ WICHTIG: Stelle sicher, dass NODE_ENV=production gesetzt war während des Builds!
 
 SCHRITT 3: App veröffentlichen
 
