@@ -58,20 +58,22 @@ export const chatRouter = router({
       // Verify user has access to this session
       await verifyChatSessionOwnership(input.sessionId, ctx.user.id);
 
-      // Basic chat is free (0 credits)
-      // Deep analysis keywords trigger credit charge
-      const deepAnalysisKeywords = ['analyse', 'analysis', 'strategie', 'strategy', 'audit', 'competitor', 'wettbewerb'];
-      const isDeepAnalysis = deepAnalysisKeywords.some(keyword => 
-        input.content.toLowerCase().includes(keyword)
+      // Check for explicit confirmation of deep analysis
+      const confirmationKeywords = ['start analysis', 'analyse starten', 'start deep dive', 'tiefenanalyse starten', 'start audit'];
+      const isDeepAnalysisConfirmed = confirmationKeywords.some(keyword => 
+        input.content.toLowerCase().trim() === keyword || 
+        input.content.toLowerCase().includes(`[${keyword}]`) // Support button clicks if we had them
       );
       
-      if (isDeepAnalysis) {
-        // Charge 3 credits for deep analysis
+      let isDeepAnalysis = false;
+
+      if (isDeepAnalysisConfirmed) {
+        // Charge 3 credits for confirmed deep analysis
         const result = await CreditService.charge(
           ctx.user.id,
           'CHAT_DEEP_ANALYSIS',
           3,
-          { sessionId: input.sessionId, query: input.content.substring(0, 100) }
+          { sessionId: input.sessionId, query: "Deep Analysis Confirmed" }
         );
         
         if (!result.success) {
@@ -79,6 +81,7 @@ export const chatRouter = router({
             ? `Nicht genug Credits! Diese Analyse kostet 3 Credits. Aktuelles Guthaben: ${result.newBalance} Credits.`
             : `Not enough credits! This analysis costs 3 credits. Current balance: ${result.newBalance} credits.`);
         }
+        isDeepAnalysis = true;
       }
 
       // Save user message
@@ -88,14 +91,23 @@ export const chatRouter = router({
         content: input.content,
       });
 
-      // Note: Basic chat usage tracking removed (now credit-based)
-
       // Get session context
       const session = await db.getChatSessionById(input.sessionId);
       if (!session) throw new Error("Session not found");
 
       const workspace = await db.getWorkspaceById(session.workspaceId);
       const messages = await db.getChatMessagesBySessionId(input.sessionId);
+
+      // Get user's activity context (goals, todos, strategy)
+      const goals = await db.getGoalsByWorkspaceId(session.workspaceId);
+      const todos = await db.getTodosByWorkspaceId(session.workspaceId);
+      const strategy = await db.getStrategyByWorkspaceId(session.workspaceId);
+      
+      // Build activity context for more personalized responses
+      const activeGoals = goals.filter(g => g.status === 'active');
+      const openTodos = todos.filter(t => t.status !== 'done');
+      const completedTodos = todos.filter(t => t.status === 'done').slice(-5); // Last 5 completed
+      const overdueTodos = openTodos.filter(t => t.dueDate && new Date(t.dueDate) < new Date());
 
       // Get user's credit balance for credit-aware responses
       const creditBalance = await CreditService.getBalance(ctx.user.id);
@@ -104,8 +116,23 @@ export const chatRouter = router({
 
       // Build context for LLM
       const creditContext = input.language === "de"
-        ? `\n\n**Credit-System:**\n- Der User hat aktuell ${creditBalance} Credits.\n${hasLowCredits ? "- WICHTIG: Credits werden knapp! Erwähne dies subtil und schlage vor, Credits aufzuladen.\n" : ""}${hasNoCredits ? "- KRITISCH: Keine Credits mehr! Der User kann keine kostenpflichtigen Analysen mehr durchführen.\n" : ""}${isDeepAnalysis ? "- Diese Anfrage hat 3 Credits gekostet (Deep Analysis).\n" : "- Einfache Chat-Nachrichten sind kostenlos.\n"}- Tiefe Analysen (Strategie, Audit, Wettbewerb) kosten 3 Credits.\n- Wenn der User nach teuren Analysen fragt und wenig Credits hat, schlage günstigere Alternativen vor.`
-        : `\n\n**Credit System:**\n- User currently has ${creditBalance} credits.\n${hasLowCredits ? "- IMPORTANT: Credits running low! Mention this subtly and suggest topping up.\n" : ""}${hasNoCredits ? "- CRITICAL: No credits left! User cannot perform paid analyses.\n" : ""}${isDeepAnalysis ? "- This request cost 3 credits (Deep Analysis).\n" : "- Simple chat messages are free.\n"}- Deep analyses (strategy, audit, competitor) cost 3 credits.\n- If user requests expensive analyses with low credits, suggest cheaper alternatives.`;
+        ? `\n\n**Credit-System:**\n- Der User hat aktuell ${creditBalance} Credits.\n${hasLowCredits ? "- WICHTIG: Credits werden knapp! Erwähne dies subtil und schlage vor, Credits aufzuladen.\n" : ""}${hasNoCredits ? "- KRITISCH: Keine Credits mehr! Der User kann keine kostenpflichtigen Analysen mehr durchführen.\n" : ""}${isDeepAnalysis ? "- Diese Anfrage hat 3 Credits gekostet (Deep Analysis). Du MUSS jetzt eine sehr detaillierte, hochwertige Analyse liefern.\n" : "- Einfache Chat-Nachrichten sind kostenlos.\n"}- Tiefe Analysen (Strategie, Audit, Wettbewerb) kosten 3 Credits.\n- WICHTIG: Wenn der User nach einer tiefen Analyse fragt (und NICHT "ANALYSE STARTEN" geschrieben hat), mache sie NICHT sofort. Stattdessen: Erkläre kurz, was du tun kannst und biete an: "Soll ich eine Deep Dive Analyse starten? (Kostet 3 Credits). Schreibe dazu einfach 'ANALYSE STARTEN'".`
+        : `\n\n**Credit System:**\n- User currently has ${creditBalance} credits.\n${hasLowCredits ? "- IMPORTANT: Credits running low! Mention this subtly and suggest topping up.\n" : ""}${hasNoCredits ? "- CRITICAL: No credits left! User cannot perform paid analyses.\n" : ""}${isDeepAnalysis ? "- This request cost 3 credits (Deep Analysis). You MUST provide a high-quality, detailed analysis now.\n" : "- Simple chat messages are free.\n"}- Deep analyses (strategy, audit, competitor) cost 3 credits.\n- IMPORTANT: If user asks for deep analysis (and did NOT type "START ANALYSIS"), do NOT do it yet. Instead: Briefly explain what you can do and offer: "Shall I start a Deep Dive Analysis? (Costs 3 Credits). Just type 'START ANALYSIS'".`;
+
+      // Strategy Context
+      const strategyContext = input.language === "de"
+        ? `\n\n**MARKETING-STRATEGIE (Positionierung):**
+${strategy?.positioning ? `"${strategy.positioning}"` : "Noch keine Positionierung definiert."}
+${strategy?.targetAudience ? `- Zielgruppe: ${strategy.targetAudience}` : ""}
+${strategy?.personas ? `- Personas: ${strategy.personas}` : ""}
+${strategy?.coreMessages ? `- Kernbotschaften: ${strategy.coreMessages}` : ""}
+NUTZE DIESE STRATEGIE FÜR ALLE ANTWORTEN. Deine Ratschläge müssen zur Positionierung passen.`
+        : `\n\n**MARKETING STRATEGY (Positioning):**
+${strategy?.positioning ? `"${strategy.positioning}"` : "No positioning defined yet."}
+${strategy?.targetAudience ? `- Target Audience: ${strategy.targetAudience}` : ""}
+${strategy?.personas ? `- Personas: ${strategy.personas}` : ""}
+${strategy?.coreMessages ? `- Core Messages: ${strategy.coreMessages}` : ""}
+USE THIS STRATEGY FOR ALL ANSWERS. Your advice must align with the positioning.`;
 
       // Playbook knowledge for proactive suggestions
       const playbookContext = input.language === "de"
@@ -134,29 +161,84 @@ You have access to 8 proven marketing playbooks that you can proactively suggest
 
 When users ask about marketing strategies, content plans, campaigns, or funnels, proactively suggest a relevant playbook with: "Check out the [Playbook Name] playbook at /app/playbooks".`;
 
+      // Build user activity context
+      const activityContext = input.language === "de"
+        ? `\n\n**AKTUELLE AKTIVITÄTEN DES USERS:**
+${activeGoals.length > 0 ? `- Aktive Ziele (${activeGoals.length}): ${activeGoals.map(g => `"${g.title}" (${g.progress || 0}% Fortschritt)`).join(', ')}` : '- Noch keine Ziele definiert'}
+${openTodos.length > 0 ? `- Offene Aufgaben (${openTodos.length}): ${openTodos.slice(0, 3).map(t => `"${t.title}"`).join(', ')}${openTodos.length > 3 ? ` (+${openTodos.length - 3} weitere)` : ''}` : '- Keine offenen Aufgaben'}
+${completedTodos.length > 0 ? `- Zuletzt erledigt: ${completedTodos.map(t => `"${t.title}"`).join(', ')}` : ''}
+${overdueTodos.length > 0 ? `- ÜBERFÄLLIG (${overdueTodos.length}): ${overdueTodos.map(t => `"${t.title}"`).join(', ')} – erwähne das taktvoll!` : ''}
+
+NUTZE DIESE INFORMATIONEN:
+- Referenziere aktive Ziele wenn relevant
+- Lobe erledigte Aufgaben wenn passend
+- Weise auf überfällige Aufgaben hin (taktvoll)
+- Wenn keine Ziele/Aufgaben: Biete an, welche zu erstellen`
+        : `\n\n**USER'S CURRENT ACTIVITIES:**
+${activeGoals.length > 0 ? `- Active goals (${activeGoals.length}): ${activeGoals.map(g => `"${g.title}" (${g.progress || 0}% progress)`).join(', ')}` : '- No goals defined yet'}
+${openTodos.length > 0 ? `- Open tasks (${openTodos.length}): ${openTodos.slice(0, 3).map(t => `"${t.title}"`).join(', ')}${openTodos.length > 3 ? ` (+${openTodos.length - 3} more)` : ''}` : '- No open tasks'}
+${completedTodos.length > 0 ? `- Recently completed: ${completedTodos.map(t => `"${t.title}"`).join(', ')}` : ''}
+${overdueTodos.length > 0 ? `- OVERDUE (${overdueTodos.length}): ${overdueTodos.map(t => `"${t.title}"`).join(', ')} – mention tactfully!` : ''}
+
+USE THIS INFORMATION:
+- Reference active goals when relevant
+- Praise completed tasks when appropriate
+- Point out overdue tasks (tactfully)
+- If no goals/tasks: Offer to help create some`;
+
       const systemPrompt = input.language === "de" 
-        ? `Du bist Houston, der AIstronaut Marketing Coach - ein freundlicher, motivierender KI-Coach für KMU-Marketing. 
-           Deine Aufgabe ist es, praktische, umsetzbare Ratschläge zu geben.
-           
-           Kontext zum Unternehmen:
-           ${workspace?.industry ? `Branche: ${workspace.industry}` : ""}
-           ${workspace?.companySize ? `Größe: ${workspace.companySize}` : ""}
-           ${workspace?.targetAudience ? `Zielgruppe: ${workspace.targetAudience}` : ""}
-           ${creditContext}
-           ${playbookContext}
-           
-           Antworte in Du-Form, kurz und prägnant (max. 3-4 Absätze), nutze Bulletpoints.`
-        : `You are Houston, the AIstronaut Marketing Coach - a friendly, motivating AI coach for SMB marketing.
-           Your task is to provide practical, actionable advice.
-           
-           Company context:
-           ${workspace?.industry ? `Industry: ${workspace.industry}` : ""}
-           ${workspace?.companySize ? `Size: ${workspace.companySize}` : ""}
-           ${workspace?.targetAudience ? `Target audience: ${workspace.targetAudience}` : ""}
-           ${creditContext}
-           ${playbookContext}
-           
-           Respond professionally, keep it concise (max. 3-4 paragraphs), use bullet points.`;
+        ? `Du bist Houston – dein persönlicher KI Marketing-Coach von AIstronaut.
+
+DEINE PERSÖNLICHKEIT:
+- Du bist wie ein erfahrener Marketing-Berater, der mit dem User auf Augenhöhe spricht
+- Freundlich, direkt, motivierend – aber nie oberflächlich oder zu enthusiastisch
+- Du gibst konkrete, umsetzbare Ratschläge statt vager Tipps
+- Wenn du etwas nicht weißt, sagst du es ehrlich
+- Du verwendest gelegentlich Space-Metaphern (Mission, Kurs, Orbit) – aber dezent
+
+GESPRÄCHSSTIL:
+- Du-Form, locker aber professionell
+- Kurz und knackig: max. 3-4 Absätze
+- Nutze Bulletpoints für Aufzählungen
+- Stelle Rückfragen, um den User besser zu verstehen
+- Beende Antworten oft mit einer konkreten Handlungsaufforderung oder Frage
+
+KONTEXT ZUM UNTERNEHMEN:
+${workspace?.industry ? `- Branche: ${workspace.industry}` : ""}
+${workspace?.companySize ? `- Größe: ${workspace.companySize}` : ""}
+${workspace?.targetAudience ? `- Zielgruppe: ${workspace.targetAudience}` : ""}
+${activityContext}
+${strategyContext}
+${creditContext}
+${playbookContext}
+
+WICHTIG: Sei ein echter Coach, kein Chatbot. Der User soll das Gefühl haben, mit einem kompetenten Berater zu sprechen.`
+        : `You are Houston – a personal AI marketing coach from AIstronaut.
+
+YOUR PERSONALITY:
+- You're like an experienced marketing consultant speaking at the user's level
+- Friendly, direct, motivating – but never superficial or overly enthusiastic
+- You give concrete, actionable advice instead of vague tips
+- If you don't know something, be honest about it
+- Occasionally use space metaphors (mission, course, orbit) – but subtly
+
+CONVERSATION STYLE:
+- Casual but professional
+- Short and punchy: max. 3-4 paragraphs
+- Use bullet points for lists
+- Ask follow-up questions to better understand the user
+- Often end responses with a concrete call-to-action or question
+
+COMPANY CONTEXT:
+${workspace?.industry ? `- Industry: ${workspace.industry}` : ""}
+${workspace?.companySize ? `- Size: ${workspace.companySize}` : ""}
+${workspace?.targetAudience ? `- Target audience: ${workspace.targetAudience}` : ""}
+${activityContext}
+${strategyContext}
+${creditContext}
+${playbookContext}
+
+IMPORTANT: Be a real coach, not a chatbot. The user should feel like they're talking to a competent consultant.`;
 
       const llmMessages = [
         { role: "system" as const, content: systemPrompt },
@@ -234,26 +316,40 @@ When users ask about marketing strategies, content plans, campaigns, or funnels,
 
       const workspace = await db.getWorkspaceById(session.workspaceId);
 
-      // Build context for LLM
+      // Build context for LLM - Same personality as main chat
       const systemPrompt = input.language === "de" 
-        ? `Du bist der AIstronaut Marketing Coach - ein freundlicher, motivierender KI-Coach für KMU-Marketing. 
-           Deine Aufgabe ist es, praktische, umsetzbare Ratschläge zu geben.
-           
-           Kontext zum Unternehmen:
-           ${workspace?.industry ? `Branche: ${workspace.industry}` : ""}
-           ${workspace?.companySize ? `Größe: ${workspace.companySize}` : ""}
-           ${workspace?.targetAudience ? `Zielgruppe: ${workspace.targetAudience}` : ""}
-           
-           Antworte in Du-Form, kurz und prägnant (max. 3-4 Absätze), nutze Bulletpoints.`
-        : `You are the AIstronaut Marketing Coach - a friendly, motivating AI coach for SMB marketing.
-           Your task is to provide practical, actionable advice.
-           
-           Company context:
-           ${workspace?.industry ? `Industry: ${workspace.industry}` : ""}
-           ${workspace?.companySize ? `Size: ${workspace.companySize}` : ""}
-           ${workspace?.targetAudience ? `Target audience: ${workspace.targetAudience}` : ""}
-           
-           Respond professionally, keep it concise (max. 3-4 paragraphs), use bullet points.`;
+        ? `Du bist Houston – dein persönlicher KI Marketing-Coach von AIstronaut.
+
+DEINE PERSÖNLICHKEIT:
+- Erfahrener Marketing-Berater auf Augenhöhe
+- Freundlich, direkt, motivierend – nie oberflächlich
+- Konkrete, umsetzbare Ratschläge statt vager Tipps
+
+GESPRÄCHSSTIL:
+- Du-Form, locker aber professionell
+- Kurz und knackig: max. 3-4 Absätze
+- Nutze Bulletpoints für Aufzählungen
+
+KONTEXT:
+${workspace?.industry ? `- Branche: ${workspace.industry}` : ""}
+${workspace?.companySize ? `- Größe: ${workspace.companySize}` : ""}
+${workspace?.targetAudience ? `- Zielgruppe: ${workspace.targetAudience}` : ""}`
+        : `You are Houston – a personal AI marketing coach from AIstronaut.
+
+YOUR PERSONALITY:
+- Experienced marketing consultant at the user's level
+- Friendly, direct, motivating – never superficial
+- Concrete, actionable advice instead of vague tips
+
+CONVERSATION STYLE:
+- Casual but professional
+- Short and punchy: max. 3-4 paragraphs
+- Use bullet points for lists
+
+CONTEXT:
+${workspace?.industry ? `- Industry: ${workspace.industry}` : ""}
+${workspace?.companySize ? `- Size: ${workspace.companySize}` : ""}
+${workspace?.targetAudience ? `- Target audience: ${workspace.targetAudience}` : ""}`;
 
       const llmMessages = [
         { role: "system" as const, content: systemPrompt },

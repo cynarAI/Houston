@@ -7,7 +7,7 @@
     "getStarted": "Get Started Free",
     "dashboard": "Dashboard",
     "chats": "Chats",
-    "playbooks": "Playbooks",
+    "playbooks": "Playbooks (Guides)",
     "goals": "Goals",
     "todos": "To-dos",
     "strategy": "Strategy",
@@ -53,7 +53,7 @@
     "markAllRead": "Mark all read"
   },
   "playbooks": {
-    "title": "Marketing Playbooks",
+    "title": "Marketing Playbooks (Guides)",
     "subtitle": "Proven strategies and step-by-step guides for your marketing. Choose a playbook and start your mission.",
     "searchPlaceholder": "Search playbooks...",
     "allCategories": "All Categories",
@@ -128,21 +128,21 @@
       "testimonials": "Testimonials"
     },
     "hero": {
-      "badge": "Your AI Marketing Copilot",
+      "badge": "AI Marketing Coach",
       "title": {
-        "part1": "Your",
-        "highlight": "AI Marketing Copilot",
-        "part2": "for everyday"
+        "part1": "Marketing",
+        "highlight": "that gets done",
+        "part2": ""
       },
-      "subtitle": "Houston plans strategies, creates to-dos and guides you daily – so your marketing never falls behind.",
+      "subtitle": "Houston is your AI marketing coach. He understands your business, plans your strategy, and tells you what to do every day.",
       "cta": {
-        "start": "Start Free with 50 Credits",
-        "learn": "How it Works",
+        "start": "Start Free",
+        "learn": "How it works",
         "dashboard": "Go to Dashboard"
       },
       "trustBadges": {
-        "noCard": "No credit card required",
-        "freeCredits": "50 free credits",
+        "noCard": "No credit card",
+        "freeCredits": "50 credits free",
         "cancelAnytime": "Cancel anytime"
       }
     },
@@ -352,6 +352,10 @@
       "technical": {
         "question": "Do I need technical knowledge to use Houston?",
         "answer": "Not at all! Houston is designed for marketers, not developers. The interface is intuitive and conversational – just chat with Houston like you would with a human marketing consultant. No coding, no complex setup, no technical jargon."
+      },
+      "vsChatGPT": {
+        "question": "How is Houston different from ChatGPT?",
+        "answer": "ChatGPT is a general-purpose chatbot – Houston is a specialized marketing coach. The difference: Houston knows your business (industry, target audience, goals), tracks your progress, gives you structured playbooks, and tells you what to do next every day. Instead of generic tips, you get a personalized action plan. Plus, Houston is integrated into your marketing workflow: goals, tasks, strategy – all in one place."
       }
     },
     "testimonials": {

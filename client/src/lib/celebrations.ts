@@ -72,6 +72,14 @@ export function celebrate(config: CelebrationConfig, storageKey?: string) {
 
 // Pre-defined Aha-Moment celebrations
 export const celebrations = {
+  // Onboarding completed
+  onboardingCompleted: () => celebrate({
+    title: "Willkommen an Bord!",
+    description: "Du hast das Onboarding abgeschlossen. Houston ist bereit für dich!",
+    emoji: "🎉",
+    level: "large",
+  }, "onboarding-completed"),
+
   // First chat message sent
   firstChat: () => celebrate({
     title: "Erstes Gespräch gestartet!",

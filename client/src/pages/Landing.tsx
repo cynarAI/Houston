@@ -221,14 +221,12 @@ export default function Landing() {
               </span>
             </div>
 
-            {/* Headline */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white">
-              {t('landing.hero.title.part1')}{' '}
+            {/* Headline - Simple & Clear */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white">
+              {t('landing.hero.title.part1')},{' '}
               <span className="gradient-text-aistronaut">
                 {t('landing.hero.title.highlight')}
               </span>
-              <br className="hidden sm:block" />
-              {' '}{t('landing.hero.title.part2')}
             </h1>
 
             {/* Subheadline */}
@@ -236,27 +234,30 @@ export default function Landing() {
               {t('landing.hero.subtitle')}
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            {/* Primary CTA - Single Focus */}
+            <div className="flex flex-col items-center gap-4 mb-8">
               {isAuthenticated ? (
                 <Link href="/app/dashboard">
-                  <Button variant="gradient" size="lg" className="text-lg px-8 py-6">
+                  <Button variant="gradient" size="lg" className="text-lg px-10 py-6 shadow-lg shadow-[#FF6B9D]/20">
                     {t('landing.hero.cta.dashboard')}
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
               ) : (
                 <a href={getLoginUrl()}>
-                  <Button variant="gradient" size="lg" className="text-lg px-8 py-6">
-                    <Rocket className="mr-2 w-5 h-5" />
+                  <Button variant="gradient" size="lg" className="text-lg px-10 py-6 shadow-lg shadow-[#FF6B9D]/20">
                     {t('landing.hero.cta.start')}
+                    <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </a>
               )}
-              <a href="#how-it-works">
-                <Button variant="outline" size="lg" className="text-lg px-8 py-6 border-white/20 text-white hover:bg-white/10">
-                  {t('landing.hero.cta.learn')}
-                </Button>
+              {/* Secondary link - less prominent */}
+              <a 
+                href="#how-it-works" 
+                className="text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1"
+              >
+                {t('landing.hero.cta.learn')}
+                <ArrowRight className="w-3 h-3" />
               </a>
             </div>
 
@@ -764,7 +765,7 @@ export default function Landing() {
 
           <div className="space-y-4">
             {/* FAQ Items */}
-            {['whatIs', 'credits', 'whoIsItFor', 'security', 'cancel', 'technical'].map((key) => (
+            {['whatIs', 'vsChatGPT', 'credits', 'whoIsItFor', 'security', 'cancel', 'technical'].map((key) => (
               <details key={key} className="glass-card p-6 group">
                 <summary className="flex items-center justify-between cursor-pointer list-none">
                   <h3 className="text-lg font-semibold text-white pr-4">{t(`landing.faq.${key}.question`)}</h3>

@@ -144,9 +144,10 @@ All documentation is organized in the `docs/` folder:
 | [docs/releases/](./docs/releases/) | Release notes, summaries |
 
 **Key documents:**
+- [Product Vision & Principles](./docs/product_principles_houston.md) - Steve-Jobs-level product focus
 - [Architecture Overview](./docs/architecture/architecture.md)
 - [Credit System Design](./docs/features/CREDIT_SYSTEM_DESIGN.md)
-- [Credit System User Guide](./docs/features/CREDIT_SYSTEM_USER_GUIDE.md)
+- [QA Release Checklist](./docs/qa/QA_CHECKLIST.md) - Critical user flows & testing
 - [Full Documentation](./docs/README.md)
 
 ---

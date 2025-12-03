@@ -489,9 +489,16 @@ export default function Todos() {
               </div>
             ) : (
               <GlassCard variant="default">
-                <GlassCardContent className="py-12 text-center">
-                  <CheckSquare className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">Noch keine erledigten Aufgaben</p>
+                <GlassCardContent className="py-12 text-center space-y-3">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#FF6B9D]/10 to-[#C44FE2]/10 flex items-center justify-center mx-auto">
+                    <CheckSquare className="h-7 w-7 text-[#FF6B9D]" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Noch nichts erledigt</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Hake deine erste Aufgabe ab – jeder Schritt zählt! 💪
+                    </p>
+                  </div>
                 </GlassCardContent>
               </GlassCard>
             )}

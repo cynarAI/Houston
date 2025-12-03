@@ -1,21 +1,54 @@
 # Quality Assurance Checklist - Houston Marketing Coach
 
+**Stand:** Dezember 2024  
+**Letzte Aktualisierung:** Apple-Level Redesign
+
+---
+
+## 🚀 CRITICAL USER FLOWS (Must Pass)
+
+### Flow 1: Erster Kontakt (Landing → Chat)
+- [ ] Landing Page Hero zeigt EINE klare Headline
+- [ ] CTA "Kostenlos starten" ist prominent sichtbar
+- [ ] Login/Sign-up funktioniert
+- [ ] Onboarding-Wizard startet für neue User
+- [ ] Nach Onboarding: Redirect zu Chat mit vorausgefülltem Prompt
+- [ ] Erster Chat mit Houston funktioniert
+
+### Flow 2: Tägliche Rückkehr (Login → Action)
+- [ ] Login funktioniert
+- [ ] Dashboard "Today's Focus" Card ist sichtbar
+- [ ] Stats (Ziele, To-dos, Chats) werden korrekt angezeigt
+- [ ] CTA führt zu Aufgaben oder Chat
+- [ ] User weiß in <10 Sekunden, was zu tun ist
+
+### Flow 3: Arbeiten mit Houston (Chat → Ergebnis)
+- [ ] Chat-Seite lädt korrekt
+- [ ] Quick-Action Chips werden angezeigt (Was heute?, Nächster Schritt, etc.)
+- [ ] Klick auf Chip füllt Input-Feld
+- [ ] Nachricht senden funktioniert
+- [ ] Typing Indicator erscheint während Antwort
+- [ ] Houston-Antwort wird korrekt angezeigt
+- [ ] Feedback-Buttons (👍👎) funktionieren
+- [ ] Kopieren-Button funktioniert
+
+---
+
 ## 🎯 LANDING PAGE QA
 
 ### Visual Design
 
-- [ ] Hero section displays correctly
-- [ ] Features cards have visible borders and glassmorphism
-- [ ] Pricing cards display correctly (Free vs Pro)
+- [ ] Hero section zeigt vereinfachte Headline
+- [ ] EINEN primären CTA (nicht zwei gleichwertige)
+- [ ] Trust Badges sichtbar
+- [ ] Features cards haben visible borders und glassmorphism
+- [ ] Pricing cards zeigen Credits-Modell korrekt
 - [ ] FAQ accordion expands/collapses smoothly
 - [ ] Testimonials section visible
-- [ ] Trust badges visible
 - [ ] Footer displays correctly with all columns
-- [ ] Social media icons visible and clickable
-- [ ] Newsletter form displays correctly
 - [ ] Text contrast meets WCAG 2.2 AA standards
 - [ ] Gradient text renders correctly
-- [ ] Star animation works
+- [ ] Space animations funktionieren (mit prefers-reduced-motion Support)
 
 ### Navigation
 
@@ -82,6 +115,17 @@
 - [ ] Main content area displays correctly
 - [ ] No layout shifts or jumps
 
+### Dashboard - Today's Focus (NEU)
+
+- [ ] "Today's Focus" Hero-Card ist prominent sichtbar
+- [ ] Welcome-Message zeigt Benutzername
+- [ ] Dynamischer Content basierend auf User-Status:
+  - [ ] Mit offenen Todos: Zeigt Anzahl und CTA zu Todos
+  - [ ] Ohne Todos aber mit Zielen: Zeigt "Alle erledigt" Message
+  - [ ] Ohne alles: Zeigt "Lass uns loslegen" Message
+- [ ] Quick Stats (Ziele, To-dos, Chats) sichtbar
+- [ ] CTAs führen zu korrekten Seiten
+
 ### Workspaces
 
 - [ ] List workspaces
@@ -122,6 +166,16 @@
 - [ ] Plan limit warning shows when approaching limit
 - [ ] Error handling for failed messages
 
+### Chat - Quick Actions (NEU)
+
+- [ ] Empty State: 6 Quick-Action Karten sichtbar
+- [ ] Quick-Action Klick füllt Input-Feld
+- [ ] Mit Nachrichten: Quick-Chips unter Input sichtbar
+- [ ] Chips: "Was heute?", "Nächster Schritt", "Ideen", "Feedback"
+- [ ] Chip-Klick füllt Input-Feld
+- [ ] URL-Prompt Parameter wird verarbeitet (von Onboarding)
+- [ ] Typing Indicator während AI-Antwort
+
 ### Plan Limits
 
 - [ ] Chat counter displays correctly
@@ -130,6 +184,17 @@
 - [ ] Limit resets monthly
 - [ ] Warning shows at 80% usage
 - [ ] Block chat when limit reached
+
+### Credits Page (NEU)
+
+- [ ] Credit-Erklärung am Seitenanfang sichtbar
+- [ ] Aktuelles Guthaben korrekt angezeigt
+- [ ] Pläne-Tab: Subscription-Optionen sichtbar
+- [ ] Aufladungen-Tab: Credit-Booster sichtbar
+- [ ] Statistiken-Tab: Usage Chart funktioniert
+- [ ] Kostenübersicht gruppiert: Kostenlos vs. Kostenpflichtig
+- [ ] Checkout-Flow funktioniert (Stripe)
+- [ ] Keine versteckten Kosten-Überraschungen
 
 ### UI/UX Consistency
 

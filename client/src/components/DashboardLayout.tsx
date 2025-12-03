@@ -4,28 +4,29 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
-import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, Sparkles, MessageSquare, Target, CheckSquare, Compass, Settings, Globe, Moon, Sun, TrendingUp, Gift, BookOpen } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  LogOut, 
+  MessageSquare, 
+  Target, 
+  CheckSquare, 
+  Settings, 
+  Globe, 
+  Moon, 
+  Sun, 
+  HelpCircle,
+  Sparkles,
+  Menu,
+  X,
+  ChevronDown
+} from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
-import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { useTranslation } from 'react-i18next';
 import { OnboardingWizard } from './OnboardingWizard';
@@ -33,79 +34,152 @@ import { trpc } from '@/lib/trpc';
 import { CreditIndicator } from './CreditIndicator';
 import { NotificationCenter } from './NotificationCenter';
 
-const menuItems = [
+// ===========================================
+// SPACE BACKGROUND COMPONENT
+// ===========================================
+function SpaceBackground() {
+  const { theme } = useTheme();
+  const [shootingStars, setShootingStars] = useState<Array<{ id: number; x: number; y: number; angle: number }>>([]);
+
+  // Generate static stars (memoized) - fewer stars for cleaner look
+  const stars = useMemo(() => {
+    return Array.from({ length: 70 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 1.5 + 0.5, // Slightly smaller
+      opacity: Math.random() * 0.4 + 0.1, // More subtle opacity
+      twinkleDelay: Math.random() * 5,
+      twinkleDuration: Math.random() * 3 + 2,
+    }));
+  }, []);
+
+  // Shooting stars effect (dark mode only) - rarer and more subtle
+  useEffect(() => {
+    if (theme === 'light') return;
+
+    const createShootingStar = () => {
+      const newStar = {
+        id: Date.now(),
+        x: Math.random() * 60 + 10,
+        y: Math.random() * 25,
+        angle: Math.random() * 25 + 15,
+      };
+      
+      setShootingStars(prev => [...prev, newStar]);
+      
+      setTimeout(() => {
+        setShootingStars(prev => prev.filter(s => s.id !== newStar.id));
+      }, 2000);
+    };
+
+    const scheduleNext = () => {
+      // Much rarer: 15 to 30 seconds
+      const delay = Math.random() * 15000 + 15000;
+      return setTimeout(() => {
+        createShootingStar();
+        scheduleNext();
+      }, delay);
+    };
+
+    const timeout = scheduleNext();
+    return () => clearTimeout(timeout);
+  }, [theme]);
+
+  // Light theme - Ultra subtle, clean
+  if (theme === 'light') {
+    return (
+      <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 bg-slate-50/80" />
+        {/* Very subtle gradients */}
+        <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-[#FF6B9D]/[0.02] to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-tr from-[#C44FE2]/[0.02] to-transparent" />
+      </div>
+    );
+  }
+
+  // Dark theme with stars
+  return (
+    <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#050510] via-[#0a0a18] to-[#050510]" />
+      
+      {/* Nebula accents - Reduced opacity */}
+      <div className="absolute top-0 right-0 w-2/3 h-2/3 bg-gradient-to-bl from-[#FF6B9D]/5 via-[#C44FE2]/3 to-transparent blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-2/3 h-2/3 bg-gradient-to-tr from-[#00D4FF]/4 via-[#C44FE2]/2 to-transparent blur-3xl" />
+      
+      {/* Stars */}
+      <svg className="absolute inset-0 w-full h-full">
+        <defs>
+          <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        
+        {stars.map((star) => (
+          <circle
+            key={star.id}
+            cx={`${star.x}%`}
+            cy={`${star.y}%`}
+            r={star.size}
+            fill="white"
+            opacity={star.opacity}
+            filter={star.size > 1.2 ? "url(#starGlow)" : undefined}
+            className="animate-twinkle"
+            style={{
+              animationDelay: `${star.twinkleDelay}s`,
+              animationDuration: `${star.twinkleDuration}s`,
+            }}
+          />
+        ))}
+      </svg>
+
+      {/* Shooting Stars */}
+      {shootingStars.map((star) => (
+        <div
+          key={star.id}
+          className="absolute animate-shooting-star opacity-40" // Reduced opacity
+          style={{
+            left: `${star.x}%`,
+            top: `${star.y}%`,
+            transform: `rotate(${star.angle}deg)`,
+          }}
+        >
+          <div className="w-20 h-[1px] bg-gradient-to-r from-white via-white/50 to-transparent rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ===========================================
+// NAVIGATION ITEMS - Only 4 essential items
+// ===========================================
+const navItems = [
+  { icon: MessageSquare, label: "Houston", labelDe: "Houston", path: "/app/chats", primary: true },
   { icon: LayoutDashboard, label: "Dashboard", labelDe: "Dashboard", path: "/app/dashboard" },
-  { icon: MessageSquare, label: "Chats", labelDe: "Chats", path: "/app/chats" },
-  { icon: BookOpen, label: "Playbooks", labelDe: "Playbooks", path: "/app/playbooks" },
+  { icon: CheckSquare, label: "Tasks", labelDe: "Aufgaben", path: "/app/todos" },
   { icon: Target, label: "Goals", labelDe: "Ziele", path: "/app/goals" },
-  { icon: CheckSquare, label: "To-dos", labelDe: "To-dos", path: "/app/todos" },
-  { icon: Compass, label: "Strategy", labelDe: "Strategie", path: "/app/strategy" },
-  { icon: Gift, label: "Referrals", labelDe: "Empfehlungen", path: "/app/referrals" },
-  { icon: Settings, label: "Settings", labelDe: "Einstellungen", path: "/app/settings" },
 ];
 
-const SIDEBAR_WIDTH_KEY = "sidebar-width";
-const DEFAULT_WIDTH = 280;
-const MIN_WIDTH = 200;
-const MAX_WIDTH = 480;
-
+// ===========================================
+// MAIN LAYOUT COMPONENT - TOP BAR DESIGN
+// ===========================================
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarWidth, setSidebarWidth] = useState(() => {
-    const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
-    return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
-  });
   const { loading, user, logout } = useAuth();
-
-  useEffect(() => {
-    localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
-  }, [sidebarWidth]);
-
-  // Always render SidebarProvider to maintain consistent hook order
-  // The inner DashboardLayoutContent handles loading/auth states
-  return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": `${sidebarWidth}px`,
-        } as CSSProperties
-      }
-    >
-      <DashboardLayoutContent 
-        setSidebarWidth={setSidebarWidth}
-        loading={loading}
-        user={user}
-        logout={logout}
-      >
-        {children}
-      </DashboardLayoutContent>
-    </SidebarProvider>
-  );
-}
-
-type DashboardLayoutContentProps = {
-  children: React.ReactNode;
-  setSidebarWidth: (width: number) => void;
-  loading: boolean;
-  user: ReturnType<typeof useAuth>['user'];
-  logout: ReturnType<typeof useAuth>['logout'];
-};
-
-function DashboardLayoutContent({
-  children,
-  setSidebarWidth,
-  loading,
-  user,
-  logout,
-}: DashboardLayoutContentProps) {
-  // logout is now passed as prop from parent - no duplicate useAuth() call
   const { i18n } = useTranslation();
-  const currentLanguage = i18n.language || 'en';
+  const currentLanguage = i18n.language || 'de';
   const { theme, toggleTheme, switchable } = useTheme();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [location, setLocation] = useLocation();
   
   // Check onboarding status
   const { data: onboardingStatus } = trpc.onboarding.getUserOnboardingStatus.useQuery(
@@ -118,86 +192,72 @@ function DashboardLayoutContent({
       setShowOnboarding(true);
     }
   }, [user, onboardingStatus]);
+
+  // Close mobile menu on navigation
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location]);
   
   const toggleLanguage = () => {
     const newLang = currentLanguage === 'de' ? 'en' : 'de';
     i18n.changeLanguage(newLang);
   };
-  const [location, setLocation] = useLocation();
-  const { state, toggleSidebar } = useSidebar();
-  const isCollapsed = state === "collapsed";
-  const [isResizing, setIsResizing] = useState(false);
-  const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item => item.path === location);
-  const activeMenuLabel = activeMenuItem 
-    ? (currentLanguage === 'de' ? activeMenuItem.labelDe : activeMenuItem.label) 
-    : (currentLanguage === 'de' ? "Menü" : "Menu");
-  const isMobile = useIsMobile();
 
-  useEffect(() => {
-    if (isCollapsed) {
-      setIsResizing(false);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+      window.location.href = '/';
     }
-  }, [isCollapsed]);
+  };
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-
-      const sidebarLeft = sidebarRef.current?.getBoundingClientRect().left ?? 0;
-      const newWidth = e.clientX - sidebarLeft;
-      if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
-        setSidebarWidth(newWidth);
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-    };
-
-    if (isResizing) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
-    }
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-  }, [isResizing, setSidebarWidth]);
-
-  const skipLinkText = currentLanguage === 'de' ? 'Zum Hauptinhalt springen' : 'Skip to main content';
-  const navLabel = currentLanguage === 'de' ? 'Hauptnavigation' : 'Main navigation';
-
-  // Handle loading and no-user states AFTER all hooks
+  // Loading state
   if (loading) {
-    return <DashboardLayoutSkeleton />;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <SpaceBackground />
+        <div className="relative z-10 flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B9D] to-[#C44FE2] rounded-full blur-2xl opacity-30 animate-pulse" />
+            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B9D]/20 to-[#C44FE2]/20 border border-[#FF6B9D]/30">
+              <Sparkles className="h-8 w-8 text-[#FF6B9D] animate-pulse" />
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground animate-pulse">Houston startet...</p>
+        </div>
+      </div>
+    );
   }
 
+  // Not authenticated
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center">
+        <SpaceBackground />
+        <div className="relative z-10 flex flex-col items-center gap-8 p-8 max-w-md w-full">
           <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Anmeldung erforderlich
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-8 h-8 text-[#FF6B9D]" />
+              <span className="text-2xl font-bold gradient-text-aistronaut">Houston</span>
+            </div>
+            <h1 className="text-xl font-semibold text-center">
+              {currentLanguage === 'de' ? 'Anmeldung erforderlich' : 'Login required'}
             </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Für den Zugriff auf das Dashboard ist eine Anmeldung erforderlich.
+            <p className="text-sm text-muted-foreground text-center">
+              {currentLanguage === 'de' 
+                ? 'Für den Zugriff auf Houston ist eine Anmeldung erforderlich.' 
+                : 'Login is required to access Houston.'}
             </p>
           </div>
           <Button
-            onClick={() => {
-              window.location.href = getLoginUrl();
-            }}
+            onClick={() => window.location.href = getLoginUrl()}
             size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
+            variant="gradient"
+            className="w-full"
           >
-            Anmelden
+            {currentLanguage === 'de' ? 'Anmelden' : 'Login'}
           </Button>
         </div>
       </div>
@@ -205,184 +265,203 @@ function DashboardLayoutContent({
   }
 
   return (
-    <>
-      {/* Skip Link für Keyboard-Navigation */}
-      <a href="#main-content" className="skip-link">
-        {skipLinkText}
-      </a>
-
-      {/* Theme-aware Background Gradient */}
-      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-        {theme === 'dark' ? (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#1a1a2e] to-[#0a0a0f]" />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100" />
-        )}
-      </div>
+    <div className="min-h-screen flex flex-col">
+      {/* Space Background */}
+      <SpaceBackground />
       
-      <nav className="relative z-10" ref={sidebarRef} aria-label={navLabel}>
-        <Sidebar
-          collapsible="icon"
-          className="border-r-0"
-          disableTransition={isResizing}
-        >
-          <SidebarHeader className="border-b border-border">
-            <div className="flex flex-col gap-3 p-4">
-              {/* Logo + Toggle */}
-              <div className="flex items-center gap-3 w-full">
-                <button
-                  onClick={toggleSidebar}
-                  className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
-                  aria-label="Toggle navigation"
-                >
-                  <PanelLeft className="h-4 w-4 text-muted-foreground" />
-                </button>
-                {!isCollapsed && (
-                  <div className="flex flex-col gap-0.5 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-[#00D4FF] shrink-0" />
-                      <span className="font-semibold tracking-tight truncate gradient-text-aistronaut">
-                        Houston
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground ml-7">by AIstronaut</span>
-                  </div>
-                )}
-              </div>
+      {/* ========== TOP NAVIGATION BAR ========== */}
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center gap-4 px-4 md:px-6 max-w-screen-2xl mx-auto">
+          
+          {/* Logo */}
+          <button 
+            onClick={() => setLocation('/app/dashboard')}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
+          >
+            <Sparkles className="w-5 h-5 text-[#FF6B9D]" />
+            <span className="font-semibold gradient-text-aistronaut hidden sm:inline">Houston</span>
+          </button>
+
+          {/* Desktop Navigation - Center */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+            {navItems.map((item) => {
+              const isActive = location === item.path || 
+                (item.path === '/app/chats' && location.startsWith('/app/chats'));
+              const displayLabel = currentLanguage === 'de' ? item.labelDe : item.label;
               
-              {/* Notification Center + Language Toggle + Theme Toggle (only when expanded) */}
-              {!isCollapsed && (
-                <div className="flex items-center justify-between gap-2 text-xs">
-                  <div className="flex items-center gap-1">
-                    <NotificationCenter />
-                    <button
-                      onClick={toggleLanguage}
-                      className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
-                      aria-label={currentLanguage === 'de' ? 'Sprache wechseln, aktuell Deutsch' : 'Switch language, currently English'}
-                    >
-                      <Globe className="w-3.5 h-3.5" />
-                      <span className="font-medium">{currentLanguage.toUpperCase()}</span>
-                    </button>
-                    {switchable && toggleTheme && (
-                      <button
-                        onClick={toggleTheme}
-                        className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
-                        aria-label={
-                          theme === "light" 
-                            ? (currentLanguage === 'de' ? 'Dunkles Design aktivieren' : 'Switch to dark theme')
-                            : (currentLanguage === 'de' ? 'Helles Design aktivieren' : 'Switch to light theme')
-                        }
-                      >
-                        {theme === "light" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </SidebarHeader>
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => setLocation(item.path)}
+                  className={`
+                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
+                    ${isActive 
+                      ? item.primary
+                        ? 'bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] text-white shadow-lg shadow-[#FF6B9D]/20'
+                        : 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                    }
+                  `}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{displayLabel}</span>
+                </button>
+              );
+            })}
+          </nav>
 
-          <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
-                const isActive = location === item.path;
-                const displayLabel = currentLanguage === 'de' ? item.labelDe : item.label;
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={displayLabel}
-                      className={`h-10 transition-all font-normal`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
-                      />
-                      <span>{displayLabel}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarContent>
+          {/* Mobile: Menu Button */}
+          <button
+            className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Menü schließen' : 'Menü öffnen'}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
 
-          <SidebarFooter className="p-3 space-y-3">
-            {/* Credit Indicator */}
-            <div className="px-1">
+          {/* Spacer for mobile */}
+          <div className="flex-1 md:hidden" />
+
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Credits */}
+            <div className="hidden sm:block">
               <CreditIndicator />
             </div>
             
+            {/* Notifications */}
+            <NotificationCenter />
+            
+            {/* Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="hidden sm:flex items-center gap-1 px-2 py-1.5 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+              aria-label={currentLanguage === 'de' ? 'Sprache wechseln' : 'Switch language'}
+            >
+              <Globe className="w-4 h-4" />
+              <span className="text-xs font-medium">{currentLanguage.toUpperCase()}</span>
+            </button>
+            
+            {/* Theme Toggle */}
+            {switchable && toggleTheme && (
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+                aria-label={theme === "light" ? "Dark mode" : "Light mode"}
+              >
+                {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              </button>
+            )}
+
+            {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-9 w-9 border shrink-0">
-                    <AvatarFallback className="text-xs font-medium">
-                      {user?.name?.charAt(0).toUpperCase()}
+                <button className="flex items-center gap-2 rounded-full hover:bg-accent/50 transition-colors p-1 pr-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ml-2">
+                  <Avatar className="h-8 w-8 border border-white/20">
+                    <AvatarFallback className="text-xs font-medium bg-gradient-to-br from-[#FF6B9D] to-[#C44FE2] text-white">
+                      {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
-                      {user?.name || "-"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      {user?.email || "-"}
-                    </p>
-                  </div>
+                  <ChevronDown className="h-3 w-3 text-muted-foreground hidden sm:block" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={logout}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  onClick={() => setLocation('/app/settings')}
+                  className="cursor-pointer"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>{currentLanguage === 'de' ? 'Einstellungen' : 'Settings'}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLocation('/app/credits')}
+                  className="cursor-pointer"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  <span>Credits</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => window.open('mailto:support@aistronaut.io?subject=Houston%20Support', '_blank')}
+                  className="cursor-pointer"
+                >
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>{currentLanguage === 'de' ? 'Hilfe & Support' : 'Help & Support'}</span>
+                </DropdownMenuItem>
+                {/* Mobile-only language toggle */}
+                <DropdownMenuItem
+                  onClick={toggleLanguage}
+                  className="cursor-pointer sm:hidden"
+                >
+                  <Globe className="mr-2 h-4 w-4" />
+                  <span>{currentLanguage === 'de' ? 'English' : 'Deutsch'}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Abmelden</span>
+                  <span>{currentLanguage === 'de' ? 'Abmelden' : 'Sign out'}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </SidebarFooter>
-        </Sidebar>
-        <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/20 transition-colors ${isCollapsed ? "hidden" : ""}`}
-          onMouseDown={() => {
-            if (isCollapsed) return;
-            setIsResizing(true);
-          }}
-          style={{ zIndex: 50 }}
-          aria-hidden="true"
-        />
-      </nav>
+          </div>
+        </div>
 
-      <SidebarInset>
-        {isMobile && (
-          <header 
-            role="banner" 
-            className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40"
-          >
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="tracking-tight text-foreground">
-                    {activeMenuLabel}
-                  </span>
-                </div>
+        {/* Mobile Navigation Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-white/10 bg-background/95 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200">
+            <nav className="flex flex-col p-3 gap-1">
+              {navItems.map((item) => {
+                const isActive = location === item.path;
+                const displayLabel = currentLanguage === 'de' ? item.labelDe : item.label;
+                
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => setLocation(item.path)}
+                    className={`
+                      flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left
+                      ${isActive 
+                        ? item.primary
+                          ? 'bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] text-white'
+                          : 'bg-accent text-accent-foreground'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                      }
+                    `}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{displayLabel}</span>
+                  </button>
+                );
+              })}
+              
+              {/* Mobile Credits */}
+              <div className="px-4 py-3 border-t border-white/10 mt-2">
+                <CreditIndicator />
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <NotificationCenter />
-              <CreditIndicator />
-            </div>
-          </header>
+            </nav>
+          </div>
         )}
-        <main id="main-content" className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
-      </SidebarInset>
-      
+      </header>
+
+      {/* ========== MAIN CONTENT ========== */}
+      <main className="flex-1 relative z-10">
+        <div className="mx-auto p-4 md:p-6 lg:p-8 max-w-6xl">
+          {children}
+        </div>
+      </main>
+
       {/* Onboarding Wizard */}
       <OnboardingWizard 
         open={showOnboarding} 
         onClose={() => setShowOnboarding(false)} 
       />
-    </>
+    </div>
   );
 }

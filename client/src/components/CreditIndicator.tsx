@@ -25,7 +25,7 @@ export const CreditIndicator = memo(function CreditIndicator({ onClick }: Credit
   const ariaLabel = useMemo(() => {
     if (isEmpty) return "Keine Credits mehr – zur Creditseite gehen um aufzuladen";
     if (isLow) return `${credits} Credits – Guthaben knapp, zur Creditseite gehen`;
-    return `${credits} Credits – zur Creditseite gehen`;
+    return `${credits} Credits (ca. ${credits} Chats übrig) – zur Creditseite gehen`;
   }, [isEmpty, isLow, credits]);
 
   if (isLoading) {
@@ -62,7 +62,7 @@ export const CreditIndicator = memo(function CreditIndicator({ onClick }: Credit
       ) : (
         <Sparkles className={`w-4 h-4 ${isLow ? 'animate-pulse' : ''}`} aria-hidden="true" />
       )}
-      <span aria-hidden="true">
+      <span aria-hidden="true" title={credits > 0 ? `ca. ${credits} Chats übrig` : undefined}>
         {isEmpty ? (
           "Aufladen"
         ) : (
