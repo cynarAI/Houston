@@ -24,13 +24,23 @@ echo "📝 Message: $COMMIT_MESSAGE"
 echo "📁 Geänderte Dateien: $CHANGED_FILES"
 echo ""
 
+# Escape-Funktion für sed: escapt alle sed-spezialzeichen
+# Verwendet # als Separator (muss auch # escapen, falls es in den Werten vorkommt)
+escape_for_sed() {
+  echo "$1" | sed 's/\\/\\\\/g' | sed 's/#/\\#/g' | sed 's/|/\\|/g' | sed 's/\//\\\//g' | sed 's/&/\\&/g' | sed 's/"/\\"/g' | sed "s/'/\\\'/g"
+}
+
+# Escape Commit-Message und Changed-Files für sed
+COMMIT_MSG_ESCAPED=$(escape_for_sed "$COMMIT_MESSAGE")
+CHANGED_FILES_ESCAPED=$(escape_for_sed "$CHANGED_FILES")
+
 # Lade einfachen Prompt und ersetze Platzhalter
 PROMPT=$(cat .github/scripts/simple-deployment-prompt.sh | \
-  sed "s/COMMIT_SHA_SHORT/$COMMIT_SHORT/g" | \
-  sed "s/COMMIT_SHA_FULL/$COMMIT_FULL/g" | \
-  sed "s|COMMIT_MESSAGE|$(echo "$COMMIT_MESSAGE" | sed 's/"/\\"/g')|g" | \
-  sed "s/COMMIT_TIMESTAMP/$COMMIT_TIMESTAMP/g" | \
-  sed "s|CHANGED_FILES|$(echo "$CHANGED_FILES" | sed 's/"/\\"/g')|g" | \
+  sed "s#COMMIT_SHA_SHORT#$COMMIT_SHORT#g" | \
+  sed "s#COMMIT_SHA_FULL#$COMMIT_FULL#g" | \
+  sed "s#COMMIT_MESSAGE#$COMMIT_MSG_ESCAPED#g" | \
+  sed "s#COMMIT_TIMESTAMP#$COMMIT_TIMESTAMP#g" | \
+  sed "s#CHANGED_FILES#$CHANGED_FILES_ESCAPED#g" | \
   sed '/^#!/d' | \
   sed '/^cat << /d' | \
   sed '/^PROMPT_EOF$/d')
