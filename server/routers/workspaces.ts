@@ -87,6 +87,7 @@ export const workspaceRouter = router({
         name: z.string().min(1).optional(),
         industry: z.string().optional(),
         companySize: z.string().optional(),
+        logoUrl: z.string().url().optional().or(z.literal("")),
         onboardingCompleted: z.number().optional(),
       }),
     )
@@ -112,6 +113,7 @@ export const workspaceRouter = router({
           name: input.name,
           industry: input.industry,
           companySize: input.companySize,
+          logoUrl: input.logoUrl,
           onboardingCompleted: input.onboardingCompleted,
           updatedAt: new Date(),
         })

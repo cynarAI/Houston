@@ -42,6 +42,7 @@ export function CheckInModal({
       await updateGoalMutation.mutateAsync({
         id: goalId,
         progress: progress,
+        note: note,
       });
 
       trackEvent(AnalyticsEvents.GOAL_UPDATED, {
@@ -111,9 +112,9 @@ export function CheckInModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={updateGoalMutation.isLoading}
+            disabled={updateGoalMutation.isPending}
           >
-            {updateGoalMutation.isLoading
+            {updateGoalMutation.isPending
               ? "Speichert..."
               : "Check-in speichern"}
           </Button>

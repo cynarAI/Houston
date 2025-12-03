@@ -47,6 +47,7 @@ export const workspaces = mysqlTable("workspaces", {
   marketingChannels: text("marketingChannels"),
   monthlyBudget: varchar("monthlyBudget", { length: 50 }),
   challenges: text("challenges"),
+  logoUrl: text("logoUrl"), // URL to workspace logo (for reports)
   onboardingCompleted: int("onboardingCompleted").default(0).notNull(), // 0 = false, 1 = true
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
