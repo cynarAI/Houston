@@ -58,7 +58,7 @@ export default function DashboardLayout({
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
-  const { loading, user } = useAuth();
+  const { loading, user, logout } = useAuth();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
@@ -78,6 +78,7 @@ export default function DashboardLayout({
         setSidebarWidth={setSidebarWidth}
         loading={loading}
         user={user}
+        logout={logout}
       >
         {children}
       </DashboardLayoutContent>
@@ -90,6 +91,7 @@ type DashboardLayoutContentProps = {
   setSidebarWidth: (width: number) => void;
   loading: boolean;
   user: ReturnType<typeof useAuth>['user'];
+  logout: ReturnType<typeof useAuth>['logout'];
 };
 
 function DashboardLayoutContent({
@@ -97,8 +99,9 @@ function DashboardLayoutContent({
   setSidebarWidth,
   loading,
   user,
+  logout,
 }: DashboardLayoutContentProps) {
-  const { logout } = useAuth();
+  // logout is now passed as prop from parent - no duplicate useAuth() call
   const { i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
   const { theme, toggleTheme, switchable } = useTheme();
