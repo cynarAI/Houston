@@ -3,8 +3,14 @@ import Stripe from "stripe";
 import { constructWebhookEvent } from "../_core/stripe";
 import { getDb } from "../db";
 import { stripePayments, userSubscriptions, creditPlans } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { CreditService } from "../creditService";
+
+/**
+ * Processed event tracking to prevent duplicate processing
+ * In a production environment, this should be stored in Redis or the database
+ * For now, we use the stripePayments table status field for checkout events
+ */
 
 /**
  * Stripe Webhook Handler
@@ -72,6 +78,10 @@ export async function handleStripeWebhook(req: Request, res: Response) {
 
 /**
  * Handle successful checkout session
+ * 
+ * IDEMPOTENCY: This function checks if the payment has already been processed
+ * before granting credits. This prevents duplicate credit grants if Stripe
+ * retries the webhook (e.g., due to timeouts or 5xx responses).
  */
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   console.log(`[Stripe Webhook] Processing checkout.session.completed: ${session.id}`);
@@ -98,7 +108,20 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     return;
   }
 
-  // Update payment record
+  // IDEMPOTENCY CHECK: Check if this payment has already been processed
+  const [existingPayment] = await db
+    .select()
+    .from(stripePayments)
+    .where(eq(stripePayments.stripeSessionId, session.id))
+    .limit(1);
+
+  if (existingPayment?.status === "completed") {
+    console.log(`[Stripe Webhook] Payment ${session.id} already processed, skipping (idempotency check)`);
+    return; // Already processed, skip to prevent duplicate credits
+  }
+
+  // Update payment record to "completed" BEFORE granting credits
+  // This acts as a lock to prevent race conditions from parallel webhook calls
   await db
     .update(stripePayments)
     .set({
@@ -106,14 +129,39 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       stripePaymentIntentId: session.payment_intent as string,
       completedAt: new Date(),
     })
-    .where(eq(stripePayments.stripeSessionId, session.id));
+    .where(
+      and(
+        eq(stripePayments.stripeSessionId, session.id),
+        eq(stripePayments.status, "pending") // Only update if still pending
+      )
+    );
+
+  // Double-check that we actually updated the record (in case of race condition)
+  const [updatedPayment] = await db
+    .select()
+    .from(stripePayments)
+    .where(eq(stripePayments.stripeSessionId, session.id))
+    .limit(1);
+
+  if (!updatedPayment || updatedPayment.completedAt?.getTime() !== new Date().getTime()) {
+    // Another process might have processed this, verify by checking completedAt timestamp
+    // If the timestamp is significantly different, another process handled it
+    const timeDiff = updatedPayment?.completedAt 
+      ? Math.abs(Date.now() - updatedPayment.completedAt.getTime())
+      : Infinity;
+    
+    if (timeDiff > 5000) { // More than 5 seconds difference
+      console.log(`[Stripe Webhook] Payment ${session.id} was processed by another request, skipping`);
+      return;
+    }
+  }
 
   // Grant credits
   const grantResult = await CreditService.grant(
     userId,
     credits,
     `Purchased ${productKey}`,
-    { productKey, productType }
+    { productKey, productType, stripeSessionId: session.id }
   );
 
   // Send purchase success notification
@@ -140,30 +188,41 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   if (productType === "plan" && session.subscription) {
     const subscriptionId = session.subscription as string;
     
-    // Find the plan
-    const [plan] = await db
+    // Check if subscription already exists (idempotency for subscription creation)
+    const [existingSub] = await db
       .select()
-      .from(creditPlans)
-      .where(eq(creditPlans.key, productKey))
+      .from(userSubscriptions)
+      .where(eq(userSubscriptions.stripeSubscriptionId, subscriptionId))
       .limit(1);
 
-    if (plan) {
-      // Create subscription record
-      const now = new Date();
-      const nextMonth = new Date(now);
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
+    if (existingSub) {
+      console.log(`[Stripe Webhook] Subscription ${subscriptionId} already exists, skipping creation`);
+    } else {
+      // Find the plan
+      const [plan] = await db
+        .select()
+        .from(creditPlans)
+        .where(eq(creditPlans.key, productKey))
+        .limit(1);
 
-      await db.insert(userSubscriptions).values({
-        userId,
-        planId: plan.id,
-        status: "active",
-        currentPeriodStart: now,
-        currentPeriodEnd: nextMonth,
-        cancelAtPeriodEnd: 0,
-        stripeSubscriptionId: subscriptionId,
-      });
+      if (plan) {
+        // Create subscription record
+        const now = new Date();
+        const nextMonth = new Date(now);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
 
-      console.log(`[Stripe Webhook] Created subscription for user ${userId}, plan ${productKey}`);
+        await db.insert(userSubscriptions).values({
+          userId,
+          planId: plan.id,
+          status: "active",
+          currentPeriodStart: now,
+          currentPeriodEnd: nextMonth,
+          cancelAtPeriodEnd: 0,
+          stripeSubscriptionId: subscriptionId,
+        });
+
+        console.log(`[Stripe Webhook] Created subscription for user ${userId}, plan ${productKey}`);
+      }
     }
   }
 
@@ -220,6 +279,10 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
 /**
  * Handle invoice paid (recurring subscription renewal)
+ * 
+ * IDEMPOTENCY: Uses invoice.id in metadata to track processed invoices.
+ * The CreditService logs transactions with metadata, so we can check if
+ * a renewal has already been processed by looking for existing transactions.
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   console.log(`[Stripe Webhook] Processing invoice.paid: ${invoice.id}`);
@@ -240,6 +303,32 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       console.error("[Stripe Webhook] Database not available");
       return;
     }
+
+    // IDEMPOTENCY CHECK: Check if this invoice has already been processed
+    // by looking for a credit transaction with this invoice.id in metadata
+    const { creditTransactions } = await import("../../drizzle/schema");
+    const existingTransactions = await db
+      .select()
+      .from(creditTransactions)
+      .where(eq(creditTransactions.userId, 0)); // We need to search by metadata
+
+    // Search for existing transaction with this invoice ID
+    // Note: This is a simple approach. In production, consider adding an invoiceId column
+    const allTransactions = await db.select().from(creditTransactions);
+    const alreadyProcessed = allTransactions.some(t => {
+      if (!t.metadata) return false;
+      try {
+        const meta = JSON.parse(t.metadata);
+        return meta.stripeInvoiceId === invoice.id;
+      } catch {
+        return false;
+      }
+    });
+
+    if (alreadyProcessed) {
+      console.log(`[Stripe Webhook] Invoice ${invoice.id} already processed, skipping (idempotency check)`);
+      return;
+    }
     
     // Find subscription
     const [subscription] = await db
@@ -258,11 +347,16 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
       if (plan) {
         // Grant monthly credits (use monthlyCredits field)
+        // Include invoice.id in metadata for idempotency tracking
         await CreditService.grant(
           subscription.userId,
           plan.monthlyCredits,
           `Monthly renewal: ${plan.name}`,
-          { subscriptionId }
+          { 
+            subscriptionId, 
+            stripeInvoiceId: invoice.id,
+            billingReason: invoice.billing_reason 
+          }
         );
 
         console.log(`[Stripe Webhook] Granted ${plan.monthlyCredits} credits to user ${subscription.userId} for subscription renewal`);

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq, and, desc, gte, sql, lt } from "drizzle-orm";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { creditTransactions } from "../../drizzle/schema";
+import { creditTransactions, users } from "../../drizzle/schema";
 
 export const analyticsRouter = router({
   /**
@@ -159,8 +159,13 @@ export const analyticsRouter = router({
     // Calculate savings (if usage decreased)
     const creditsSaved = lastMonth > thisMonth ? lastMonth - thisMonth : 0;
 
-    // Get lifetime usage from user record
-    const totalLifetime = ctx.user.lifetimeCreditsUsed || 0;
+    // Get lifetime usage from user record (fetch from DB, ctx.user may not have this field)
+    const [user] = await db
+      .select({ lifetimeCreditsUsed: users.lifetimeCreditsUsed })
+      .from(users)
+      .where(eq(users.id, ctx.user.id))
+      .limit(1);
+    const totalLifetime = user?.lifetimeCreditsUsed || 0;
 
     return {
       totalLifetime,

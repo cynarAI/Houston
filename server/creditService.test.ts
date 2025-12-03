@@ -240,4 +240,133 @@ describe("CreditService", () => {
       expect(CREDIT_COSTS.CONTENT_CALENDAR).toBe(10);
     });
   });
+
+  describe("starterCredits", () => {
+    it("should grant 50 starter credits to new users via DB default", async () => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Create a user WITHOUT specifying credits (relies on DB default)
+      const [result] = await db.insert(users).values({
+        openId: `test-starter-${Date.now()}`,
+        name: "Starter User",
+        email: "starter@example.com",
+        // credits NOT specified - should use DB default of 50
+      });
+
+      const newUserId = result.insertId;
+      const balance = await CreditService.getBalance(newUserId);
+
+      expect(balance).toBe(50);
+    });
+  });
+
+  describe("lowCreditNotification", () => {
+    it("should trigger notification when balance drops below 20", async () => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Import notifications table to check for notification
+      const { notifications } = await import("../drizzle/schema");
+
+      // User starts with 50 credits, charge 35 to drop to 15
+      const result = await CreditService.charge(testUserId, "TEST_FEATURE", 35);
+
+      expect(result.success).toBe(true);
+      expect(result.newBalance).toBe(15);
+
+      // Check that a credit_warning notification was created
+      const notifs = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.userId, testUserId));
+
+      const creditWarning = notifs.find(n => n.type === "credit_warning");
+      expect(creditWarning).toBeDefined();
+      expect(creditWarning?.title).toBe("Low Credit Balance");
+    });
+
+    it("should NOT trigger notification when balance stays above 20", async () => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { notifications } = await import("../drizzle/schema");
+
+      // Charge only 10, balance goes to 40 (still above 20)
+      await CreditService.charge(testUserId, "TEST_FEATURE", 10);
+
+      const notifs = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.userId, testUserId));
+
+      const creditWarning = notifs.find(n => n.type === "credit_warning");
+      expect(creditWarning).toBeUndefined();
+    });
+  });
+
+  describe("concurrentCharges", () => {
+    it("should prevent race conditions with atomic operations", async () => {
+      // Start with 50 credits, try to charge 30 twice concurrently
+      // With atomic UPDATE WHERE credits >= amount, exactly one should succeed
+      const [result1, result2] = await Promise.all([
+        CreditService.charge(testUserId, "CONCURRENT_1", 30),
+        CreditService.charge(testUserId, "CONCURRENT_2", 30),
+      ]);
+
+      // Exactly one should succeed due to atomic operation
+      const successCount = [result1, result2].filter(r => r.success).length;
+      expect(successCount).toBe(1);
+
+      // Final balance should be exactly 20 (50 - 30)
+      const finalBalance = await CreditService.getBalance(testUserId);
+      expect(finalBalance).toBe(20);
+
+      // One should have insufficient_credits error
+      const failedResult = [result1, result2].find(r => !r.success);
+      expect(failedResult?.error).toBe("insufficient_credits");
+    });
+
+    it("should correctly sum multiple small charges", async () => {
+      // Charge 5 credits 5 times concurrently (total 25)
+      const charges = Array(5).fill(null).map((_, i) =>
+        CreditService.charge(testUserId, `SMALL_CHARGE_${i}`, 5)
+      );
+
+      const results = await Promise.all(charges);
+      const successfulCharges = results.filter(r => r.success).length;
+
+      // All should succeed since total is 25 (less than 50)
+      expect(successfulCharges).toBe(5);
+
+      const finalBalance = await CreditService.getBalance(testUserId);
+      expect(finalBalance).toBe(25); // 50 - 25 = 25
+    });
+
+    it("should prevent overdraft in extreme concurrent scenario", async () => {
+      // Start with 50 credits, try to charge 45 multiple times concurrently
+      // At most one should succeed to prevent overdraft
+      const charges = Array(3).fill(null).map((_, i) =>
+        CreditService.charge(testUserId, `OVERDRAFT_TEST_${i}`, 45)
+      );
+
+      const results = await Promise.all(charges);
+      const successfulCharges = results.filter(r => r.success).length;
+
+      // At least one should succeed
+      expect(successfulCharges).toBeGreaterThanOrEqual(1);
+
+      // Check final balance
+      const finalBalance = await CreditService.getBalance(testUserId);
+      
+      // CRITICAL: Balance should never go negative
+      // This is the most important invariant to maintain
+      expect(finalBalance).toBeGreaterThanOrEqual(0);
+
+      // Balance should be consistent with successful charges
+      // (50 - 45 * successfulCharges)
+      const expectedBalance = 50 - (45 * successfulCharges);
+      expect(finalBalance).toBe(expectedBalance);
+    });
+  });
 });

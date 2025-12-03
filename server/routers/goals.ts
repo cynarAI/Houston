@@ -1,17 +1,22 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import * as db from "../db";
+import { verifyWorkspaceOwnership, verifyGoalOwnership } from "../_core/ownership";
 
 export const goalsRouter = router({
   listByWorkspace: protectedProcedure
     .input(z.object({ workspaceId: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
+      // Verify user owns the workspace
+      await verifyWorkspaceOwnership(input.workspaceId, ctx.user.id);
       return await db.getGoalsByWorkspaceId(input.workspaceId);
     }),
 
   getById: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
+      // Verify user has access to this goal
+      await verifyGoalOwnership(input.id, ctx.user.id);
       return await db.getGoalById(input.id);
     }),
 
@@ -29,7 +34,9 @@ export const goalsRouter = router({
         priority: z.enum(["low", "medium", "high"]).default("medium"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verify user owns the workspace before creating goal
+      await verifyWorkspaceOwnership(input.workspaceId, ctx.user.id);
       const id = await db.createGoal(input);
       return { id };
     }),
@@ -50,7 +57,9 @@ export const goalsRouter = router({
         status: z.enum(["active", "completed", "archived"]).optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verify user has access to this goal
+      await verifyGoalOwnership(input.id, ctx.user.id);
       const { id, ...data } = input;
       await db.updateGoal(id, data);
       return { success: true };
@@ -58,7 +67,9 @@ export const goalsRouter = router({
 
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verify user has access to this goal before deleting
+      await verifyGoalOwnership(input.id, ctx.user.id);
       await db.deleteGoal(input.id);
       return { success: true };
     }),
