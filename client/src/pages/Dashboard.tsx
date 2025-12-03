@@ -79,6 +79,14 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
 
+  // DEBUG: Version Log
+  useEffect(() => {
+    console.log(
+      "🚀 HOUSTON DASHBOARD V: RELOADED - " + new Date().toISOString(),
+    );
+    console.log("🎨 Gradient System: 4-Color AI");
+  }, []);
+
   // Time-based greeting - Deutsch
   const getTimeGreeting = () => {
     const hour = new Date().getHours();
