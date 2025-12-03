@@ -212,7 +212,24 @@ if [ -z "$DEPLOY_DIR" ]; then
   fi
 fi
 
-# Methode 4: Suche mit find-Befehlen (AUSSCHLIESSLICH /var/www - NICHT /home!)
+# Methode 4: Suche nach dist/public Verzeichnissen (KRITISCH für Node.js App!)
+if [ -z "$DEPLOY_DIR" ]; then
+  echo "🔍 Suche nach dist/public Verzeichnissen (Node.js App)..."
+  # Suche nach dist/public/index.html in verschiedenen Verzeichnissen
+  DIST_PUBLIC_DIRS=$(find /home /opt /var -type d -path "*/dist/public" 2>/dev/null | grep -v "/home/ubuntu/houston-deploy" | head -5)
+  if [ ! -z "$DIST_PUBLIC_DIRS" ]; then
+    # Prüfe welches Verzeichnis eine gültige index.html hat
+    for DIR in $DIST_PUBLIC_DIRS; do
+      if [ -f "$DIR/index.html" ] && [ -d "$DIR/assets" ]; then
+        DEPLOY_DIR="$DIR"
+        echo "✅ Gefunden: $DEPLOY_DIR (dist/public mit index.html und assets/)"
+        break
+      fi
+    done
+  fi
+fi
+
+# Methode 4b: Suche mit find-Befehlen (AUSSCHLIESSLICH /var/www - NICHT /home!)
 if [ -z "$DEPLOY_DIR" ]; then
   echo "🔍 Suche mit find-Befehlen in /var/www..."
   FOUND_DIR=$(find /var/www -type d -name "*houston*" 2>/dev/null | head -1)
