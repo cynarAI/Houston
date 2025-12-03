@@ -207,9 +207,9 @@ jobs:
           
           # Escape-Funktion für sed: escapt alle sed-spezialzeichen
           # Verwendet # als Separator (muss auch # escapen, falls es in den Werten vorkommt)
-          # Escapt auch einfache Anführungszeichen für Robustheit
+          # WICHTIG: Einfache Anführungszeichen müssen NICHT escaped werden in sed replacement patterns
           escape_for_sed() {
-            echo "$1" | sed 's/\\/\\\\/g' | sed 's/#/\\#/g' | sed 's/|/\\|/g' | sed 's/\//\\\//g' | sed 's/&/\\&/g' | sed 's/"/\\"/g' | sed "s/'/\\\'/g"
+            echo "$1" | sed 's/\\/\\\\/g' | sed 's/#/\\#/g' | sed 's/|/\\|/g' | sed 's/\//\\\//g' | sed 's/&/\\&/g' | sed 's/"/\\"/g'
           }
           
           # Escape Commit-Message und Changed-Files für sed
@@ -234,15 +234,17 @@ jobs:
           else
             echo "📋 Verwende vollständigen Deployment-Prompt..."
             PROMPT_TEMPLATE=".github/scripts/deployment-prompt-template.sh"
-            # Beim vollständigen Template KEINE Shell-Script-Header entfernen!
-            # Die cat << Zeilen sind Teil des Prompt-Inhalts für den Manus-Agent
+            # Entferne Shell-Script-Header auch beim vollständigen Template
+            # Die cat << und PROMPT_EOF Zeilen sind Shell-Syntax, nicht Teil des Prompt-Inhalts
             PROMPT=$(cat "$PROMPT_TEMPLATE" | \
               sed "s#COMMIT_SHA_SHORT#${{ steps.commit.outputs.sha_short }}#g" | \
               sed "s#COMMIT_SHA_FULL#${{ steps.commit.outputs.sha_full }}#g" | \
               sed "s#COMMIT_MESSAGE#$COMMIT_MSG_ESCAPED#g" | \
               sed "s#COMMIT_TIMESTAMP#${{ steps.commit.outputs.timestamp }}#g" | \
               sed "s#CHANGED_FILES#$CHANGED_FILES_ESCAPED#g" | \
-              sed '/^#!/d')
+              sed '/^#!/d' | \
+              sed '/^cat << /d' | \
+              sed '/^PROMPT_EOF$/d')
           fi
           
           # Alte PROMPT-Definition entfernt - jetzt aus Datei geladen

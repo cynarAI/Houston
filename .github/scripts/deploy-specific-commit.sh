@@ -26,8 +26,9 @@ echo ""
 
 # Escape-Funktion für sed: escapt alle sed-spezialzeichen
 # Verwendet # als Separator (muss auch # escapen, falls es in den Werten vorkommt)
+# WICHTIG: Einfache Anführungszeichen müssen NICHT escaped werden in sed replacement patterns
 escape_for_sed() {
-  echo "$1" | sed 's/\\/\\\\/g' | sed 's/#/\\#/g' | sed 's/|/\\|/g' | sed 's/\//\\\//g' | sed 's/&/\\&/g' | sed 's/"/\\"/g' | sed "s/'/\\\'/g"
+  echo "$1" | sed 's/\\/\\\\/g' | sed 's/#/\\#/g' | sed 's/|/\\|/g' | sed 's/\//\\\//g' | sed 's/&/\\&/g' | sed 's/"/\\"/g'
 }
 
 # Escape Commit-Message und Changed-Files für sed
