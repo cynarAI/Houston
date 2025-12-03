@@ -300,11 +300,22 @@ SCHRITT 3.2.3: Deploye neue Dateien
 
 echo "📤 Deploye neue Dateien nach $DEPLOY_DIR..."
 
+# KRITISCH: Lösche alte Assets-Dateien ZUERST, da Vite neue Hash-Namen generiert!
+# Alte Dateien würden sonst auf dem Server bleiben und Browser könnten sie laden
+echo "🗑️  Lösche alte Assets-Dateien (wichtig: Vite generiert neue Hash-Namen)..."
+if [ -d "$DEPLOY_DIR/assets" ]; then
+  echo "   Lösche: $DEPLOY_DIR/assets/*"
+  sudo rm -rf "$DEPLOY_DIR/assets"/* 2>/dev/null || rm -rf "$DEPLOY_DIR/assets"/*
+  echo "✅ Alte Assets gelöscht"
+else
+  echo "⚠️  Assets-Verzeichnis existiert nicht, wird erstellt"
+fi
+
 # Zähle Dateien vor dem Kopieren
 SOURCE_FILE_COUNT=$(find dist/public -type f | wc -l)
 echo "📊 Anzahl zu kopierender Dateien: $SOURCE_FILE_COUNT"
 
-# Kopiere Dateien
+# Kopiere Dateien (assets/ wird neu erstellt)
 sudo cp -r dist/public/* "$DEPLOY_DIR/" 2>/dev/null || cp -r dist/public/* "$DEPLOY_DIR/"
 
 if [ $? -eq 0 ]; then
