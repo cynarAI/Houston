@@ -1,20 +1,26 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { 
-  CheckCircle2, 
-  Circle, 
-  MessageSquare, 
-  Target, 
-  Compass, 
-  CheckSquare, 
+import {
+  CheckCircle2,
+  Circle,
+  MessageSquare,
+  Target,
+  Compass,
+  CheckSquare,
   Sparkles,
   ChevronDown,
   ChevronUp,
   Rocket,
-  X
+  X,
 } from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
@@ -118,7 +124,7 @@ export function ActivationChecklist({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#FF6B9D', '#8B5CF6', '#3B82F6', '#10B981'],
+        colors: ["#FF6B9D", "#8B5CF6", "#3B82F6", "#10B981"],
       });
     }
     setPreviousProgress(progress);
@@ -138,7 +144,12 @@ export function ActivationChecklist({
   const nextStep = steps.find((s) => !s.completed);
 
   return (
-    <Card className={cn("glass border-white/10 backdrop-blur-xl overflow-hidden", className)}>
+    <Card
+      className={cn(
+        "glass border-white/10 backdrop-blur-xl overflow-hidden",
+        className,
+      )}
+    >
       {/* Header */}
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -179,7 +190,7 @@ export function ActivationChecklist({
             </Button>
           </div>
         </div>
-        
+
         {/* Progress Bar */}
         <div className="mt-4">
           <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
@@ -194,10 +205,10 @@ export function ActivationChecklist({
       {isExpanded && (
         <CardContent className="pt-0">
           <div className="space-y-3">
-            {steps.map((step, index) => {
+            {steps.map((step) => {
               const Icon = step.icon;
               const isNext = nextStep?.id === step.id;
-              
+
               return (
                 <div
                   key={step.id}
@@ -206,8 +217,8 @@ export function ActivationChecklist({
                     step.completed
                       ? "bg-green-500/10 border border-green-500/20"
                       : isNext
-                      ? "bg-primary/10 border border-primary/20"
-                      : "bg-muted/30 border border-transparent"
+                        ? "bg-primary/10 border border-primary/20"
+                        : "bg-muted/30 border border-transparent",
                   )}
                 >
                   {/* Status Icon */}
@@ -215,28 +226,42 @@ export function ActivationChecklist({
                     {step.completed ? (
                       <CheckCircle2 className="h-5 w-5 text-green-500" />
                     ) : (
-                      <Circle className={cn(
-                        "h-5 w-5",
-                        isNext ? "text-primary" : "text-muted-foreground"
-                      )} />
+                      <Circle
+                        className={cn(
+                          "h-5 w-5",
+                          isNext ? "text-primary" : "text-muted-foreground",
+                        )}
+                      />
                     )}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Icon className={cn(
-                        "h-4 w-4 flex-shrink-0",
-                        step.completed ? "text-green-500" : isNext ? "text-primary" : "text-muted-foreground"
-                      )} />
-                      <h4 className={cn(
-                        "text-sm font-medium",
-                        step.completed && "text-muted-foreground line-through"
-                      )}>
+                      <Icon
+                        className={cn(
+                          "h-4 w-4 flex-shrink-0",
+                          step.completed
+                            ? "text-green-500"
+                            : isNext
+                              ? "text-primary"
+                              : "text-muted-foreground",
+                        )}
+                      />
+                      <h4
+                        className={cn(
+                          "text-sm font-medium",
+                          step.completed &&
+                            "text-muted-foreground line-through",
+                        )}
+                      >
                         {step.title}
                       </h4>
                       {isNext && (
-                        <Badge variant="outline" className="text-xs border-primary/50 text-primary">
+                        <Badge
+                          variant="outline"
+                          className="text-xs border-primary/50 text-primary"
+                        >
                           Nächster Schritt
                         </Badge>
                       )}
@@ -249,12 +274,13 @@ export function ActivationChecklist({
                   {/* Action */}
                   {!step.completed && (
                     <Link href={step.link}>
-                      <Button 
-                        variant={isNext ? "default" : "outline"} 
+                      <Button
+                        variant={isNext ? "default" : "outline"}
                         size="sm"
                         className={cn(
                           "flex-shrink-0",
-                          isNext && "bg-gradient-to-r from-[#FF6B9D] to-[#8B5CF6] hover:opacity-90"
+                          isNext &&
+                            "bg-gradient-to-r from-[#FF6B9D] to-[#8B5CF6] hover:opacity-90",
                         )}
                       >
                         {step.linkText}
@@ -272,7 +298,9 @@ export function ActivationChecklist({
               <p className="text-sm text-center">
                 <span className="font-medium">Super Fortschritt!</span>{" "}
                 <span className="text-muted-foreground">
-                  Noch {steps.length - completedSteps} {steps.length - completedSteps === 1 ? "Schritt" : "Schritte"} bis zur vollen Power von Houston.
+                  Noch {steps.length - completedSteps}{" "}
+                  {steps.length - completedSteps === 1 ? "Schritt" : "Schritte"}{" "}
+                  bis zur vollen Power von Houston.
                 </span>
               </p>
             </div>

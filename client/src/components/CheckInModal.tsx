@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useState } from "react";
-import { Rocket, CheckCircle2 } from "lucide-react";
+import { Rocket } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
@@ -52,7 +52,7 @@ export function CheckInModal({
 
       if (onSuccess) onSuccess();
       onOpenChange(false);
-    } catch (error) {
+    } catch {
       toast.error("Fehler beim Speichern.");
     }
   };
