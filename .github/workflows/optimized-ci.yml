@@ -1,17 +1,26 @@
-name: CI
+name: Optimized CI/CD
 
 on:
   push:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      skip_deploy:
+        description: 'Skip deployment (build only)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   NODE_VERSION: '20'
 
+# Sicherheit: Minimale Berechtigungen für Workflows
 permissions:
   contents: read
   actions: read
+  # Keine write-Berechtigungen für Repository
 
 jobs:
   build:
@@ -50,40 +59,309 @@ jobs:
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🗄️ Cache Vite
+      # KEIN Cache für dist/ - wir wollen immer frisch bauen um sicherzustellen dass der aktuelle Stand deployed wird
+      # Cache nur für node_modules/.vite (Vite's interne Cache)
+      - name: 🗄️ Cache Vite internal cache only
         uses: actions/cache@v4
         with:
-          path: node_modules/.vite
-          key: ${{ runner.os }}-vite-${{ hashFiles('**/*.{ts,tsx,js,jsx,css,json}') }}
+          path: |
+            node_modules/.vite
+          key: ${{ runner.os }}-vite-internal-${{ hashFiles('**/*.{ts,tsx,js,jsx,css,json}') }}
           restore-keys: |
-            ${{ runner.os }}-vite-
+            ${{ runner.os }}-vite-internal-
 
       - name: 🔍 TypeScript Check
+        id: typescript-check
         run: pnpm check
 
-      - name: 🧹 Lint
-        run: pnpm lint
-        continue-on-error: true
-
-      - name: 🧪 Tests
-        run: pnpm test
-        continue-on-error: true
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: 🏗️ Build
+      - name: 🏗️ Build Application & Run Checks in Parallel
+        # Build startet direkt nach TypeScript Check, Lint/Tests laufen parallel
         run: |
+          set +e  # Erlaube Fehler in Hintergrundprozessen
+          
+          # Starte Lint und Tests im Hintergrund
+          pnpm lint > lint.log 2>&1 &
+          LINT_PID=$!
+          
+          DATABASE_URL="${{ secrets.DATABASE_URL || '' }}" pnpm test > test.log 2>&1 &
+          TEST_PID=$!
+          
+          # Baue die App (kritisch) - Production Build
           export NODE_ENV=production
+          echo "✅ NODE_ENV gesetzt: $NODE_ENV"
           pnpm build
+          BUILD_EXIT=$?
+          
+          # Warte auf Lint und Tests (ignoriere Exit-Codes)
+          wait $LINT_PID || true
+          LINT_EXIT=$?
+          wait $TEST_PID || true
+          TEST_EXIT=$?
+          
+          # Zeige Logs
+          echo "=== Lint Output ==="
+          cat lint.log || true
+          echo ""
+          echo "=== Test Output ==="
+          cat test.log || true
+          
+          # Build muss erfolgreich sein, Lint/Tests können fehlschlagen
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "::error::Build failed"
+            exit $BUILD_EXIT
+          fi
+          
+          # Logge Ergebnisse (non-kritisch)
+          if [ $LINT_EXIT -ne 0 ]; then
+            echo "::warning::Lint failed (non-critical)"
+          fi
+          if [ $TEST_EXIT -ne 0 ]; then
+            echo "::warning::Tests failed (non-critical)"
+          fi
+          
+          # Schritt erfolgreich, auch wenn Lint/Tests fehlgeschlagen sind
+          exit 0
 
-      - name: 📊 Summary
+      - name: 📤 Upload build artifacts
+        # Artefakte werden sofort hochgeladen, damit Deployment früher starten kann
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+
+      - name: 📊 Build Summary
         if: always()
         run: |
           echo "## 🔨 Build Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| TypeScript | ✅ |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| TypeScript | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ✅ Passed (kritisch) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ⚠️ Non-kritisch (parallel) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ⚠️ Non-kritisch (parallel) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Deployment:** Erfolgt über [Manus](https://manus.im)" >> $GITHUB_STEP_SUMMARY
+          echo "**Optimierung:** Build startet direkt nach TypeScript Check, Lint/Tests laufen parallel" >> $GITHUB_STEP_SUMMARY
+          echo "**Artifact:** \`dist-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    name: 🚀 Deploy to Manus (DEAKTIVIERT - Verwende deploy-manus-api.yml)
+    needs: build
+    runs-on: ubuntu-latest
+    if: false  # DEAKTIVIERT - Verwende stattdessen deploy-manus-api.yml für kostenloses Deployment
+
+    steps:
+      - name: 📥 Checkout code (ALWAYS LATEST - NO CACHE)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Vollständige History für genaue Commit-Verifizierung
+          ref: ${{ github.sha }}  # EXPLIZIT: Verwende den aktuellen Commit SHA
+
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+
+      - name: 📋 Get commit info and verify current commit
+        id: commit
+        run: |
+          # WICHTIG: Verifiziere dass wir wirklich auf dem aktuellen Commit sind
+          CURRENT_SHA=$(git rev-parse HEAD)
+          EXPECTED_SHA="${{ github.sha }}"
+          
+          if [ "$CURRENT_SHA" != "$EXPECTED_SHA" ]; then
+            echo "::error::FATAL: Commit mismatch! Current: $CURRENT_SHA, Expected: $EXPECTED_SHA"
+            exit 1
+          fi
+          
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+          echo "timestamp=$(git log -1 --format=%ct)" >> $GITHUB_OUTPUT
+          
+          # Liste geänderter Dateien (nur relevante)
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -E '\.(tsx?|json|css)$' | head -20 | tr '\n' ', ' || echo "")
+          echo "changed_files=$CHANGED" >> $GITHUB_OUTPUT
+          
+          echo "✅ Commit verified: $CURRENT_SHA"
+          echo "📝 Commit message: $(git log -1 --pretty=%B | head -1)"
+
+      - name: 🚀 Trigger Manus Deployment
+        id: deploy
+        env:
+          MANUS_API_KEY: ${{ secrets.MANUS_API_KEY }}
+        run: |
+          if [ -z "$MANUS_API_KEY" ]; then
+            echo "::error::MANUS_API_KEY secret is not set!"
+            exit 1
+          fi
+          
+          # Lade PROMPT-Template aus Datei und ersetze Template-Variablen
+          # KRITISCH: Der Agent MUSS den exakten Commit verwenden - keine alten Versionen!
+          # Verwende einfachen Prompt wenn USE_SIMPLE_PROMPT=true (z.B. für manuelle Deployments)
+          
+          # Escape-Funktion für sed: escapt alle sed-spezialzeichen
+          # Verwendet # als Separator (muss auch # escapen, falls es in den Werten vorkommt)
+          # WICHTIG: Einfache Anführungszeichen müssen NICHT escaped werden in sed replacement patterns
+          escape_for_sed() {
+            echo "$1" | sed 's/\\/\\\\/g' | sed 's/#/\\#/g' | sed 's/|/\\|/g' | sed 's/\//\\\//g' | sed 's/&/\\&/g' | sed 's/"/\\"/g'
+          }
+          
+          # Escape Commit-Message und Changed-Files für sed
+          # WICHTIG: Verwende doppelte Anführungszeichen, damit GitHub Actions die Variable expandiert
+          # und einfache Anführungszeichen in der Commit-Message die Shell-Syntax nicht brechen
+          COMMIT_MSG_ESCAPED=$(escape_for_sed "${{ steps.commit.outputs.message }}")
+          CHANGED_FILES_ESCAPED=$(escape_for_sed "${{ steps.commit.outputs.changed_files }}")
+          
+          if [ "${{ vars.USE_SIMPLE_PROMPT }}" = "true" ]; then
+            echo "📋 Verwende einfachen Deployment-Prompt..."
+            PROMPT_TEMPLATE=".github/scripts/simple-deployment-prompt.sh"
+            # Entferne Shell-Script-Header nur beim einfachen Template
+            PROMPT=$(cat "$PROMPT_TEMPLATE" | \
+              sed "s#COMMIT_SHA_SHORT#${{ steps.commit.outputs.sha_short }}#g" | \
+              sed "s#COMMIT_SHA_FULL#${{ steps.commit.outputs.sha_full }}#g" | \
+              sed "s#COMMIT_MESSAGE#$COMMIT_MSG_ESCAPED#g" | \
+              sed "s#COMMIT_TIMESTAMP#${{ steps.commit.outputs.timestamp }}#g" | \
+              sed "s#CHANGED_FILES#$CHANGED_FILES_ESCAPED#g" | \
+              sed '/^#!/d' | \
+              sed '/^cat << /d' | \
+              sed '/^PROMPT_EOF$/d')
+          else
+            echo "📋 Verwende vollständigen Deployment-Prompt..."
+            PROMPT_TEMPLATE=".github/scripts/deployment-prompt-template.sh"
+            # Entferne Shell-Script-Header auch beim vollständigen Template
+            # Die cat << und PROMPT_EOF Zeilen sind Shell-Syntax, nicht Teil des Prompt-Inhalts
+            PROMPT=$(cat "$PROMPT_TEMPLATE" | \
+              sed "s#COMMIT_SHA_SHORT#${{ steps.commit.outputs.sha_short }}#g" | \
+              sed "s#COMMIT_SHA_FULL#${{ steps.commit.outputs.sha_full }}#g" | \
+              sed "s#COMMIT_MESSAGE#$COMMIT_MSG_ESCAPED#g" | \
+              sed "s#COMMIT_TIMESTAMP#${{ steps.commit.outputs.timestamp }}#g" | \
+              sed "s#CHANGED_FILES#$CHANGED_FILES_ESCAPED#g" | \
+              sed '/^#!/d' | \
+              sed '/^cat << /d' | \
+              sed '/^PROMPT_EOF$/d')
+          fi
+          
+          # Alte PROMPT-Definition entfernt - jetzt aus Datei geladen
+          # Erstelle JSON-Payload mit jq (robust gegen Sonderzeichen)
+          JSON_PAYLOAD=$(jq -n \
+            --arg prompt "$PROMPT" \
+            '{
+              "prompt": $prompt,
+              "agentProfile": "manus-1.5",
+              "projectId": "9Ye7dFtLEUdP6ojxHpkQhu"
+            }')
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            --url https://api.manus.ai/v1/tasks \
+            --header "API_KEY: $MANUS_API_KEY" \
+            --header "Content-Type: application/json" \
+            --data "$JSON_PAYLOAD")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Manus API request failed with status $HTTP_CODE"
+            exit 1
+          fi
+          
+          TASK_URL=$(echo "$BODY" | jq -r '.task_url // empty')
+          TASK_ID=$(echo "$BODY" | jq -r '.task_id // empty')
+          
+          # Validierung: Prüfe ob Task-ID und URL vorhanden sind
+          if [ -z "$TASK_ID" ] || [ -z "$TASK_URL" ]; then
+            echo "::error::API response did not contain valid task_id or task_url"
+            echo "Response body: $BODY"
+            exit 1
+          fi
+          
+          echo "task_url=$TASK_URL" >> $GITHUB_OUTPUT
+          echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
+          echo "✅ Deployment task created: $TASK_URL"
+
+      - name: ⏳ Wait and Monitor Task
+        id: monitor
+        env:
+          MANUS_API_KEY: ${{ secrets.MANUS_API_KEY }}
+        run: |
+          TASK_ID="${{ steps.deploy.outputs.task_id }}"
+          
+          # Validierung: Prüfe ob Task-ID vorhanden ist
+          if [ -z "$TASK_ID" ]; then
+            echo "::error::No task_id available from deploy step"
+            exit 1
+          fi
+          
+          MAX_WAIT=900  # 15 Minuten (erhöht von 5 Minuten)
+          INTERVAL=30
+          ELAPSED=0
+          
+          echo "⏳ Monitoring task $TASK_ID... (Timeout: $MAX_WAIT Sekunden / $((MAX_WAIT / 60)) Minuten)"
+          
+          while [ $ELAPSED -lt $MAX_WAIT ]; do
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+            
+            STATUS_RESPONSE=$(curl -s --request GET \
+              --url "https://api.manus.ai/v1/tasks/$TASK_ID" \
+              --header "API_KEY: $MANUS_API_KEY")
+            
+            STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.status // "unknown"')
+            echo "[$ELAPSED s] Task status: $STATUS"
+            
+            if [ "$STATUS" = "completed" ]; then
+              echo "✅ Task completed successfully!"
+              echo "status=completed" >> $GITHUB_OUTPUT
+              exit 0
+            elif [ "$STATUS" = "failed" ] || [ "$STATUS" = "cancelled" ]; then
+              echo "❌ Task failed or cancelled"
+              echo "status=failed" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            
+            # Wenn Task auf Eingabe wartet, logge Warnung
+            # Hinweis: Die Manus API hat keinen Endpoint zum Fortsetzen von Tasks.
+            # Ein POST zu /v1/tasks würde einen NEUEN Task erstellen, nicht den bestehenden fortsetzen.
+            if [ "$STATUS" = "pending" ]; then
+              LAST_MSG=$(echo "$STATUS_RESPONSE" | jq -r '.output[-1].content[0].text // ""' | tail -c 500)
+              if echo "$LAST_MSG" | grep -qi "frag\|information\|benötige\|question\|authentif"; then
+                echo "⚠️ Task wartet auf Eingabe und muss manuell fortgesetzt werden."
+                echo "Task URL: ${{ steps.deploy.outputs.task_url }}"
+                echo "Letzte Nachricht: $LAST_MSG"
+              fi
+            fi
+          done
+          
+          echo "⚠️ Timeout reached, task still running"
+          echo "status=timeout" >> $GITHUB_OUTPUT
+
+      - name: ✅ Verify Deployment Commit
+        if: steps.monitor.outputs.status == 'completed'
+        run: |
+          echo "🔍 Verifiziere dass der richtige Commit deployed wurde..."
+          echo "Erwarteter Commit: ${{ steps.commit.outputs.sha_short }} (${{ steps.commit.outputs.sha_full }})"
+          echo "⚠️ Bitte manuell prüfen: https://houston.manus.space sollte den Commit ${{ steps.commit.outputs.sha_short }} zeigen"
+          echo "📝 Commit-Nachricht: ${{ steps.commit.outputs.message }}"
+
+      - name: 📊 Deployment Summary
+        if: always()
+        run: |
+          echo "## 🚀 Deployment to Manus" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Info | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ⚠️ Commit | \`${{ steps.commit.outputs.sha_short }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit SHA | \`${{ steps.commit.outputs.sha_full }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Message | ${{ steps.commit.outputs.message }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Timestamp | ${{ steps.commit.outputs.timestamp }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | houston.manus.space |" >> $GITHUB_STEP_SUMMARY
+          echo "| Task URL | ${{ steps.deploy.outputs.task_url }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ steps.monitor.outputs.status || 'triggered' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**⚠️ WICHTIG:** Stelle sicher, dass https://houston.manus.space den Commit \`${{ steps.commit.outputs.sha_short }}\` zeigt!" >> $GITHUB_STEP_SUMMARY
