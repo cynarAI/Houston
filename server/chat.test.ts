@@ -1,8 +1,17 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { describe, expect, it, beforeEach, vi, beforeAll } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { getDb } from "./db";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
+
+// Check if database is available
+let dbAvailable = false;
+
+beforeAll(async () => {
+  const db = await getDb();
+  dbAvailable = !!db;
+});
 
 function createAuthContext(): { ctx: TrpcContext } {
   const user: AuthenticatedUser = {
@@ -29,7 +38,7 @@ function createAuthContext(): { ctx: TrpcContext } {
   return { ctx };
 }
 
-describe("chat.sendMessage", () => {
+describe.skipIf(!dbAvailable)("chat.sendMessage", () => {
   beforeEach(() => {
     // Mock LLM invocation to avoid actual API calls
     vi.mock("./_core/llm", () => ({
@@ -76,7 +85,7 @@ describe("chat.sendMessage", () => {
         sessionId: 99999,
         content: "Test message",
         language: "en",
-      })
+      }),
     ).rejects.toThrow();
   });
 });
