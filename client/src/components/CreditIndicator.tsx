@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, AlertTriangle } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 
@@ -18,13 +18,21 @@ export function CreditIndicator({ onClick }: CreditIndicatorProps) {
   }
 
   const credits = balance ?? 0;
-  const isLow = credits < 20;
+  const isLow = credits < 20 && credits > 0;
   const isEmpty = credits === 0;
+
+  // Tooltip text based on state
+  const tooltipText = isEmpty 
+    ? "Keine Credits mehr – jetzt aufladen!"
+    : isLow 
+    ? "Credits knapp – bald aufladen"
+    : "Dein Credit-Guthaben";
 
   return (
     <Link href="/app/credits">
       <button
         onClick={onClick}
+        title={tooltipText}
         className={`
           inline-flex items-center gap-2 px-3 py-1.5 rounded-full
           font-semibold text-sm transition-all duration-300
@@ -37,9 +45,20 @@ export function CreditIndicator({ onClick }: CreditIndicatorProps) {
           hover:scale-105 hover:shadow-lg
         `}
       >
-        <Sparkles className={`w-4 h-4 ${isEmpty ? 'animate-bounce' : ''}`} />
+        {isEmpty ? (
+          <AlertTriangle className="w-4 h-4 animate-bounce" />
+        ) : (
+          <Sparkles className={`w-4 h-4 ${isLow ? 'animate-pulse' : ''}`} />
+        )}
         <span>
-          {credits} {credits === 1 ? 'Credit' : 'Credits'}
+          {isEmpty ? (
+            "Aufladen"
+          ) : (
+            <>
+              {credits} {credits === 1 ? 'Credit' : 'Credits'}
+              {isLow && <span className="hidden sm:inline text-xs ml-1 opacity-75">• Knapp</span>}
+            </>
+          )}
         </span>
       </button>
     </Link>

@@ -61,32 +61,32 @@ export default function TableView({ items, type, onEdit, onDelete }: TableViewPr
             <TableRow>
               <TableHead className="cursor-pointer" onClick={() => handleSort("title")}>
                 <div className="flex items-center gap-2">
-                  Title
+                  Titel
                   <ArrowUpDown className="h-4 w-4" />
                 </div>
               </TableHead>
-              <TableHead>Description</TableHead>
+              <TableHead>Beschreibung</TableHead>
               <TableHead className="cursor-pointer" onClick={() => handleSort("status")}>
                 <div className="flex items-center gap-2">
                   Status
                   <ArrowUpDown className="h-4 w-4" />
                 </div>
               </TableHead>
-              <TableHead>Progress</TableHead>
+              <TableHead>Fortschritt</TableHead>
               <TableHead className="cursor-pointer" onClick={() => handleSort("created")}>
                 <div className="flex items-center gap-2">
-                  Created
+                  Erstellt
                   <ArrowUpDown className="h-4 w-4" />
                 </div>
               </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">Aktionen</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedItems.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  No goals found
+                  Keine Ziele gefunden
                 </TableCell>
               </TableRow>
             ) : (
@@ -101,7 +101,7 @@ export default function TableView({ items, type, onEdit, onDelete }: TableViewPr
                       <span className="text-sm text-muted-foreground">{goal.progress || 0}%</span>
                     </div>
                   </TableCell>
-                  <TableCell>{new Date(goal.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(goal.createdAt).toLocaleDateString("de-DE")}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       {onEdit && (
@@ -133,11 +133,11 @@ export default function TableView({ items, type, onEdit, onDelete }: TableViewPr
           <TableRow>
             <TableHead className="cursor-pointer" onClick={() => handleSort("title")}>
               <div className="flex items-center gap-2">
-                Title
+                Titel
                 <ArrowUpDown className="h-4 w-4" />
               </div>
             </TableHead>
-            <TableHead>Description</TableHead>
+            <TableHead>Beschreibung</TableHead>
             <TableHead className="cursor-pointer" onClick={() => handleSort("status")}>
               <div className="flex items-center gap-2">
                 Status
@@ -146,19 +146,19 @@ export default function TableView({ items, type, onEdit, onDelete }: TableViewPr
             </TableHead>
             <TableHead className="cursor-pointer" onClick={() => handleSort("priority")}>
               <div className="flex items-center gap-2">
-                Priority
+                Priorität
                 <ArrowUpDown className="h-4 w-4" />
               </div>
             </TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>Fällig am</TableHead>
+            <TableHead className="text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedItems.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center text-muted-foreground">
-                No tasks found
+                Keine Aufgaben gefunden
               </TableCell>
             </TableRow>
           ) : (
@@ -169,7 +169,7 @@ export default function TableView({ items, type, onEdit, onDelete }: TableViewPr
                 <TableCell>{getStatusBadge(task.status)}</TableCell>
                 <TableCell>{getStatusBadge(task.priority)}</TableCell>
                 <TableCell>
-                  {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "-"}
+                  {task.dueDate ? new Date(task.dueDate).toLocaleDateString("de-DE") : "-"}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">

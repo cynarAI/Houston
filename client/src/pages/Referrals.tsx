@@ -22,12 +22,12 @@ export default function Referrals() {
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
-    toast.success("Referral link copied to clipboard!");
+    toast.success("Empfehlungs-Link in die Zwischenablage kopiert!");
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShare = (platform: string) => {
-    const text = encodeURIComponent(`Join me on Houston AI Coach and get 25 free credits! 🚀`);
+    const text = encodeURIComponent(`Tritt Houston AI Coach bei und erhalte 25 kostenlose Credits! 🚀`);
     const url = encodeURIComponent(referralLink);
     
     let shareUrl = "";
@@ -39,7 +39,7 @@ export default function Referrals() {
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
         break;
       case "email":
-        shareUrl = `mailto:?subject=${encodeURIComponent("Join Houston AI Coach")}&body=${text}%0A%0A${url}`;
+        shareUrl = `mailto:?subject=${encodeURIComponent("Tritt Houston AI Coach bei")}&body=${text}%0A%0A${url}`;
         break;
     }
     
@@ -50,9 +50,9 @@ export default function Referrals() {
 
   const formatDate = (date: Date | null) => {
     if (!date) return "-";
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "short",
+    return new Date(date).toLocaleDateString("de-DE", {
       day: "numeric",
+      month: "short",
       year: "numeric",
     });
   };
@@ -62,9 +62,9 @@ export default function Referrals() {
       <div className="container mx-auto py-8 space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold mb-2">Referral Program</h1>
+          <h1 className="text-3xl font-bold mb-2">Empfehlungsprogramm</h1>
           <p className="text-muted-foreground">
-            Invite friends and earn 25 credits for each signup. Your friends get 25 credits too!
+            Lade Freunde ein und erhalte 25 Credits für jede Anmeldung. Deine Freunde bekommen auch 25 Credits!
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export default function Referrals() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Referrals</p>
+                  <p className="text-sm text-muted-foreground">Gesamt-Empfehlungen</p>
                   <p className="text-3xl font-bold">{stats?.totalReferrals || 0}</p>
                 </div>
                 <Users className="h-8 w-8 text-primary opacity-50" />
@@ -86,7 +86,7 @@ export default function Referrals() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-sm text-muted-foreground">Abgeschlossen</p>
                   <p className="text-3xl font-bold text-green-500">{stats?.completedReferrals || 0}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-500 opacity-50" />
@@ -98,7 +98,7 @@ export default function Referrals() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Pending</p>
+                  <p className="text-sm text-muted-foreground">Ausstehend</p>
                   <p className="text-3xl font-bold text-orange-500">{stats?.pendingReferrals || 0}</p>
                 </div>
                 <Users className="h-8 w-8 text-orange-500 opacity-50" />
@@ -110,7 +110,7 @@ export default function Referrals() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Credits Earned</p>
+                  <p className="text-sm text-muted-foreground">Verdiente Credits</p>
                   <p className="text-3xl font-bold text-primary">{stats?.totalCreditsEarned || 0}</p>
                 </div>
                 <Gift className="h-8 w-8 text-primary opacity-50" />
@@ -124,9 +124,9 @@ export default function Referrals() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Share2 className="h-5 w-5 text-primary" />
-              Your Referral Link
+              Dein Empfehlungs-Link
             </CardTitle>
-            <CardDescription>Share this link with your friends to earn credits</CardDescription>
+            <CardDescription>Teile diesen Link mit Freunden, um Credits zu verdienen</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Copy Link */}
@@ -136,13 +136,13 @@ export default function Referrals() {
               </div>
               <Button onClick={handleCopy} className="gap-2">
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copied!" : "Copy"}
+                {copied ? "Kopiert!" : "Kopieren"}
               </Button>
             </div>
 
             {/* Share Buttons */}
             <div>
-              <p className="text-sm font-medium mb-3">Share via</p>
+              <p className="text-sm font-medium mb-3">Teilen über</p>
               <div className="flex gap-3">
                 <Button
                   variant="outline"
@@ -169,19 +169,19 @@ export default function Referrals() {
                   className="flex-1 gap-2"
                 >
                   <Mail className="h-5 w-5" />
-                  Email
+                  E-Mail
                 </Button>
               </div>
             </div>
 
             {/* How it Works */}
             <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-              <h4 className="font-semibold mb-2">How it works</h4>
+              <h4 className="font-semibold mb-2">So funktioniert's</h4>
               <ol className="space-y-2 text-sm text-muted-foreground">
-                <li>1. Share your unique referral link with friends</li>
-                <li>2. They sign up using your link and get 25 free credits</li>
-                <li>3. You get 25 credits when they complete signup</li>
-                <li>4. Both of you can start using Houston AI Coach!</li>
+                <li>1. Teile deinen einzigartigen Empfehlungs-Link mit Freunden</li>
+                <li>2. Sie melden sich über deinen Link an und erhalten 25 Credits</li>
+                <li>3. Du erhältst 25 Credits, sobald sie sich registriert haben</li>
+                <li>4. Ihr könnt beide Houston AI Coach nutzen! 🚀</li>
               </ol>
             </div>
           </CardContent>
@@ -190,12 +190,12 @@ export default function Referrals() {
         {/* Referral List */}
         <Card className="card-elevated">
           <CardHeader>
-            <CardTitle>Referral History</CardTitle>
-            <CardDescription>Track your referrals and rewards</CardDescription>
+            <CardTitle>Empfehlungs-Historie</CardTitle>
+            <CardDescription>Verfolge deine Empfehlungen und Belohnungen</CardDescription>
           </CardHeader>
           <CardContent>
             {listLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              <div className="text-center py-8 text-muted-foreground">Lädt...</div>
             ) : referralList && referralList.length > 0 ? (
               <div className="space-y-3">
                 {referralList.map((referral) => (
@@ -209,7 +209,7 @@ export default function Referrals() {
                       </div>
                       <div>
                         <p className="font-medium">
-                          {referral.refereeName || "Pending signup"}
+                          {referral.refereeName || "Anmeldung ausstehend"}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {formatDate(referral.createdAt)}
@@ -218,9 +218,9 @@ export default function Referrals() {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-sm font-medium">+{referral.bonusCredits} credits</p>
+                        <p className="text-sm font-medium">+{referral.bonusCredits} Credits</p>
                         <p className="text-xs text-muted-foreground">
-                          {referral.status === "rewarded" ? `Earned ${formatDate(referral.rewardedAt)}` : "Pending"}
+                          {referral.status === "rewarded" ? `Erhalten ${formatDate(referral.rewardedAt)}` : "Ausstehend"}
                         </p>
                       </div>
                       <Badge
@@ -231,7 +231,7 @@ export default function Referrals() {
                             : ""
                         }
                       >
-                        {referral.status}
+                        {referral.status === "rewarded" ? "Erhalten" : "Ausstehend"}
                       </Badge>
                     </div>
                   </div>
@@ -240,9 +240,9 @@ export default function Referrals() {
             ) : (
               <div className="text-center py-12 space-y-3">
                 <Gift className="h-12 w-12 text-muted-foreground mx-auto opacity-50" />
-                <p className="text-muted-foreground">No referrals yet</p>
+                <p className="text-muted-foreground">Noch keine Empfehlungen</p>
                 <p className="text-sm text-muted-foreground">
-                  Start sharing your referral link to earn credits!
+                  Teile deinen Empfehlungs-Link, um Credits zu verdienen!
                 </p>
               </div>
             )}

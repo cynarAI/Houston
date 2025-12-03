@@ -171,21 +171,21 @@ export default function Todos() {
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
+                  <SelectItem value="all">Alle Status</SelectItem>
+                  <SelectItem value="todo">Zu erledigen</SelectItem>
+                  <SelectItem value="in_progress">In Arbeit</SelectItem>
+                  <SelectItem value="done">Erledigt</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[150px]">
                   <ArrowUpDown className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Sort" />
+                  <SelectValue placeholder="Sortierung" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="created">Newest First</SelectItem>
-                  <SelectItem value="title">Title A-Z</SelectItem>
-                  <SelectItem value="priority">Priority</SelectItem>
+                  <SelectItem value="created">Neueste zuerst</SelectItem>
+                  <SelectItem value="title">Titel A-Z</SelectItem>
+                  <SelectItem value="priority">Priorität</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -353,8 +353,8 @@ export default function Todos() {
                       </div>
                     </div>
                   </div>
-                  <h3 className="font-semibold mb-2">All tasks completed!</h3>
-                  <p className="text-sm text-muted-foreground">Great job! Create new tasks to stay productive.</p>
+                  <h3 className="font-semibold mb-2">Alle Aufgaben erledigt! 🎉</h3>
+                  <p className="text-sm text-muted-foreground">Super Arbeit! Erstelle neue Aufgaben, um produktiv zu bleiben.</p>
                 </CardContent>
               </Card>
             )}
@@ -406,7 +406,7 @@ export default function Todos() {
               <Card className="glass border-white/10">
                 <CardContent className="py-12 text-center">
                   <CheckSquare className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">No completed tasks yet</p>
+                  <p className="text-sm text-muted-foreground">Noch keine erledigten Aufgaben</p>
                 </CardContent>
               </Card>
             )}

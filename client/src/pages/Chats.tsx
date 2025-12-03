@@ -63,9 +63,9 @@ export default function Chats() {
       });
       setActiveSessionId(newSession.id);
       await refetchSessions();
-      toast.success("New chat created");
+      toast.success("Neuer Chat erstellt");
     } catch (error) {
-      toast.error("Failed to create new chat");
+      toast.error("Chat konnte nicht erstellt werden");
     }
   };
 
@@ -125,7 +125,7 @@ export default function Chats() {
       await refetchMessages();
       setStreamingMessage("");
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error("Nachricht konnte nicht gesendet werden");
       setStreamingMessage("");
     } finally {
       setIsStreaming(false);
@@ -135,9 +135,9 @@ export default function Chats() {
   const handleFeedback = async (messageId: number, feedback: "positive" | "negative") => {
     try {
       await sendFeedbackMutation.mutateAsync({ messageId, feedback });
-      toast.success("Feedback sent");
+      toast.success("Feedback gesendet");
     } catch (error) {
-      toast.error("Failed to send feedback");
+      toast.error("Feedback konnte nicht gesendet werden");
     }
   };
 
@@ -145,7 +145,7 @@ export default function Chats() {
     navigator.clipboard.writeText(content);
     setCopiedMessageId(messageId);
     setTimeout(() => setCopiedMessageId(null), 2000);
-    toast.success("Copied to clipboard");
+    toast.success("In Zwischenablage kopiert");
   };
 
   const handleRegenerate = async (messageId: number) => {
@@ -154,9 +154,9 @@ export default function Chats() {
       if (!activeSessionId) return;
       await regenerateResponseMutation.mutateAsync({ sessionId: activeSessionId, messageId });
       await refetchMessages();
-      toast.success("Response regenerated");
+      toast.success("Antwort neu generiert");
     } catch (error) {
-      toast.error("Failed to regenerate response");
+      toast.error("Antwort konnte nicht neu generiert werden");
     } finally {
       setIsStreaming(false);
     }
@@ -173,15 +173,17 @@ export default function Chats() {
       a.download = `chat-${activeSessionId}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("PDF exported");
+      toast.success("PDF exportiert");
     } catch (error) {
-      toast.error("Failed to export PDF");
+      toast.error("PDF-Export fehlgeschlagen");
     }
   };
 
   const quickActions = [
-    { icon: MessageSquare, label: "Marketing Strategy", prompt: "Help me create a marketing strategy" },
-    { icon: Sparkles, label: "Content Ideas", prompt: "Give me content ideas for social media" },
+    { icon: MessageSquare, label: "Marketing-Strategie entwickeln", prompt: "Hilf mir, eine Marketing-Strategie zu entwickeln" },
+    { icon: Sparkles, label: "Content-Ideen generieren", prompt: "Gib mir Content-Ideen für Social Media" },
+    { icon: Brain, label: "Zielgruppen-Analyse", prompt: "Analysiere meine Zielgruppe und erstelle Personas" },
+    { icon: Send, label: "Kampagne planen", prompt: "Hilf mir bei der Planung einer Marketing-Kampagne" },
   ];
 
   return (
@@ -196,7 +198,7 @@ export default function Chats() {
                 <h1 className="text-lg font-semibold">Houston</h1>
               </div>
               <Badge variant="secondary" className="text-xs">
-                AI Marketing Assistant
+                KI Marketing-Assistent
               </Badge>
             </div>
             
@@ -204,7 +206,7 @@ export default function Chats() {
               {sessions && sessions.length > 0 && (
                 <Select value={activeSessionId?.toString()} onValueChange={(val) => setActiveSessionId(parseInt(val))}>
                   <SelectTrigger className="w-[200px] hidden md:flex">
-                    <SelectValue placeholder="Select chat" />
+                    <SelectValue placeholder="Chat auswählen" />
                   </SelectTrigger>
                   <SelectContent>
                     {sessions.map((session) => (
@@ -218,7 +220,7 @@ export default function Chats() {
               
               <Button variant="outline" size="sm" onClick={handleNewChat}>
                 <Plus className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">New Chat</span>
+                <span className="hidden md:inline">Neuer Chat</span>
               </Button>
               
               {messages.length > 0 && (
@@ -239,9 +241,9 @@ export default function Chats() {
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] mb-4">
                     <Brain className="w-8 h-8 text-white" />
                   </div>
-                  <h2 className="text-2xl font-semibold">What can I help you with?</h2>
+                  <h2 className="text-2xl font-semibold">Womit kann ich dir helfen?</h2>
                   <p className="text-muted-foreground max-w-md">
-                    I'm your AI marketing assistant. Ask me anything about marketing strategy, content creation, or campaign optimization.
+                    Ich bin dein KI Marketing-Assistent. Frag mich alles zu Marketing-Strategien, Content-Erstellung oder Kampagnen-Optimierung.
                   </p>
                 </div>
                 
@@ -276,7 +278,7 @@ export default function Chats() {
                     
                     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                       <div className="text-xs font-medium text-muted-foreground">
-                        {msg.role === "user" ? "You" : "Houston"}
+                        {msg.role === "user" ? "Du" : "Houston"}
                       </div>
                       
                       <Card className={`p-4 ${
@@ -396,7 +398,7 @@ export default function Chats() {
                     handleSend();
                   }
                 }}
-                placeholder="Ask Houston anything about marketing..."
+                placeholder="Stelle Houston eine Frage zum Marketing..."
                 disabled={isStreaming || !activeSessionId}
                 className="flex-1"
               />

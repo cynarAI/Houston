@@ -311,19 +311,19 @@ export default function Strategy() {
                 </div>
               </div>
               <h3 className="font-semibold text-xl mb-2">
-                Define your <span className="gradient-text">marketing strategy</span>
+                Definiere deine <span className="gradient-text">Marketing-Strategie</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-8 max-w-md mx-auto">
-                Create a clear roadmap for your marketing success with Houston's guidance.
+                Erstelle eine klare Roadmap für deinen Marketing-Erfolg mit Houstons Unterstützung.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Button onClick={() => setIsEditing(true)} className="btn-gradient">
                   <Edit className="mr-2 h-4 w-4" />
-                  Create Strategy
+                  Strategie erstellen
                 </Button>
                 <Button variant="outline" className="glass hover:bg-white/10">
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Ask Houston for help
+                  Houston um Hilfe fragen
                 </Button>
               </div>
             </CardContent>

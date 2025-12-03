@@ -38,7 +38,7 @@ function SortableItem({ item, type, getPriorityColor }: { item: any; type: strin
           {type === "goals" && item.progress !== undefined && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Progress</span>
+                          <span>Fortschritt</span>
                 <span>{item.progress}%</span>
               </div>
               <Progress value={item.progress} className="h-2" />
@@ -74,14 +74,14 @@ export default function BoardView({ items, type, onStatusChange }: BoardViewProp
   const columns =
     type === "goals"
       ? [
-          { id: "active", title: "Active", items: items.filter((i) => i.status === "active") },
-          { id: "paused", title: "Paused", items: items.filter((i) => i.status === "paused") },
-          { id: "completed", title: "Completed", items: items.filter((i) => i.status === "completed") },
+          { id: "active", title: "Aktiv", items: items.filter((i) => i.status === "active") },
+          { id: "paused", title: "Pausiert", items: items.filter((i) => i.status === "paused") },
+          { id: "completed", title: "Abgeschlossen", items: items.filter((i) => i.status === "completed") },
         ]
       : [
-          { id: "todo", title: "To Do", items: items.filter((i) => i.status === "todo") },
-          { id: "in_progress", title: "In Progress", items: items.filter((i) => i.status === "in_progress") },
-          { id: "done", title: "Done", items: items.filter((i) => i.status === "done") },
+          { id: "todo", title: "Zu erledigen", items: items.filter((i) => i.status === "todo") },
+          { id: "in_progress", title: "In Arbeit", items: items.filter((i) => i.status === "in_progress") },
+          { id: "done", title: "Erledigt", items: items.filter((i) => i.status === "done") },
         ];
 
   const getPriorityColor = (priority: string) => {
@@ -110,7 +110,7 @@ export default function BoardView({ items, type, onStatusChange }: BoardViewProp
             {column.items.length === 0 ? (
               <Card className="bg-base-5/30 border-dashed">
                 <CardContent className="pt-6 text-center text-muted-foreground text-sm">
-                  No items
+                  Keine Einträge
                 </CardContent>
               </Card>
             ) : (
@@ -128,7 +128,7 @@ export default function BoardView({ items, type, onStatusChange }: BoardViewProp
                     {type === "goals" && item.progress !== undefined && (
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>Progress</span>
+                          <span>Fortschritt</span>
                           <span>{item.progress}%</span>
                         </div>
                         <Progress value={item.progress} />
@@ -144,7 +144,7 @@ export default function BoardView({ items, type, onStatusChange }: BoardViewProp
                         )}
                         {item.dueDate && (
                           <span className="text-xs text-muted-foreground">
-                            Due: {new Date(item.dueDate).toLocaleDateString()}
+                            Fällig: {new Date(item.dueDate).toLocaleDateString("de-DE")}
                           </span>
                         )}
                       </div>

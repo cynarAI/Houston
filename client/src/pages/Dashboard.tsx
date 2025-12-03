@@ -84,10 +84,10 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div>
           <h1 className="text-3xl font-bold mb-2">
-            Welcome back, <span className="gradient-text">{user?.name?.split(" ")[0] || "there"}</span>!
+            Willkommen zurück, <span className="gradient-text">{user?.name?.split(" ")[0] || "Captain"}</span>! 🚀
           </h1>
           <p className="text-muted-foreground">
-            Here's your Houston dashboard overview.
+            Hier ist dein Houston Dashboard-Überblick.
           </p>
         </div>
 
@@ -97,7 +97,7 @@ export default function Dashboard() {
         <Card className="glass border-white/10 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-xl font-bold">Mission Control</CardTitle>
-            <CardDescription>Your current mission status</CardDescription>
+            <CardDescription>Dein aktueller Missions-Status</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -111,21 +111,21 @@ export default function Dashboard() {
               <CircularProgress
                 value={activeGoals}
                 max={20}
-                label="Active Goals"
+                label="Aktive Ziele"
                 icon={<Target className="h-5 w-5 text-white" />}
                 gradient="gradient-blue"
               />
               <CircularProgress
                 value={openTodos}
                 max={50}
-                label="Open To-dos"
+                label="Offene To-dos"
                 icon={<CheckSquare className="h-5 w-5 text-white" />}
                 gradient="gradient-purple"
               />
               <CircularProgress
                 value={totalChatSessions}
                 max={100}
-                label="Chat Sessions"
+                label="Chat-Sessions"
                 icon={<MessageSquare className="h-5 w-5 text-white" />}
                 gradient="gradient-pink"
               />
@@ -143,7 +143,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <CardTitle>Houston's Insights</CardTitle>
-                  <CardDescription>AI-powered recommendations for your marketing</CardDescription>
+                  <CardDescription>KI-gestützte Empfehlungen für dein Marketing</CardDescription>
                 </div>
               </div>
               <Button
@@ -154,7 +154,7 @@ export default function Dashboard() {
                 className="gap-2"
               >
                 <RefreshCw className={`h-4 w-4 ${insightsLoading ? 'animate-spin' : ''}`} />
-                <span className="text-xs text-muted-foreground">3 credits</span>
+                <span className="text-xs text-muted-foreground">3 Credits</span>
               </Button>
             </div>
           </CardHeader>
@@ -163,7 +163,7 @@ export default function Dashboard() {
               {insightsLoading && (
                 <div className="text-center py-8">
                   <RefreshCw className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mt-2">Analyzing your marketing data...</p>
+                  <p className="text-sm text-muted-foreground mt-2">Analysiere deine Marketing-Daten...</p>
                 </div>
               )}
               
@@ -224,10 +224,10 @@ export default function Dashboard() {
               {!insightsLoading && (!insights || insights.recommendations?.length === 0) && (
                 <div className="text-center py-8">
                   <Brain className="h-12 w-12 mx-auto text-muted-foreground/50 mb-2" />
-                  <p className="text-sm text-muted-foreground">No insights available yet.</p>
+                  <p className="text-sm text-muted-foreground">Noch keine Insights vorhanden.</p>
                   <Button variant="link" size="sm" onClick={loadInsights} className="mt-2 gap-2">
-                    Generate insights <RefreshCw className="ml-1 h-3 w-3" />
-                    <span className="text-xs text-muted-foreground">(3 credits)</span>
+                    Insights generieren <RefreshCw className="ml-1 h-3 w-3" />
+                    <span className="text-xs text-muted-foreground">(3 Credits)</span>
                   </Button>
                 </div>
               )}
@@ -237,13 +237,13 @@ export default function Dashboard() {
                   <div className="flex items-start gap-3">
                     <Sparkles className="h-5 w-5 text-indigo-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">Chat with me anytime</h4>
+                      <h4 className="font-semibold text-sm mb-1">Chatte jederzeit mit mir</h4>
                       <p className="text-sm text-muted-foreground">
-                        I'm here to help! Ask me about marketing strategies, content ideas, or get feedback on your campaigns.
+                        Ich bin für dich da! Frag mich nach Marketing-Strategien, Content-Ideen oder hol dir Feedback zu deinen Kampagnen.
                       </p>
                       <Link href="/app/chats">
                         <Button variant="link" size="sm" className="px-0 mt-2">
-                          Start a conversation <ArrowRight className="ml-1 h-3 w-3" />
+                          Gespräch starten <ArrowRight className="ml-1 h-3 w-3" />
                         </Button>
                       </Link>
                     </div>
@@ -256,13 +256,13 @@ export default function Dashboard() {
                   <div className="flex items-start gap-3">
                     <Sparkles className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">You're on track!</h4>
+                      <h4 className="font-semibold text-sm mb-1">Du bist auf Kurs!</h4>
                       <p className="text-sm text-muted-foreground">
-                        Great progress! You have {activeGoals} active {activeGoals === 1 ? 'goal' : 'goals'} and {openTodos} open {openTodos === 1 ? 'task' : 'tasks'}. Keep up the momentum!
+                        Super Fortschritt! Du hast {activeGoals} aktive{activeGoals === 1 ? 's Ziel' : ' Ziele'} und {openTodos} offene {openTodos === 1 ? 'Aufgabe' : 'Aufgaben'}. Weiter so!
                       </p>
                       <Link href="/app/strategy">
                         <Button variant="link" size="sm" className="px-0 mt-2">
-                          Review your strategy <ArrowRight className="ml-1 h-3 w-3" />
+                          Strategie überprüfen <ArrowRight className="ml-1 h-3 w-3" />
                         </Button>
                       </Link>
                     </div>
@@ -275,74 +275,126 @@ export default function Dashboard() {
 
         {/* Main Content Grid */}
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Today / Next Steps */}
+          {/* Today / Next Steps - Dynamic based on user state */}
           <Card>
             <CardHeader>
-              <CardTitle>Today / Next Steps</CardTitle>
-              <CardDescription>Your most important tasks for today</CardDescription>
+              <CardTitle>Heute / Nächste Schritte</CardTitle>
+              <CardDescription>Deine wichtigsten Aufgaben</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)] mb-4">
-                  <TrendingUp className="h-8 w-8 text-white" />
+              {openTodos > 0 ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <CheckSquare className="h-5 w-5 text-green-400" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Du hast {openTodos} offene {openTodos === 1 ? 'Aufgabe' : 'Aufgaben'}</p>
+                      <p className="text-xs text-muted-foreground">Arbeite sie ab, um deine Ziele zu erreichen</p>
+                    </div>
+                  </div>
+                  <Link href="/app/todos">
+                    <Button className="w-full">
+                      Zu meinen To-dos
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Start your onboarding</h3>
-                <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                  Answer a few questions and get your personalized marketing roadmap.
-                </p>
-                <Link href="/app/onboarding">
-                  <Button>
-                    Start Onboarding
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+              ) : activeGoals === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)] mb-4">
+                    <TrendingUp className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Lass uns starten! 🚀</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+                    Chatte mit Houston, um deine erste Marketing-Strategie zu entwickeln.
+                  </p>
+                  <Link href="/app/chats">
+                    <Button>
+                      Mit Houston chatten
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 mb-4">
+                    <CheckSquare className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Alles erledigt! 🎉</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+                    Super, du hast alle Aufgaben abgeschlossen. Zeit für neue Ziele?
+                  </p>
+                  <Link href="/app/chats">
+                    <Button variant="outline">
+                      Houston um Rat fragen
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Goals & Progress */}
+          {/* Goals & Progress - Dynamic */}
           <Card>
             <CardHeader>
-              <CardTitle>Goals & Progress</CardTitle>
-              <CardDescription>Your marketing goals overview</CardDescription>
+              <CardTitle>Ziele & Fortschritt</CardTitle>
+              <CardDescription>Deine Marketing-Ziele im Überblick</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)] mb-4">
-                  <Target className="h-8 w-8 text-white" />
+              {activeGoals > 0 ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                    <Target className="h-5 w-5 text-blue-400" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{activeGoals} aktive{activeGoals === 1 ? 's Ziel' : ' Ziele'}</p>
+                      <p className="text-xs text-muted-foreground">Bleib dran und erreiche deine Marketing-Ziele</p>
+                    </div>
+                  </div>
+                  <Link href="/app/goals">
+                    <Button variant="outline" className="w-full">
+                      Ziele anzeigen
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">No goals defined yet</h3>
-                <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                  Let your coach help you set SMART goals.
-                </p>
-                <Link href="/app/goals">
-                  <Button variant="outline">
-                    Define Goals
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)] mb-4">
+                    <Target className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Noch keine Ziele</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+                    Lass Houston dir helfen, SMART-Ziele zu definieren.
+                  </p>
+                  <Link href="/app/goals">
+                    <Button variant="outline">
+                      Ziele definieren
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           {/* Strategy at a Glance */}
           <Card>
             <CardHeader>
-              <CardTitle>Strategy at a Glance</CardTitle>
-              <CardDescription>Your marketing strategy</CardDescription>
+              <CardTitle>Strategie auf einen Blick</CardTitle>
+              <CardDescription>Deine Marketing-Strategie</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-gradient-purple)] to-[var(--color-gradient-indigo)] mb-4">
-                  <Brain className="h-8 w-8 text-white" />
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[var(--color-gradient-purple)] to-[var(--color-gradient-indigo)] mb-4">
+                  <Brain className="h-7 w-7 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">No strategy yet</h3>
-                <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                  Develop a clear marketing strategy with your coach.
+                <h3 className="text-lg font-semibold mb-2">Strategie entwickeln</h3>
+                <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+                  Definiere Positionierung, Zielgruppen und Kernbotschaften.
                 </p>
                 <Link href="/app/strategy">
                   <Button variant="outline">
-                    Develop Strategy
+                    Zur Strategie
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
@@ -350,28 +402,46 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Recent Conversations with Your Coach */}
+          {/* Recent Conversations with Your Coach - Dynamic */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Conversations with Your Coach</CardTitle>
-              <CardDescription>Your chat history</CardDescription>
+              <CardTitle>Gespräche mit Houston</CardTitle>
+              <CardDescription>Dein Chat-Verlauf</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] mb-4">
-                  <MessageSquare className="h-8 w-8 text-white" />
+              {totalChatSessions > 0 ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-pink-500/10 border border-pink-500/20">
+                    <MessageSquare className="h-5 w-5 text-pink-400" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{totalChatSessions} {totalChatSessions === 1 ? 'Gespräch' : 'Gespräche'}</p>
+                      <p className="text-xs text-muted-foreground">Setze deine Unterhaltung fort oder starte eine neue</p>
+                    </div>
+                  </div>
+                  <Link href="/app/chats">
+                    <Button variant="outline" className="w-full">
+                      Zum Chat
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
-                <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                  Start your first conversation with Houston now!
-                </p>
-                <Link href="/app/chats">
-                  <Button variant="outline">
-                    Start New Conversation
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] mb-4">
+                    <MessageSquare className="h-7 w-7 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Noch keine Gespräche</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+                    Starte jetzt dein erstes Gespräch mit Houston!
+                  </p>
+                  <Link href="/app/chats">
+                    <Button variant="outline">
+                      Gespräch starten
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -215,10 +215,10 @@ export default function Goals() {
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                  <SelectItem value="all">Alle Status</SelectItem>
+                  <SelectItem value="active">Aktiv</SelectItem>
+                  <SelectItem value="completed">Abgeschlossen</SelectItem>
+                  <SelectItem value="archived">Archiviert</SelectItem>
                 </SelectContent>
               </Select>
               
@@ -226,12 +226,12 @@ export default function Goals() {
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[150px]">
                   <ArrowUpDown className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Sort" />
+                  <SelectValue placeholder="Sortierung" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="created">Newest First</SelectItem>
-                  <SelectItem value="title">Title A-Z</SelectItem>
-                  <SelectItem value="progress">Progress</SelectItem>
+                  <SelectItem value="created">Neueste zuerst</SelectItem>
+                  <SelectItem value="title">Titel A-Z</SelectItem>
+                  <SelectItem value="progress">Fortschritt</SelectItem>
                 </SelectContent>
               </Select>
               
@@ -514,19 +514,19 @@ export default function Goals() {
                 </div>
               </div>
               <h3 className="font-semibold text-xl mb-2">
-                Create your first <span className="gradient-text">SMART goal</span>
+                Erstelle dein erstes <span className="gradient-text">SMART-Ziel</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-8 max-w-md mx-auto">
-                Set specific, measurable, achievable, relevant, and time-bound goals with Houston's help.
+                Definiere spezifische, messbare, erreichbare, relevante und zeitgebundene Ziele mit Houstons Hilfe.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Button onClick={() => setIsCreateDialogOpen(true)} className="btn-gradient">
                   <Plus className="mr-2 h-4 w-4" />
-                  Create Goal
+                  Ziel erstellen
                 </Button>
                 <Button variant="outline" className="glass hover:bg-white/10">
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Ask Houston for help
+                  Houston um Hilfe fragen
                 </Button>
               </div>
             </CardContent>

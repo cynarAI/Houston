@@ -34,7 +34,7 @@ export default function Credits() {
         window.location.href = result.url;
       }
     } catch (error) {
-      toast.error("Failed to create checkout session. Please try again.");
+      toast.error("Checkout konnte nicht gestartet werden. Bitte versuche es erneut.");
       console.error("Checkout error:", error);
     }
   };
@@ -44,9 +44,9 @@ export default function Credits() {
       <div className="container py-8 space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold mb-2">Credits & Plans</h1>
+          <h1 className="text-3xl font-bold mb-2">Credits & Pläne</h1>
           <p className="text-muted-foreground">
-            Manage your credits and subscription
+            Verwalte deine Credits und dein Abonnement
           </p>
         </div>
 
@@ -59,13 +59,13 @@ export default function Credits() {
                   <Sparkles className="w-10 h-10 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Your Balance</p>
+                  <p className="text-sm text-muted-foreground mb-1">Dein Guthaben</p>
                   <h2 className="text-4xl font-bold gradient-text">
                     {credits} Credits
                   </h2>
                   {isLow && (
                     <Badge variant="outline" className="mt-2 border-orange-500/50 text-orange-400">
-                      Running Low
+                      Guthaben knapp
                     </Badge>
                   )}
                 </div>
@@ -73,8 +73,8 @@ export default function Credits() {
               
               {monthlyUsage && (
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground mb-1">This Month</p>
-                  <p className="text-2xl font-semibold">{monthlyUsage.totalSpent} used</p>
+                  <p className="text-sm text-muted-foreground mb-1">Diesen Monat</p>
+                  <p className="text-2xl font-semibold">{monthlyUsage.totalSpent} verbraucht</p>
                 </div>
               )}
             </div>
@@ -85,22 +85,22 @@ export default function Credits() {
         {subscription && subscription.plan && (
           <Card className="glass border-white/10 backdrop-blur-xl">
             <CardHeader>
-              <CardTitle>Active Subscription</CardTitle>
-              <CardDescription>Your current plan</CardDescription>
+              <CardTitle>Aktives Abonnement</CardTitle>
+              <CardDescription>Dein aktueller Plan</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-xl font-semibold mb-1">{subscription.plan.name}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {subscription.plan.monthlyCredits} credits per month
+                    {subscription.plan.monthlyCredits} Credits pro Monat
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold">
                     €{(subscription.plan.priceMonthly / 100).toFixed(2)}
                   </p>
-                  <p className="text-sm text-muted-foreground">per month</p>
+                  <p className="text-sm text-muted-foreground">pro Monat</p>
                 </div>
               </div>
             </CardContent>
@@ -112,22 +112,22 @@ export default function Credits() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="plans">
               <Sparkles className="w-4 h-4 mr-2" />
-              Plans
+              Pläne
             </TabsTrigger>
             <TabsTrigger value="topups">
               <Zap className="w-4 h-4 mr-2" />
-              Topups
+              Aufladungen
             </TabsTrigger>
             <TabsTrigger value="analytics">
               <BarChart3 className="w-4 h-4 mr-2" />
-              Analytics
+              Statistiken
             </TabsTrigger>
           </TabsList>
 
           {/* Plans Tab */}
           <TabsContent value="plans" className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold mb-4">Subscription Plans</h2>
+              <h2 className="text-2xl font-bold mb-4">Abonnement-Pläne</h2>
           <div className="grid gap-6 md:grid-cols-2">
             {plans?.map((plan) => {
               const features = plan.features ? JSON.parse(plan.features) : [];
@@ -156,12 +156,12 @@ export default function Credits() {
                       <p className="text-4xl font-bold">
                         €{(plan.priceMonthly / 100).toFixed(2)}
                       </p>
-                      <p className="text-sm text-muted-foreground">per month</p>
+                      <p className="text-sm text-muted-foreground">pro Monat</p>
                     </div>
                     
                     <div className="flex items-center gap-2 text-lg font-semibold">
                       <Sparkles className="w-5 h-5 text-[#ffb606]" />
-                      {plan.monthlyCredits} credits/month
+                      {plan.monthlyCredits} Credits/Monat
                     </div>
 
                     <div className="space-y-2">
@@ -179,7 +179,7 @@ export default function Credits() {
                       disabled={isActive || createCheckoutSession.isPending}
                       onClick={() => !isActive && handlePurchase(plan.key as any)}
                     >
-                      {createCheckoutSession.isPending ? 'Loading...' : isActive ? 'Current Plan' : 'Subscribe'}
+                      {createCheckoutSession.isPending ? 'Lädt...' : isActive ? 'Aktueller Plan' : 'Abonnieren'}
                       {!isActive && !createCheckoutSession.isPending && <ArrowRight className="ml-2 w-4 h-4" />}
                     </Button>
                   </CardContent>
@@ -194,7 +194,7 @@ export default function Credits() {
           <TabsContent value="topups" className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold mb-4">Mission Boosters</h2>
-          <p className="text-muted-foreground mb-4">One-time credit purchases</p>
+          <p className="text-muted-foreground mb-4">Einmalige Credit-Aufladungen</p>
           <div className="grid gap-4 md:grid-cols-3">
             {topups?.map((topup) => (
               <Card key={topup.id} className="glass border-white/10 backdrop-blur-xl hover:border-white/20 transition-all">
@@ -219,7 +219,7 @@ export default function Credits() {
                     disabled={createCheckoutSession.isPending}
                     onClick={() => handlePurchase(topup.key as any)}
                   >
-                    {createCheckoutSession.isPending ? 'Loading...' : 'Purchase'}
+                    {createCheckoutSession.isPending ? 'Lädt...' : 'Kaufen'}
                   </Button>
                 </CardContent>
               </Card>
@@ -243,8 +243,8 @@ export default function Credits() {
         {costs && (
           <Card className="glass border-white/10 backdrop-blur-xl">
             <CardHeader>
-              <CardTitle>Feature Credit Costs</CardTitle>
-              <CardDescription>How credits are used in Houston</CardDescription>
+              <CardTitle>Feature-Kosten</CardTitle>
+              <CardDescription>So werden Credits in Houston verwendet</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 md:grid-cols-2">
@@ -258,7 +258,7 @@ export default function Credits() {
                     <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                       <span className="text-sm">{displayName}</span>
                       <Badge variant="outline" className="border-[#ffb606]/30 text-[#ffb606]">
-                        {cost === 0 ? 'Free' : `${cost} credits`}
+                        {cost === 0 ? 'Kostenlos' : `${cost} Credits`}
                       </Badge>
                     </div>
                   );
@@ -271,8 +271,8 @@ export default function Credits() {
         {/* Usage History */}
         <Card className="glass border-white/10 backdrop-blur-xl">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your credit transaction history</CardDescription>
+            <CardTitle>Letzte Aktivitäten</CardTitle>
+            <CardDescription>Dein Credit-Transaktionsverlauf</CardDescription>
           </CardHeader>
           <CardContent>
             {history && history.length > 0 ? (
@@ -326,7 +326,7 @@ export default function Credits() {
             ) : (
               <div className="text-center py-12">
                 <Clock className="w-12 h-12 mx-auto text-muted-foreground/50 mb-2" />
-                <p className="text-sm text-muted-foreground">No transactions yet</p>
+                <p className="text-sm text-muted-foreground">Noch keine Transaktionen</p>
               </div>
             )}
           </CardContent>
