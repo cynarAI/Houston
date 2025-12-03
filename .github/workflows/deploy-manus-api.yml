@@ -1,11 +1,12 @@
 # Deployment via Manus Runtime API (OHNE Credits)
 # Alternative zum Agent-basierten Deployment
 
-name: Deploy via Manus Runtime API
+name: Deploy via Manus Runtime API (DEAKTIVIERT)
 
 on:
-  push:
-    branches: [main]
+  # DEAKTIVIERT - Verwende stattdessen deploy-vercel.yml
+  # push:
+  #   branches: [main]
   workflow_dispatch:
     inputs:
       skip_deploy:
@@ -58,13 +59,10 @@ jobs:
           retention-days: 7
 
   deploy:
-    name: 🚀 Deploy via Manus Runtime API (OHNE Credits)
+    name: 🚀 Deploy via Manus Runtime API (DEAKTIVIERT - Verwende Vercel)
     needs: build
     runs-on: ubuntu-latest
-    if: |
-      github.ref == 'refs/heads/main' && 
-      github.event_name != 'pull_request' &&
-      (github.event.inputs.skip_deploy != 'true' || github.event.inputs.skip_deploy == null)
+    if: false  # DEAKTIVIERT - API-Endpoint /v1/publish existiert nicht (HTTP 404)
 
     steps:
       - name: 📥 Download build artifacts
