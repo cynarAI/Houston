@@ -126,15 +126,16 @@ VOR dem Deployment:
 
 DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
 - Verwende die Manus deploy_apply_deployment Funktion/Tool
-- Parameter: deployment_type=\"static\" oder \"website\" (je nach verfügbarer Option)
-- Parameter: local_directory=\"dist/public\"
-- Parameter: target_url=\"houston.manus.space\"
-- Parameter: permanent=\"true\" (WICHTIG: Dieses Deployment muss PERMANENT sein, nicht temporär!)
-- ⚠️ KRITISCH: Stelle sicher, dass das Deployment PERMANENT ist - die App wird von echten Nutzern verwendet!
-- ⚠️ KRITISCH: Stelle sicher, dass die DATABASE_URL Umgebungsvariable erhalten bleibt und nicht überschrieben wird!
+- ⚠️ WICHTIG: deploy_apply_deployment ist STANDARDMÄSSIG PERMANENT - keine temporären Deployments!
+- Parameter: type=\"static\" (MUSS \"static\" sein für statische Websites)
+- Parameter: local_dir=\"\$(pwd)/dist/public\" (MUSS absoluter Pfad sein!)
+- ⚠️ KRITISCH: Stelle sicher, dass die DATABASE_URL Umgebungsvariable erhalten bleibt!
+- ⚠️ KRITISCH: Wenn du Umgebungsvariablen setzen musst, füge sie zur Shell-Konfiguration hinzu (z.B. ~/.bashrc oder ~/.zshrc) oder verwende export, aber ÜBERSCHREIBE NICHT bestehende Variablen!
 - ⚠️ KRITISCH: KEINE Daten dürfen verloren gehen - die MySQL-Datenbank muss weiterhin erreichbar sein!
-- Der API Key wurde bereits im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung
+- ⚠️ KRITISCH: Dieses Deployment ist für echte Nutzer - Datenintegrität ist kritisch!
+- Der API Key wurde bereits sicher im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung
 - FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
+- Nach dem Deployment: Verifiziere dass https://houston.manus.space erreichbar ist und den aktuellen Stand zeigt
 
 Falls deploy_apply_deployment nicht verfügbar ist, verwende die Manus Publish-Funktion mit:
 - Verzeichnis: dist/public/
@@ -154,7 +155,7 @@ NACH dem Deployment:
 - Build-Verzeichnis: dist/public/ (nach pnpm build)
 - Die App wurde bereits lokal gebaut und getestet
 - Die App verwendet vite-plugin-manus-runtime
-- Manus API Key: $MANUS_API_KEY (AUTORISIERT - VERWENDEN!)
+- Der API Key wurde bereits sicher im HTTP Header bereitgestellt und ist autorisiert
 - Ziel-URL: houston.manus.space
 
 🗄️ DATENBANK-SICHERHEIT (KRITISCH!):
