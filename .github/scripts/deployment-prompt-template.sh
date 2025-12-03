@@ -128,26 +128,43 @@ if [ -z "$DEPLOY_DIR" ]; then
   fi
 fi
 
-# Methode 4: Suche mit find-Befehlen
+# Methode 4: Suche mit find-Befehlen (AUSSCHLIESSLICH /var/www - NICHT /home!)
 if [ -z "$DEPLOY_DIR" ]; then
-  echo "🔍 Suche mit find-Befehlen..."
+  echo "🔍 Suche mit find-Befehlen in /var/www..."
   FOUND_DIR=$(find /var/www -type d -name "*houston*" 2>/dev/null | head -1)
   if [ ! -z "$FOUND_DIR" ]; then
     DEPLOY_DIR="$FOUND_DIR"
     echo "✅ Gefunden mit find: $DEPLOY_DIR"
-  else
-    FOUND_DIR=$(find /home -type d -name "*houston*" 2>/dev/null | head -1)
-    if [ ! -z "$FOUND_DIR" ]; then
-      DEPLOY_DIR="$FOUND_DIR"
-      echo "✅ Gefunden mit find: $DEPLOY_DIR"
+  fi
+fi
+
+# Methode 5: Prüfe aktuelle Live-Seite um Deployment-Verzeichnis zu finden
+if [ -z "$DEPLOY_DIR" ]; then
+  echo "🔍 Prüfe aktuelle Live-Seite um Deployment-Verzeichnis zu finden..."
+  # Versuche index.html von der Live-Seite zu finden
+  CURRENT_HTML=$(curl -s https://houston.manus.space 2>/dev/null | head -c 1000)
+  if [ ! -z "$CURRENT_HTML" ]; then
+    # Suche nach Verzeichnissen die index.html enthalten und nicht das Clone-Verzeichnis sind
+    POSSIBLE_DIRS=$(find /var/www -name "index.html" -type f 2>/dev/null | grep -v "/home/ubuntu/houston-deploy" | head -3)
+    if [ ! -z "$POSSIBLE_DIRS" ]; then
+      DEPLOY_DIR=$(dirname $(echo "$POSSIBLE_DIRS" | head -1))
+      echo "✅ Gefunden durch Live-Seite-Analyse: $DEPLOY_DIR"
     fi
   fi
 fi
 
-# Fallback: Standard-Verzeichnis
+# Fallback: Standard-Verzeichnis (NICHT /home/ubuntu/houston-deploy!)
 if [ -z "$DEPLOY_DIR" ]; then
   DEPLOY_DIR="/var/www/html"
   echo "⚠️  Fallback zu Standard-Verzeichnis: $DEPLOY_DIR"
+fi
+
+# KRITISCH: Stelle sicher, dass wir NICHT ins Clone-Verzeichnis deployen!
+if echo "$DEPLOY_DIR" | grep -q "/home/ubuntu/houston-deploy"; then
+  echo "❌ FEHLER: Deployment-Verzeichnis ist das Clone-Verzeichnis - das ist falsch!"
+  echo "   Verwende stattdessen /var/www/html"
+  DEPLOY_DIR="/var/www/html"
+  echo "✅ Korrigiert zu: $DEPLOY_DIR"
 fi
 
 # Verifiziere, dass Verzeichnis existiert
