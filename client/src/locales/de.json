@@ -38,7 +38,20 @@
     "all": "Alle",
     "active": "Aktiv",
     "completed": "Abgeschlossen",
-    "archived": "Archiviert"
+    "archived": "Archiviert",
+    "morePages": "Weitere Seiten",
+    "goToPreviousPage": "Zur vorherigen Seite",
+    "goToNextPage": "Zur nächsten Seite",
+    "toggleSidebar": "Seitenleiste umschalten",
+    "previousSlide": "Vorherige Folie",
+    "nextSlide": "Nächste Folie"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "empty": "Noch keine Benachrichtigungen",
+    "emptyHint": "Wir informieren dich, wenn etwas Wichtiges passiert",
+    "deleted": "Benachrichtigung gelöscht",
+    "markAllRead": "Alle gelesen"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -1,6 +1,7 @@
 import { ScrollArea } from "./ui/scroll-area";
 import { NotificationItem } from "./NotificationItem";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface NotificationListProps {
   notifications: any[];
@@ -13,6 +14,8 @@ export function NotificationList({
   isLoading,
   onClose,
 }: NotificationListProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -26,10 +29,10 @@ export function NotificationList({
       <div className="flex flex-col items-center justify-center py-12 px-4">
         <div className="text-center">
           <p className="text-sm text-muted-foreground mb-1">
-            No notifications yet
+            {t("notifications.empty")}
           </p>
           <p className="text-xs text-muted-foreground">
-            We'll notify you when something important happens
+            {t("notifications.emptyHint")}
           </p>
         </div>
       </div>
