@@ -1,7 +1,7 @@
 {
   "name": "Houston - AI Marketing Coach",
   "short_name": "Houston",
-  "description": "Steigere deine Marketing-Performance um 300% mit KI-gestützter Strategie",
+  "description": "Houston ist dein KI-Marketing-Coach. Er versteht dein Business, plant Strategien und sagt dir jeden Tag, was zu tun ist.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
