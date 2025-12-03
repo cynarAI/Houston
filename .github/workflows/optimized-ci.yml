@@ -374,11 +374,45 @@ jobs:
           
           echo \"📤 Deploye neue Dateien nach \\\$DEPLOY_DIR...\"
           
+          # Zähle Dateien vor dem Kopieren
+          SOURCE_FILE_COUNT=\$(find dist/public -type f | wc -l)
+          echo \"📊 Anzahl zu kopierender Dateien: \\\$SOURCE_FILE_COUNT\"
+          
           # Kopiere Dateien
           sudo cp -r dist/public/* \"\\\$DEPLOY_DIR/\" 2>/dev/null || cp -r dist/public/* \"\\\$DEPLOY_DIR/\"
           
           if [ \\\$? -eq 0 ]; then
             echo \"✅ Dateien erfolgreich kopiert\"
+            
+            # Verifiziere dass kritische Dateien vorhanden sind
+            CRITICAL_FILES=(\"index.html\" \"assets\")
+            MISSING_FILES=()
+            for FILE in \"\\\${CRITICAL_FILES[@]}\"; do
+              if [ ! -e \"\\\$DEPLOY_DIR/\\\$FILE\" ]; then
+                MISSING_FILES+=(\"\\\$FILE\")
+              fi
+            done
+            
+            if [ \\\${#MISSING_FILES[@]} -gt 0 ]; then
+              echo \"❌ FEHLER: Kritische Dateien fehlen: \\\${MISSING_FILES[*]}\"
+              echo \"   Versuche Rollback...\"
+              if [ -d \"\\\$BACKUP_DIR\" ]; then
+                sudo cp -r \"\\\$BACKUP_DIR\"/* \"\\\$DEPLOY_DIR/\" 2>/dev/null || cp -r \"\\\$BACKUP_DIR\"/* \"\\\$DEPLOY_DIR/\"
+                echo \"✅ Rollback durchgeführt\"
+              fi
+              exit 1
+            fi
+            
+            # Zähle Dateien nach dem Kopieren
+            DEPLOYED_FILE_COUNT=\$(find \"\\\$DEPLOY_DIR\" -type f | wc -l)
+            echo \"📊 Anzahl deployter Dateien: \\\$DEPLOYED_FILE_COUNT\"
+            
+            # Prüfe ob index.html den richtigen Commit enthält
+            if grep -q \"${{ steps.commit.outputs.sha_short }}\" \"\\\$DEPLOY_DIR/index.html\" 2>/dev/null; then
+              echo \"✅ Commit-Hash in index.html gefunden\"
+            else
+              echo \"⚠️  WARNUNG: Commit-Hash nicht in index.html gefunden (kann normal sein)\"
+            fi
           else
             echo \"❌ FEHLER beim Kopieren der Dateien\"
             echo \"   Versuche Rollback...\"
@@ -392,6 +426,13 @@ jobs:
           # Setze Berechtigungen
           sudo chmod -R 755 \"\\\$DEPLOY_DIR\" 2>/dev/null || chmod -R 755 \"\\\$DEPLOY_DIR\"
           echo \"✅ Berechtigungen gesetzt\"
+          
+          # Verifiziere Berechtigungen
+          if [ -r \"\\\$DEPLOY_DIR/index.html\" ] && [ -x \"\\\$DEPLOY_DIR\" ]; then
+            echo \"✅ Berechtigungen verifiziert\"
+          else
+            echo \"⚠️  WARNUNG: Berechtigungen möglicherweise nicht korrekt\"
+          fi
           
           ═══════════════════════════════════════════════════════════════════
           SCHRITT 3.2.4: Webserver neu laden
@@ -430,12 +471,11 @@ jobs:
           
           ⚠️ WICHTIG: 
           - Der API Key wurde bereits im HTTP Header bereitgestellt, als dieser Task erstellt wurde
-          - Falls MANUS_API_KEY nicht als Umgebungsvariable verfügbar ist, ist das OK - nutze dann METHODE 3
           - Du musst den API Key NICHT selbst setzen - er ist bereits autorisiert
-          - Falls du den API Key benötigst, prüfe: env | grep MANUS_API_KEY oder printenv | grep MANUS_API_KEY
           - FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
-          - Nach dem Deployment: Verifiziere dass https://houston.manus.space erreichbar ist und den aktuellen Stand zeigt!
+          - Nach dem Deployment: Führe die Post-Deployment-Validierung aus (SCHRITT 3.2.5)
           - Falls alle Methoden fehlschlagen, kopiere die Dateien einfach zu /var/www/html/ oder einem ähnlichen Standard-Webserver-Verzeichnis
+          - Bei Fehlern: Nutze das automatische Rollback (Backup wird automatisch erstellt)
           
           NACH dem Deployment:
           - Prüfe dass die Seite unter https://houston.manus.space erreichbar ist
@@ -481,11 +521,85 @@ jobs:
           - Verifiziere dass die Seite wieder erreichbar ist: curl -I https://houston.manus.space 2>/dev/null | head -1
           
           📊 POST-DEPLOYMENT-VALIDIERUNG (nach erfolgreichem Deployment):
-          - Verifiziere dass die Seite erreichbar ist: curl -I https://houston.manus.space 2>/dev/null | head -1
-          - Prüfe dass der richtige Commit deployed ist: curl -s https://houston.manus.space | grep -o \"${{ steps.commit.outputs.sha_short }}\" || echo \"⚠️  Commit-Hash nicht in HTML gefunden\"
-          - Prüfe dass keine JavaScript-Fehler auftreten: curl -s https://houston.manus.space | grep -i \"error\" || echo \"✅ Keine offensichtlichen Fehler im HTML\"
-          - Logge das Deployment: echo \"✅ Deployment erfolgreich: Commit ${{ steps.commit.outputs.sha_short }} deployed um \$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-          - Speichere Log in Datei: LOG_FILE=\"/var/log/houston-deployment.log\" && mkdir -p \$(dirname \\\$LOG_FILE) 2>/dev/null && echo \"[AUDIT] \$(date -u +%Y-%m-%dT%H:%M:%SZ) - Deployment erfolgreich - Commit: ${{ steps.commit.outputs.sha_short }}\" | sudo tee -a \\\$LOG_FILE 2>/dev/null || echo \"⚠️  Log-Datei konnte nicht geschrieben werden\"
+          
+          ═══════════════════════════════════════════════════════════════════
+          SCHRITT 3.2.5: Validiere Deployment
+          ═══════════════════════════════════════════════════════════════════
+          
+          echo \"🔍 Starte Post-Deployment-Validierung...\"
+          
+          # Warte kurz, damit Webserver Zeit hat zu starten
+          sleep 3
+          
+          # Test 1: Seite erreichbar? (mit Retry-Logik)
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          HTTP_CODE=0
+          
+          while [ \\\$RETRY_COUNT -lt \\\$MAX_RETRIES ]; do
+            HTTP_CODE=\$(curl -s -o /dev/null -w \"%{http_code}\" --max-time 10 https://houston.manus.space 2>/dev/null || echo \"000\")
+            
+            if [ \"\\\$HTTP_CODE\" = \"200\" ]; then
+              echo \"✅ Seite erreichbar (HTTP 200) nach \\\$((RETRY_COUNT + 1)) Versuch(en)\"
+              break
+            else
+              RETRY_COUNT=\\$((RETRY_COUNT + 1))
+              if [ \\\$RETRY_COUNT -lt \\\$MAX_RETRIES ]; then
+                echo \"⚠️  Seite nicht erreichbar (HTTP \\\$HTTP_CODE), Versuch \\\$RETRY_COUNT/\\\$MAX_RETRIES...\"
+                sleep 2
+              else
+                echo \"❌ FEHLER: Seite nicht erreichbar nach \\\$MAX_RETRIES Versuchen (HTTP \\\$HTTP_CODE)\"
+                echo \"   Möglicherweise ist das Deployment fehlgeschlagen\"
+                exit 1
+              fi
+            fi
+          done
+          
+          # Test 2: Commit-Hash im HTML?
+          HTML_CONTENT=\$(curl -s --max-time 10 https://houston.manus.space 2>/dev/null || echo \"\")
+          if echo \"\\\$HTML_CONTENT\" | grep -q \"${{ steps.commit.outputs.sha_short }}\"; then
+            echo \"✅ Commit-Hash in HTML gefunden: ${{ steps.commit.outputs.sha_short }}\"
+          else
+            echo \"⚠️  WARNUNG: Commit-Hash nicht in HTML gefunden (kann normal sein, wenn nicht eingebettet)\"
+          fi
+          
+          # Test 3: Keine offensichtlichen Fehler im HTML?
+          if echo \"\\\$HTML_CONTENT\" | grep -qi \"error\\|exception\\|fatal\"; then
+            echo \"⚠️  WARNUNG: Mögliche Fehler im HTML gefunden\"
+            echo \"\\\$HTML_CONTENT\" | grep -i \"error\\|exception\\|fatal\" | head -3
+          else
+            echo \"✅ Keine offensichtlichen Fehler im HTML\"
+          fi
+          
+          # Test 4: index.html vorhanden und nicht leer?
+          if [ -f \"\\\$DEPLOY_DIR/index.html\" ] && [ -s \"\\\$DEPLOY_DIR/index.html\" ]; then
+            HTML_SIZE=\$(stat -f%z \"\\\$DEPLOY_DIR/index.html\" 2>/dev/null || stat -c%s \"\\\$DEPLOY_DIR/index.html\" 2>/dev/null || echo \"0\")
+            if [ \"\\\$HTML_SIZE\" -gt 1000 ]; then
+              echo \"✅ index.html vorhanden und ausreichend groß (\\\$HTML_SIZE bytes)\"
+            else
+              echo \"⚠️  WARNUNG: index.html ist sehr klein (\\\$HTML_SIZE bytes) - möglicherweise fehlerhaft\"
+            fi
+          else
+            echo \"❌ FEHLER: index.html fehlt oder ist leer\"
+            exit 1
+          fi
+          
+          # Test 5: Assets-Verzeichnis vorhanden?
+          if [ -d \"\\\$DEPLOY_DIR/assets\" ]; then
+            ASSET_COUNT=\$(find \"\\\$DEPLOY_DIR/assets\" -type f | wc -l)
+            echo \"✅ Assets-Verzeichnis vorhanden mit \\\$ASSET_COUNT Dateien\"
+          else
+            echo \"⚠️  WARNUNG: Assets-Verzeichnis fehlt\"
+          fi
+          
+          # Logge erfolgreiches Deployment
+          LOG_FILE=\"/var/log/houston-deployment.log\"
+          mkdir -p \$(dirname \\\$LOG_FILE) 2>/dev/null
+          AUDIT_MSG=\"[AUDIT] \$(date -u +%Y-%m-%dT%H:%M:%SZ) - Deployment erfolgreich - Commit: ${{ steps.commit.outputs.sha_short }} - HTTP: \\\$HTTP_CODE - Dateien: \\\$DEPLOYED_FILE_COUNT\"
+          echo \"\\\$AUDIT_MSG\" | sudo tee -a \\\$LOG_FILE 2>/dev/null || echo \"\\\$AUDIT_MSG\"
+          
+          echo \"✅ Post-Deployment-Validierung abgeschlossen\"
+          echo \"✅ Deployment erfolgreich: Commit ${{ steps.commit.outputs.sha_short }} deployed um \$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
           
           🚨 FEHLERBEHANDLUNG:
           - Falls alle Deployment-Methoden fehlschlagen:
