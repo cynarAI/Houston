@@ -207,13 +207,18 @@ export function AIChatBox({
               </div>
 
               {suggestedPrompts && suggestedPrompts.length > 0 && (
-                <div className="flex max-w-2xl flex-wrap justify-center gap-2">
+                <div 
+                  role="group" 
+                  aria-label="Vorgeschlagene Fragen"
+                  className="flex max-w-2xl flex-wrap justify-center gap-2"
+                >
                   {suggestedPrompts.map((prompt, index) => (
                     <button
                       key={index}
                       onClick={() => onSendMessage(prompt)}
                       disabled={isLoading}
                       className="rounded-lg border border-border bg-card px-4 py-2 text-sm transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-label={`Frage senden: ${prompt}`}
                     >
                       {prompt}
                     </button>
@@ -224,7 +229,12 @@ export function AIChatBox({
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="flex flex-col space-y-4 p-4">
+            <div 
+              role="log" 
+              aria-live="polite" 
+              aria-label="Chat-Verlauf"
+              className="flex flex-col space-y-4 p-4"
+            >
               {displayMessages.map((message, index) => {
                 // Apply min-height to last message only if NOT loading (when loading, the loading indicator gets it)
                 const isLastMessage = index === displayMessages.length - 1;
@@ -288,12 +298,16 @@ export function AIChatBox({
                       ? { minHeight: `${minHeightForLastMessage}px` }
                       : undefined
                   }
+                  aria-busy="true"
+                  aria-label="Houston antwortet..."
+                  role="status"
                 >
-                  <div className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center" aria-hidden="true">
                     <Sparkles className="size-4 text-primary" />
                   </div>
                   <div className="rounded-lg bg-muted px-4 py-2.5">
-                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                    <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
+                    <span className="sr-only">Houston generiert eine Antwort...</span>
                   </div>
                 </div>
               )}
@@ -316,17 +330,19 @@ export function AIChatBox({
           placeholder={placeholder}
           className="flex-1 max-h-32 resize-none min-h-9"
           rows={1}
+          aria-label="Nachricht an Houston"
         />
         <Button
           type="submit"
           size="icon"
           disabled={!input.trim() || isLoading}
           className="shrink-0 h-[38px] w-[38px]"
+          aria-label={isLoading ? "Nachricht wird gesendet..." : "Nachricht senden"}
         >
           {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           ) : (
-            <Send className="size-4" />
+            <Send className="size-4" aria-hidden="true" />
           )}
         </Button>
       </form>

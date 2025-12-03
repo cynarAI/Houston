@@ -7,7 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Sparkles, Zap, ArrowRight } from "lucide-react";
+import { AlertTriangle, Sparkles, Zap, ArrowRight, Rocket, Shield } from "lucide-react";
 import { Link } from "wouter";
 
 interface LowCreditsDialogProps {
@@ -30,6 +30,7 @@ export function LowCreditsDialog({
   const canAfford = currentCredits >= creditsNeeded;
   const isLow = currentCredits < 20 && currentCredits > 0;
   const isEmpty = currentCredits === 0;
+  const creditsMissing = creditsNeeded - currentCredits;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -40,7 +41,7 @@ export function LowCreditsDialog({
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/20">
                 <AlertTriangle className="h-6 w-6 text-red-400" />
               </div>
-            ) : isLow ? (
+            ) : isLow || !canAfford ? (
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-500/20">
                 <Sparkles className="h-6 w-6 text-orange-400" />
               </div>
@@ -51,17 +52,33 @@ export function LowCreditsDialog({
             )}
             <DialogTitle className="text-xl">
               {isEmpty
-                ? "Keine Credits mehr"
+                ? "Credits aufgebraucht"
+                : !canAfford
+                ? "Nicht genug Credits"
                 : isLow
-                ? "Credits knapp"
-                : "Credit-Kosten"}
+                ? "Guthaben knapp"
+                : "Credit-Kosten bestätigen"}
             </DialogTitle>
           </div>
           <DialogDescription className="text-base">
             {isEmpty ? (
               <>
-                Du hast keine Credits mehr. Lade dein Guthaben auf, um{" "}
-                <strong>{actionName}</strong> zu nutzen.
+                Dein Guthaben ist leer. Um{" "}
+                <strong>{actionName}</strong> zu nutzen, brauchst du {creditsNeeded} Credits.
+                <span className="block mt-2 text-muted-foreground">
+                  Keine Sorge – mit einem kleinen Booster bist du sofort wieder dabei.
+                </span>
+              </>
+            ) : !canAfford ? (
+              <>
+                <strong>{actionName}</strong> kostet{" "}
+                <span className="text-[#ffb606] font-semibold">
+                  {creditsNeeded} Credits
+                </span>
+                , du hast aber nur {currentCredits}.
+                <span className="block mt-2 text-muted-foreground">
+                  Dir fehlen noch {creditsMissing} Credits.
+                </span>
               </>
             ) : (
               <>
@@ -72,7 +89,7 @@ export function LowCreditsDialog({
                 .
                 {isLow && (
                   <span className="block mt-2 text-orange-400">
-                    ⚠️ Dein Guthaben ist fast aufgebraucht ({currentCredits} Credits übrig).
+                    Dein Guthaben wird knapp – denke daran, bald aufzuladen.
                   </span>
                 )}
               </>
@@ -85,7 +102,7 @@ export function LowCreditsDialog({
           <div className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10">
             <div>
               <p className="text-sm text-muted-foreground">Dein Guthaben</p>
-              <p className={`text-2xl font-bold ${isEmpty ? 'text-red-400' : isLow ? 'text-orange-400' : 'text-white'}`}>
+              <p className={`text-2xl font-bold ${isEmpty ? 'text-red-400' : isLow || !canAfford ? 'text-orange-400' : 'text-white'}`}>
                 {currentCredits} Credits
               </p>
             </div>
@@ -97,67 +114,78 @@ export function LowCreditsDialog({
             </div>
           </div>
 
-          {!isEmpty && canAfford && (
+          {canAfford && (
             <p className="text-sm text-muted-foreground mt-3 text-center">
               Nach der Aktion: <strong>{currentCredits - creditsNeeded} Credits</strong> übrig
             </p>
           )}
-          {!isEmpty && !canAfford && (
-            <p className="text-sm text-red-400 mt-3 text-center">
-              ⚠️ Du brauchst noch <strong>{creditsNeeded - currentCredits} Credits</strong> mehr für diese Aktion.
-            </p>
-          )}
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          {isEmpty ? (
+        {/* 3-Button Footer with clear hierarchy */}
+        <DialogFooter className="flex-col gap-2">
+          {isEmpty || !canAfford ? (
             <>
-              <Button variant="outline" onClick={onClose} className="sm:flex-1">
-                Abbrechen
-              </Button>
-              <Link href="/app/credits" className="sm:flex-1">
-                <Button className="w-full bg-gradient-to-r from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)]">
+              {/* Primary: Quick Booster Purchase */}
+              <Link href="/app/credits?tab=topups" className="w-full">
+                <Button className="w-full bg-gradient-to-r from-[#FF6B9D] to-[#8B5CF6] hover:shadow-lg">
                   <Zap className="mr-2 h-4 w-4" />
-                  Credits aufladen
+                  Schnell-Booster (ab €5,99)
                 </Button>
               </Link>
+              
+              {/* Secondary: View Plans */}
+              <Link href="/app/credits?tab=plans" className="w-full">
+                <Button variant="outline" className="w-full">
+                  <Rocket className="mr-2 h-4 w-4" />
+                  Monatliche Pläne ansehen
+                </Button>
+              </Link>
+              
+              {/* Tertiary: Cancel */}
+              <Button variant="ghost" onClick={onClose} className="w-full text-muted-foreground">
+                Später erinnern
+              </Button>
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={onClose} className="sm:flex-1">
-                Abbrechen
-              </Button>
-              {canAfford && onContinue && (
+              {/* Can afford - show continue button prominently */}
+              {onContinue && (
                 <Button
                   onClick={() => {
                     onContinue();
                     onClose();
                   }}
-                  className="sm:flex-1 bg-gradient-to-r from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)]"
+                  className="w-full bg-gradient-to-r from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)]"
                 >
                   Fortfahren
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
-              {!canAfford && (
-                <Link href="/app/credits" className="sm:flex-1">
-                  <Button className="w-full bg-gradient-to-r from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)]">
+              
+              {/* If low credits, offer to top up */}
+              {isLow && (
+                <Link href="/app/credits?tab=topups" className="w-full">
+                  <Button variant="outline" className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10">
                     <Zap className="mr-2 h-4 w-4" />
-                    Credits aufladen
+                    Trotzdem aufladen
                   </Button>
                 </Link>
               )}
-              {canAfford && isLow && (
-                <Link href="/app/credits" className="sm:flex-1">
-                  <Button variant="outline" className="w-full border-orange-500/50 text-orange-400 hover:bg-orange-500/10">
-                    <Zap className="mr-2 h-4 w-4" />
-                    Mehr kaufen
-                  </Button>
-                </Link>
-              )}
+              
+              <Button variant="ghost" onClick={onClose} className="w-full text-muted-foreground">
+                Abbrechen
+              </Button>
             </>
           )}
         </DialogFooter>
+        
+        {/* Trust signal */}
+        <div className="pt-2 border-t border-white/10">
+          <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-2">
+            <Shield className="w-3 h-3 text-green-400" />
+            Sichere Zahlung · Jederzeit kündbar · Keine Abo-Falle
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   );

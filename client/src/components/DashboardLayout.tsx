@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, Sparkles, MessageSquare, Target, CheckSquare, Compass, Settings, Globe, Moon, Sun, TrendingUp, Gift } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, Sparkles, MessageSquare, Target, CheckSquare, Compass, Settings, Globe, Moon, Sun, TrendingUp, Gift, BookOpen } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
@@ -36,6 +36,7 @@ import { NotificationCenter } from './NotificationCenter';
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", labelDe: "Dashboard", path: "/app/dashboard" },
   { icon: MessageSquare, label: "Chats", labelDe: "Chats", path: "/app/chats" },
+  { icon: BookOpen, label: "Playbooks", labelDe: "Playbooks", path: "/app/playbooks" },
   { icon: Target, label: "Goals", labelDe: "Ziele", path: "/app/goals" },
   { icon: CheckSquare, label: "To-dos", labelDe: "To-dos", path: "/app/todos" },
   { icon: Compass, label: "Strategy", labelDe: "Strategie", path: "/app/strategy" },
@@ -63,36 +64,8 @@ export default function DashboardLayout({
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
 
-  if (loading) {
-    return <DashboardLayoutSkeleton />
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Anmeldung erforderlich
-            </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Für den Zugriff auf das Dashboard ist eine Anmeldung erforderlich.
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              window.location.href = getLoginUrl();
-            }}
-            size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
-          >
-            Anmelden
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
+  // Always render SidebarProvider to maintain consistent hook order
+  // The inner DashboardLayoutContent handles loading/auth states
   return (
     <SidebarProvider
       style={
@@ -101,7 +74,11 @@ export default function DashboardLayout({
         } as CSSProperties
       }
     >
-      <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
+      <DashboardLayoutContent 
+        setSidebarWidth={setSidebarWidth}
+        loading={loading}
+        user={user}
+      >
         {children}
       </DashboardLayoutContent>
     </SidebarProvider>
@@ -111,13 +88,17 @@ export default function DashboardLayout({
 type DashboardLayoutContentProps = {
   children: React.ReactNode;
   setSidebarWidth: (width: number) => void;
+  loading: boolean;
+  user: ReturnType<typeof useAuth>['user'];
 };
 
 function DashboardLayoutContent({
   children,
   setSidebarWidth,
+  loading,
+  user,
 }: DashboardLayoutContentProps) {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { i18n } = useTranslation();
   const currentLanguage = i18n.language || 'en';
   const { theme, toggleTheme, switchable } = useTheme();
@@ -186,14 +167,53 @@ function DashboardLayoutContent({
     };
   }, [isResizing, setSidebarWidth]);
 
+  const skipLinkText = currentLanguage === 'de' ? 'Zum Hauptinhalt springen' : 'Skip to main content';
+  const navLabel = currentLanguage === 'de' ? 'Hauptnavigation' : 'Main navigation';
+
+  // Handle loading and no-user states AFTER all hooks
+  if (loading) {
+    return <DashboardLayoutSkeleton />;
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
+          <div className="flex flex-col items-center gap-6">
+            <h1 className="text-2xl font-semibold tracking-tight text-center">
+              Anmeldung erforderlich
+            </h1>
+            <p className="text-sm text-muted-foreground text-center max-w-sm">
+              Für den Zugriff auf das Dashboard ist eine Anmeldung erforderlich.
+            </p>
+          </div>
+          <Button
+            onClick={() => {
+              window.location.href = getLoginUrl();
+            }}
+            size="lg"
+            className="w-full shadow-lg hover:shadow-xl transition-all"
+          >
+            Anmelden
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
+      {/* Skip Link für Keyboard-Navigation */}
+      <a href="#main-content" className="skip-link">
+        {skipLinkText}
+      </a>
+
       {/* Static Background Gradient (no animated stars in Dashboard) */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#1a1a2e] to-[#0a0a0f]"></div>
       </div>
       
-      <div className="relative z-10" ref={sidebarRef}>
+      <nav className="relative z-10" ref={sidebarRef} aria-label={navLabel}>
         <Sidebar
           collapsible="icon"
           className="border-r-0"
@@ -231,7 +251,7 @@ function DashboardLayoutContent({
                     <button
                       onClick={toggleLanguage}
                       className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
-                      aria-label="Toggle language"
+                      aria-label={currentLanguage === 'de' ? 'Sprache wechseln, aktuell Deutsch' : 'Switch language, currently English'}
                     >
                       <Globe className="w-3.5 h-3.5" />
                       <span className="font-medium">{currentLanguage.toUpperCase()}</span>
@@ -240,7 +260,11 @@ function DashboardLayoutContent({
                       <button
                         onClick={toggleTheme}
                         className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
-                        aria-label="Toggle theme"
+                        aria-label={
+                          theme === "light" 
+                            ? (currentLanguage === 'de' ? 'Dunkles Design aktivieren' : 'Switch to dark theme')
+                            : (currentLanguage === 'de' ? 'Helles Design aktivieren' : 'Switch to light theme')
+                        }
                       >
                         {theme === "light" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
                       </button>
@@ -318,12 +342,16 @@ function DashboardLayoutContent({
             setIsResizing(true);
           }}
           style={{ zIndex: 50 }}
+          aria-hidden="true"
         />
-      </div>
+      </nav>
 
       <SidebarInset>
         {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
+          <header 
+            role="banner" 
+            className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40"
+          >
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
               <div className="flex items-center gap-3">
@@ -338,9 +366,9 @@ function DashboardLayoutContent({
               <NotificationCenter />
               <CreditIndicator />
             </div>
-          </div>
+          </header>
         )}
-        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+        <main id="main-content" className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
       </SidebarInset>
       
       {/* Onboarding Wizard */}

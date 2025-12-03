@@ -17,20 +17,50 @@ export function TransactionHistoryTable() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  const { data, isLoading } = trpc.credits.getTransactionHistory.useQuery({
+  const { data, isLoading, isError } = trpc.credits.getTransactionHistory.useQuery({
     page,
     pageSize,
   });
+
+  // Helper function to format feature keys to German
+  const formatFeatureName = (featureKey: string) => {
+    const featureNames: Record<string, string> = {
+      CHAT_MESSAGE: "Chat-Nachricht",
+      DEEP_ANALYSIS: "Deep Analysis",
+      AI_INSIGHTS: "KI-Insights",
+      PDF_EXPORT: "PDF-Export",
+      GOALS_GENERATION: "Ziele-Generierung",
+      STRATEGY_ANALYSIS: "Strategie-Analyse",
+      CREDIT_PURCHASE: "Credit-Kauf",
+      REFERRAL_BONUS: "Empfehlungsbonus",
+      SIGNUP_BONUS: "Registrierungsbonus",
+    };
+    return featureNames[featureKey] || featureKey.split('_').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ');
+  };
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Transaction History</CardTitle>
-          <CardDescription>Detailed credit transaction log</CardDescription>
+          <CardTitle>Transaktionsverlauf</CardTitle>
+          <CardDescription>Detailliertes Credit-Protokoll</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-[300px]">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Transaktionsverlauf</CardTitle>
+          <CardDescription>Detailliertes Credit-Protokoll</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center h-[300px]">
+          <p className="text-sm text-muted-foreground">Transaktionen konnten nicht geladen werden</p>
         </CardContent>
       </Card>
     );
@@ -40,12 +70,12 @@ export function TransactionHistoryTable() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Transaction History</CardTitle>
-          <CardDescription>Detailed credit transaction log</CardDescription>
+          <CardTitle>Transaktionsverlauf</CardTitle>
+          <CardDescription>Detailliertes Credit-Protokoll</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center h-[300px]">
           <Receipt className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-sm text-muted-foreground">No transactions yet</p>
+          <p className="text-sm text-muted-foreground">Noch keine Transaktionen</p>
         </CardContent>
       </Card>
     );
@@ -54,9 +84,9 @@ export function TransactionHistoryTable() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Transaction History</CardTitle>
+        <CardTitle>Transaktionsverlauf</CardTitle>
         <CardDescription>
-          Showing {data.transactions.length} of {data.total} transactions
+          Zeige {data.transactions.length} von {data.total} Transaktionen
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -64,26 +94,26 @@ export function TransactionHistoryTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
+                <TableHead>Datum</TableHead>
                 <TableHead>Feature</TableHead>
                 <TableHead className="text-right">Credits</TableHead>
-                <TableHead className="text-right">Balance After</TableHead>
+                <TableHead className="text-right">Saldo danach</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.transactions.map((transaction) => (
                 <TableRow key={transaction.id}>
                   <TableCell className="font-medium">
-                    {new Date(transaction.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
+                    {new Date(transaction.createdAt).toLocaleDateString("de-DE", {
                       day: "numeric",
+                      month: "short",
                       year: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">{transaction.featureKey}</span>
+                    <span className="text-sm">{formatFeatureName(transaction.featureKey)}</span>
                   </TableCell>
                   <TableCell className="text-right">
                     <Badge
@@ -111,7 +141,7 @@ export function TransactionHistoryTable() {
         {data.totalPages > 1 && (
           <div className="flex items-center justify-between mt-4">
             <p className="text-sm text-muted-foreground">
-              Page {data.page} of {data.totalPages}
+              Seite {data.page} von {data.totalPages}
             </p>
             <div className="flex gap-2">
               <Button
@@ -121,7 +151,7 @@ export function TransactionHistoryTable() {
                 disabled={page === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                Zurück
               </Button>
               <Button
                 variant="outline"
@@ -129,7 +159,7 @@ export function TransactionHistoryTable() {
                 onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
               >
-                Next
+                Weiter
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

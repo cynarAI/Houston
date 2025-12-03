@@ -4,7 +4,7 @@ import { Loader2, Award } from "lucide-react";
 import { Progress } from "./ui/progress";
 
 export function TopFeaturesCard() {
-  const { data: features, isLoading } = trpc.credits.getTopFeatures.useQuery({
+  const { data: features, isLoading, isError } = trpc.credits.getTopFeatures.useQuery({
     limit: 5,
   });
 
@@ -12,11 +12,25 @@ export function TopFeaturesCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Top Features by Credits</CardTitle>
-          <CardDescription>Most credit-consuming features</CardDescription>
+          <CardTitle>Top Features nach Credits</CardTitle>
+          <CardDescription>Die meistgenutzten Features</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-[200px]">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Features nach Credits</CardTitle>
+          <CardDescription>Die meistgenutzten Features</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center h-[200px]">
+          <p className="text-sm text-muted-foreground">Daten konnten nicht geladen werden</p>
         </CardContent>
       </Card>
     );
@@ -26,22 +40,35 @@ export function TopFeaturesCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Top Features by Credits</CardTitle>
-          <CardDescription>Most credit-consuming features</CardDescription>
+          <CardTitle>Top Features nach Credits</CardTitle>
+          <CardDescription>Die meistgenutzten Features</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center h-[200px]">
           <Award className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-sm text-muted-foreground">No feature usage yet</p>
+          <p className="text-sm text-muted-foreground">Noch keine Feature-Nutzung</p>
         </CardContent>
       </Card>
     );
   }
 
+  // Helper function to format feature keys to German
+  const formatFeatureName = (featureKey: string) => {
+    const featureNames: Record<string, string> = {
+      CHAT_MESSAGE: "Chat-Nachricht",
+      DEEP_ANALYSIS: "Deep Analysis",
+      AI_INSIGHTS: "KI-Insights",
+      PDF_EXPORT: "PDF-Export",
+      GOALS_GENERATION: "Ziele-Generierung",
+      STRATEGY_ANALYSIS: "Strategie-Analyse",
+    };
+    return featureNames[featureKey] || featureKey.split('_').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ');
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Features by Credits</CardTitle>
-        <CardDescription>Most credit-consuming features</CardDescription>
+        <CardTitle>Top Features nach Credits</CardTitle>
+        <CardDescription>Die meistgenutzten Features</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -52,11 +79,11 @@ export function TopFeaturesCard() {
                   <span className="font-medium text-muted-foreground">
                     #{index + 1}
                   </span>
-                  <span className="font-medium">{feature.featureKey}</span>
+                  <span className="font-medium">{formatFeatureName(feature.featureKey)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">
-                    {feature.credits} credits
+                    {feature.credits} Credits
                   </span>
                   <span className="text-xs text-muted-foreground">
                     ({feature.percentage}%)

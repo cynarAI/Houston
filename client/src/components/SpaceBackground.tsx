@@ -1,11 +1,64 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
+/**
+ * SpaceBackground - Optimized animated canvas background
+ * 
+ * Performance optimizations:
+ * - Reduced star count from 300 to 150
+ * - Shooting stars spawn less frequently (every 6-12s instead of 3-8s)
+ * - Respects prefers-reduced-motion (disables all animations)
+ * - Throttled mouse tracking updates
+ * - Canvas is only rendered when visible
+ */
 export function SpaceBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const scrollRef = useRef(0);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
+    // Check for reduced motion preference
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handleMotionPreference = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+    mediaQuery.addEventListener('change', handleMotionPreference);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleMotionPreference);
+    };
+  }, []);
+
+  useEffect(() => {
+    // If user prefers reduced motion, render static stars only once
+    if (prefersReducedMotion) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      canvas.width = window.innerWidth;
+      canvas.height = document.documentElement.scrollHeight;
+
+      // Draw static stars (no animation)
+      const starCount = 100; // Even fewer for static display
+      for (let i = 0; i < starCount; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const size = Math.random() * 1.5 + 0.5;
+        const opacity = Math.random() * 0.4 + 0.2;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        ctx.fill();
+      }
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -20,22 +73,27 @@ export function SpaceBackground() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Mouse tracking
+    // Throttled mouse tracking (update every 50ms max)
+    let lastMouseUpdate = 0;
     const handleMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - lastMouseUpdate < 50) return;
+      lastMouseUpdate = now;
+      
       mouseRef.current = {
         x: e.clientX,
         y: e.clientY + window.scrollY
       };
     };
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     // Scroll tracking
     const handleScroll = () => {
       scrollRef.current = window.scrollY;
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Star particles
+    // Star particles - REDUCED from 300 to 150 for better performance
     interface Star {
       x: number;
       y: number;
@@ -43,11 +101,11 @@ export function SpaceBackground() {
       speed: number;
       opacity: number;
       twinkleSpeed: number;
-      layer: number; // for parallax
+      layer: number;
     }
 
     const stars: Star[] = [];
-    const starCount = 300;
+    const starCount = 150; // Reduced from 300
 
     for (let i = 0; i < starCount; i++) {
       stars.push({
@@ -57,7 +115,7 @@ export function SpaceBackground() {
         speed: Math.random() * 0.5 + 0.1,
         opacity: Math.random() * 0.5 + 0.3,
         twinkleSpeed: Math.random() * 0.02 + 0.01,
-        layer: Math.floor(Math.random() * 3) + 1 // 1-3 layers for parallax
+        layer: Math.floor(Math.random() * 3) + 1
       });
     }
 
@@ -76,20 +134,20 @@ export function SpaceBackground() {
     const createShootingStar = () => {
       shootingStars.push({
         x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height * 0.5, // upper half
+        y: Math.random() * canvas.height * 0.5,
         length: Math.random() * 80 + 40,
         speed: Math.random() * 10 + 15,
         opacity: 1,
-        angle: Math.PI / 4 + (Math.random() - 0.5) * 0.5 // roughly 45 degrees
+        angle: Math.PI / 4 + (Math.random() - 0.5) * 0.5
       });
     };
 
-    // Create shooting star every 3-8 seconds
+    // Create shooting star every 6-12 seconds (was 3-8 seconds)
     const shootingStarInterval = setInterval(() => {
-      if (Math.random() > 0.5) {
+      if (Math.random() > 0.6) { // 40% chance (was 50%)
         createShootingStar();
       }
-    }, 3000 + Math.random() * 5000);
+    }, 6000 + Math.random() * 6000); // 6-12s (was 3-8s)
 
     // Animation loop
     let animationFrame: number;
@@ -98,25 +156,24 @@ export function SpaceBackground() {
     const animate = () => {
       time += 0.01;
       
-      // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw stars with parallax
       stars.forEach((star) => {
-        // Parallax effect based on scroll
         const parallaxOffset = (scrollRef.current * star.layer * 0.1);
         const y = star.y - parallaxOffset;
 
-        // Mouse follow effect (subtle)
+        // Mouse follow effect (only compute for nearby stars)
         const dx = mouseRef.current.x - star.x;
         const dy = mouseRef.current.y - y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const maxDistance = 200;
+        const distanceSquared = dx * dx + dy * dy; // Skip sqrt for performance
+        const maxDistanceSquared = 40000; // 200^2
         
         let offsetX = 0;
         let offsetY = 0;
-        if (distance < maxDistance) {
-          const force = (maxDistance - distance) / maxDistance;
+        if (distanceSquared < maxDistanceSquared) {
+          const distance = Math.sqrt(distanceSquared);
+          const force = (200 - distance) / 200;
           offsetX = (dx / distance) * force * 10 * star.layer;
           offsetY = (dy / distance) * force * 10 * star.layer;
         }
@@ -137,7 +194,9 @@ export function SpaceBackground() {
       });
 
       // Draw shooting stars
-      shootingStars.forEach((shootingStar, index) => {
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const shootingStar = shootingStars[i];
+        
         const gradient = ctx.createLinearGradient(
           shootingStar.x,
           shootingStar.y,
@@ -164,11 +223,11 @@ export function SpaceBackground() {
         shootingStar.y += Math.sin(shootingStar.angle) * shootingStar.speed;
         shootingStar.opacity -= 0.01;
 
-        // Remove if faded
+        // Remove if faded (iterate backwards to safely remove)
         if (shootingStar.opacity <= 0) {
-          shootingStars.splice(index, 1);
+          shootingStars.splice(i, 1);
         }
-      });
+      }
 
       animationFrame = requestAnimationFrame(animate);
     };
@@ -183,7 +242,7 @@ export function SpaceBackground() {
       clearInterval(shootingStarInterval);
       cancelAnimationFrame(animationFrame);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <canvas

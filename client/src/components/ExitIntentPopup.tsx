@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { X, Rocket, Sparkles } from 'lucide-react';
+import { X, Sparkles, Gift, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getLoginUrl } from '@/const';
 
 export function ExitIntentPopup() {
   const [isVisible, setIsVisible] = useState(false);
   const [hasShown, setHasShown] = useState(false);
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
+  const isGerman = i18n.language === 'de';
 
   useEffect(() => {
     // Check if popup was already shown in this session
@@ -36,8 +38,8 @@ export function ExitIntentPopup() {
   };
 
   const handleClaim = () => {
-    // Redirect to signup with discount code
-    window.location.href = '/app/dashboard?discount=SAVE20';
+    // Redirect to signup
+    window.location.href = getLoginUrl();
   };
 
   if (!isVisible) return null;
@@ -48,70 +50,100 @@ export function ExitIntentPopup() {
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={handleClose}
+        aria-hidden="true"
       />
 
       {/* Popup */}
-      <div className="relative glass-card max-w-lg w-full p-8 animate-scale-in">
+      <div 
+        className="relative glass-card max-w-lg w-full p-8 animate-scale-in"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="exit-popup-title"
+      >
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+          aria-label={isGerman ? "Schließen" : "Close"}
         >
           <X size={24} />
         </button>
 
         {/* Icon */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
-            <Sparkles size={32} className="text-white" />
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B9D] to-[#8B5CF6] flex items-center justify-center shadow-lg shadow-[#FF6B9D]/30">
+            <Gift size={32} className="text-white" />
           </div>
         </div>
 
         {/* Content */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            {t('landing.exitIntent.title', 'Warte! Nicht so schnell...')}
+          <h2 id="exit-popup-title" className="text-2xl md:text-3xl font-bold text-white mb-4">
+            {isGerman 
+              ? "Warte! Nimm deine 50 kostenlosen Credits mit" 
+              : "Wait! Take your 50 free credits with you"
+            }
           </h2>
-          <p className="text-white/80 text-lg mb-6">
-            {t(
-              'landing.exitIntent.subtitle',
-              'Erhalte 20% Rabatt auf Houston Pro für deine ersten 3 Monate!'
-            )}
+          <p className="text-white/80 text-base md:text-lg mb-6">
+            {isGerman
+              ? "Houston wartet darauf, dir bei deinem Marketing zu helfen. Starte jetzt kostenlos – keine Kreditkarte nötig."
+              : "Houston is waiting to help you with your marketing. Start for free – no credit card required."
+            }
           </p>
 
-          {/* Discount Badge */}
-          <div className="inline-block bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-full font-bold text-2xl mb-6">
-            20% RABATT
+          {/* Value proposition */}
+          <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+            <p className="text-white font-semibold mb-2">
+              {isGerman ? "Mit 50 Starter-Credits kannst du:" : "With 50 starter credits you can:"}
+            </p>
+            <ul className="text-sm text-white/80 space-y-2 text-left">
+              <li className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#FF6B9D] shrink-0" />
+                {isGerman 
+                  ? "~16 Tiefenanalysen für dein Marketing durchführen" 
+                  : "Run ~16 deep analyses for your marketing"
+                }
+              </li>
+              <li className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#FF6B9D] shrink-0" />
+                {isGerman 
+                  ? "Unbegrenzt mit Houston chatten" 
+                  : "Chat unlimited with Houston"
+                }
+              </li>
+              <li className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#FF6B9D] shrink-0" />
+                {isGerman 
+                  ? "SMART-Ziele und Strategien entwickeln" 
+                  : "Develop SMART goals and strategies"
+                }
+              </li>
+            </ul>
           </div>
 
-          <p className="text-white/70 text-sm mb-8">
-            {t(
-              'landing.exitIntent.description',
-              'Spare €29,40 in den ersten 3 Monaten. Nur €39,20/Monat statt €49/Monat. Angebot endet in 24 Stunden!'
-            )}
-          </p>
-
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col gap-3">
             <button
               onClick={handleClaim}
-              className="btn-gradient px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center gap-2 hover:scale-105 transition-transform"
+              className="w-full bg-gradient-to-r from-[#FF6B9D] to-[#8B5CF6] px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-[#FF6B9D]/30 hover:scale-[1.02] transition-all text-white"
             >
-              <Rocket size={20} />
-              {t('landing.exitIntent.cta', 'Rabatt sichern')}
+              <Gift size={20} />
+              {isGerman ? "Kostenlos starten" : "Start free now"}
+              <ArrowRight size={20} />
             </button>
             <button
               onClick={handleClose}
-              className="px-8 py-4 rounded-full font-semibold text-lg border border-white/20 text-white/80 hover:bg-white/10 transition-colors"
+              className="w-full px-8 py-3 rounded-xl font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors"
             >
-              {t('landing.exitIntent.decline', 'Nein, danke')}
+              {isGerman ? "Nein danke, vielleicht später" : "No thanks, maybe later"}
             </button>
           </div>
 
           {/* Trust Badge */}
           <p className="text-white/50 text-xs mt-6">
-            ✓ {t('landing.exitIntent.trust', 'Keine Kreditkarte erforderlich')} • ✓{' '}
-            {t('landing.exitIntent.cancel', 'Jederzeit kündbar')}
+            ✓ {isGerman ? "Keine Kreditkarte erforderlich" : "No credit card required"} · 
+            ✓ {isGerman ? "Jederzeit kündbar" : "Cancel anytime"} · 
+            ✓ {isGerman ? "Keine versteckten Kosten" : "No hidden fees"}
           </p>
         </div>
       </div>
