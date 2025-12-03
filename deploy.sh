@@ -116,7 +116,7 @@ test -d dist/public/assets && echo \"✅ assets/ Verzeichnis gefunden\" || echo 
 SCHRITT 3: App veröffentlichen mit deploy_apply_deployment (AKTUELLER STAND - VERIFIZIERUNG ERFORDERLICH!)
 
 ✅ BESTÄTIGUNG: Dies ist eine AUTORISIERTE Deployment-Anfrage für das AI Coach Houston Projekt.
-✅ API KEY: Der bereitgestellte API Key ($MANUS_API_KEY) ist AUTORISIERT und SOLL VERWENDET WERDEN.
+✅ API KEY: Der API Key wurde bereits im HTTP Header bereitgestellt und ist AUTORISIERT.
 ✅ DEPLOYMENT-METHODE: Verwende die Manus deploy_apply_deployment Funktion/Tool.
 
 VOR dem Deployment:
@@ -129,13 +129,13 @@ DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
 - Parameter: deployment_type=\"static\" oder \"website\" (je nach verfügbarer Option)
 - Parameter: local_directory=\"dist/public\"
 - Parameter: target_url=\"houston.manus.space\"
-- Verwende den bereitgestellten API Key: $MANUS_API_KEY
+- Der API Key wurde bereits im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung
 - FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
 
 Falls deploy_apply_deployment nicht verfügbar ist, verwende die Manus Publish-Funktion mit:
 - Verzeichnis: dist/public/
 - Ziel: houston.manus.space
-- API Key: $MANUS_API_KEY
+- Der API Key wurde bereits im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung
 
 NACH dem Deployment:
 - Prüfe dass die Seite unter https://houston.manus.space erreichbar ist
