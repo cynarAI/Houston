@@ -1,5 +1,10 @@
 import { getDb } from "./db";
-import { users, creditTransactions, creditPlans, userSubscriptions } from "../drizzle/schema";
+import {
+  users,
+  creditTransactions,
+  creditPlans,
+  userSubscriptions,
+} from "../drizzle/schema";
 import { eq, and, desc, gte, sql } from "drizzle-orm";
 
 /**
@@ -19,17 +24,17 @@ export const CREDIT_COSTS = {
   // Free features (0 credits)
   CHAT_BASIC: 0,
   VIEW_CONTENT: 0,
-  
+
   // Low-cost features (1-3 credits)
   CHAT_DEEP_ANALYSIS: 3,
   PDF_EXPORT: 2,
   AI_INSIGHTS: 3,
-  
+
   // Medium-cost features (5-8 credits)
   GOALS_GENERATION: 5,
   STRATEGY_ANALYSIS: 8,
   CAMPAIGN_BLUEPRINT: 7,
-  
+
   // High-cost features (10+ credits)
   MARKETING_AUDIT: 15,
   COMPETITOR_ANALYSIS: 12,
@@ -48,8 +53,12 @@ export class CreditService {
   static async getBalance(userId: number): Promise<number> {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
-    
-    const result = await db.select({ credits: users.credits }).from(users).where(eq(users.id, userId)).limit(1);
+
+    const result = await db
+      .select({ credits: users.credits })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
     if (result.length === 0) {
       throw new Error(CreditError.USER_NOT_FOUND);
@@ -68,17 +77,17 @@ export class CreditService {
 
   /**
    * Charge credits from user (atomic operation with logging)
-   * 
+   *
    * Uses atomic UPDATE with WHERE condition to prevent race conditions:
    * UPDATE users SET credits = credits - amount WHERE id = userId AND credits >= amount
-   * 
+   *
    * This ensures that concurrent requests cannot overdraw the balance.
    */
   static async charge(
     userId: number,
     featureKey: string,
     amount: number,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): Promise<{
     success: boolean;
     newBalance: number;
@@ -106,10 +115,13 @@ export class CreditService {
     try {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      
+
       // First check if user exists and get current balance for logging
       const userBefore = await db
-        .select({ credits: users.credits, lifetimeCreditsUsed: users.lifetimeCreditsUsed })
+        .select({
+          credits: users.credits,
+          lifetimeCreditsUsed: users.lifetimeCreditsUsed,
+        })
         .from(users)
         .where(eq(users.id, userId))
         .limit(1);
@@ -137,13 +149,13 @@ export class CreditService {
           updatedAt = NOW()
         WHERE id = ${userId} AND credits >= ${amount}
       `;
-      
+
       const result = await db.execute(updateQuery);
-      
+
       // Check if any row was actually updated (affectedRows > 0 means success)
       // MySQL returns affectedRows in the result when using execute()
       const affectedRows = (result as any)[0]?.affectedRows ?? 0;
-      
+
       if (affectedRows === 0) {
         // No rows updated - either user not found or insufficient credits
         // Re-read to get current balance for error response
@@ -152,7 +164,7 @@ export class CreditService {
           .from(users)
           .where(eq(users.id, userId))
           .limit(1);
-        
+
         return {
           success: false,
           newBalance: currentUser[0]?.credits ?? 0,
@@ -167,7 +179,7 @@ export class CreditService {
         .where(eq(users.id, userId))
         .limit(1);
 
-      const balanceAfter = userAfter[0]?.credits ?? (balanceBefore - amount);
+      const balanceAfter = userAfter[0]?.credits ?? balanceBefore - amount;
 
       // Log transaction with actual before/after values
       const [transaction] = await db.insert(creditTransactions).values({
@@ -211,15 +223,44 @@ export class CreditService {
   }
 
   /**
+   * Update transaction with token usage data (for AI cost monitoring)
+   */
+  static async updateTransactionUsage(
+    transactionId: number,
+    usage: {
+      promptTokens: number;
+      completionTokens: number;
+      model: string;
+    },
+  ): Promise<void> {
+    try {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db
+        .update(creditTransactions)
+        .set({
+          promptTokens: usage.promptTokens,
+          completionTokens: usage.completionTokens,
+          model: usage.model,
+        })
+        .where(eq(creditTransactions.id, transactionId));
+    } catch (error) {
+      console.error("Failed to update transaction usage:", error);
+      // We don't throw here to not interrupt the main flow, just log the error
+    }
+  }
+
+  /**
    * Grant credits to user (top-up, subscription renewal, admin)
-   * 
+   *
    * Uses atomic UPDATE to add credits safely.
    */
   static async grant(
     userId: number,
     amount: number,
     reason: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): Promise<{
     success: boolean;
     newBalance: number;
@@ -238,7 +279,7 @@ export class CreditService {
     try {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      
+
       // Get current balance for logging
       const userBefore = await db
         .select({ credits: users.credits })
@@ -309,19 +350,21 @@ export class CreditService {
       limit?: number;
       since?: Date;
       featureKey?: string;
-    }
-  ): Promise<Array<{
-    id: number;
-    featureKey: string;
-    creditsSpent: number;
-    balanceBefore: number;
-    balanceAfter: number;
-    metadata: any;
-    createdAt: Date;
-  }>> {
+    },
+  ): Promise<
+    Array<{
+      id: number;
+      featureKey: string;
+      creditsSpent: number;
+      balanceBefore: number;
+      balanceAfter: number;
+      metadata: any;
+      createdAt: Date;
+    }>
+  > {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
-    
+
     const transactions = await db
       .select()
       .from(creditTransactions)
@@ -345,14 +388,16 @@ export class CreditService {
   } | null> {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
-    
+
     const subscriptionResult = await db
       .select()
       .from(userSubscriptions)
-      .where(and(
-        eq(userSubscriptions.userId, userId),
-        eq(userSubscriptions.status, "active")
-      ))
+      .where(
+        and(
+          eq(userSubscriptions.userId, userId),
+          eq(userSubscriptions.status, "active"),
+        ),
+      )
       .limit(1);
 
     if (subscriptionResult.length === 0) {
@@ -382,17 +427,19 @@ export class CreditService {
   }> {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
-    
+
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const transactions = await db
       .select()
       .from(creditTransactions)
-      .where(and(
-        eq(creditTransactions.userId, userId),
-        gte(creditTransactions.createdAt, monthStart)
-      ));
+      .where(
+        and(
+          eq(creditTransactions.userId, userId),
+          gte(creditTransactions.createdAt, monthStart),
+        ),
+      );
 
     // Calculate total spent (only negative transactions = deductions)
     const totalSpent = transactions
@@ -451,7 +498,10 @@ export class CreditService {
 
     // Get user's lifetime credits used
     const [user] = await db
-      .select({ lifetimeCreditsUsed: users.lifetimeCreditsUsed, createdAt: users.createdAt })
+      .select({
+        lifetimeCreditsUsed: users.lifetimeCreditsUsed,
+        createdAt: users.createdAt,
+      })
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);
@@ -469,8 +519,9 @@ export class CreditService {
     const daysSinceCreation = Math.max(
       1,
       Math.floor(
-        (Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-      )
+        (Date.now() - new Date(user.createdAt).getTime()) /
+          (1000 * 60 * 60 * 24),
+      ),
     );
 
     const averagePerDay = user.lifetimeCreditsUsed / daysSinceCreation;
@@ -484,7 +535,7 @@ export class CreditService {
           eq(creditTransactions.userId, userId),
           // Only count negative transactions (spending, not grants)
           // creditsSpent is negative for deductions
-        )
+        ),
       );
 
     // Group by feature and sum credits
@@ -520,7 +571,7 @@ export class CreditService {
    */
   static async getDailyUsageHistory(
     userId: number,
-    days: number = 30
+    days: number = 30,
   ): Promise<Array<{ date: string; credits: number }>> {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
@@ -534,8 +585,8 @@ export class CreditService {
       .where(
         and(
           eq(creditTransactions.userId, userId),
-          gte(creditTransactions.createdAt, startDate)
-        )
+          gte(creditTransactions.createdAt, startDate),
+        ),
       );
 
     // Group by date
@@ -569,8 +620,10 @@ export class CreditService {
    */
   static async getTopFeatures(
     userId: number,
-    limit: number = 5
-  ): Promise<Array<{ featureKey: string; credits: number; percentage: number }>> {
+    limit: number = 5,
+  ): Promise<
+    Array<{ featureKey: string; credits: number; percentage: number }>
+  > {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
 
@@ -597,7 +650,8 @@ export class CreditService {
       .map(([featureKey, credits]) => ({
         featureKey,
         credits,
-        percentage: totalSpent > 0 ? Math.round((credits / totalSpent) * 100) : 0,
+        percentage:
+          totalSpent > 0 ? Math.round((credits / totalSpent) * 100) : 0,
       }))
       .sort((a, b) => b.credits - a.credits)
       .slice(0, limit);
@@ -611,7 +665,7 @@ export class CreditService {
   static async getTransactionHistory(
     userId: number,
     page: number = 1,
-    pageSize: number = 10
+    pageSize: number = 10,
   ): Promise<{
     transactions: Array<any>;
     total: number;

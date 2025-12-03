@@ -52,7 +52,7 @@ _Focus: Delighting the specific personas._
 - **Files:** `client/src/pages/Dashboard.tsx`, `client/src/components/CheckInModal.tsx`
 - **Status:** ✅ Live. Validated with Lukas.
 
-### Phase 3: Growth & Agency Features (Month 2) [IN PROGRESS]
+### Phase 3: Growth & Agency Features (Month 2) [COMPLETED ✅]
 
 _Focus: Unlocking the "Alex" persona._
 
@@ -61,12 +61,14 @@ _Focus: Unlocking the "Alex" persona._
 - **Problem:** Alex is unclear about billing for multiple clients.
 - **Solution:** Add a clear "Workspaces" management screen in Settings with billing transparency ("Included in Team Plan" vs "Add-on").
 - **Files:** `client/src/pages/Settings.tsx`
+- **Status:** ✅ Live. Workspace-Verwaltung mit Billing-Transparenz implementiert. Zeigt klar an, ob Workspaces im Team Plan enthalten sind oder ein Upgrade nötig ist.
 
 #### 3.2 PDF Strategy Export
 
 - **Problem:** Alex wants to sell the strategy.
 - **Solution:** Make the "Export Strategy" button prominent in the Strategy view and brand it as a "Report".
 - **Files:** `client/src/pages/Strategy.tsx`
+- **Status:** ✅ Live. Export-Button ist jetzt prominent als "Als Report exportieren" gebrandet und mit Gradient-Styling hervorgehoben.
 
 ### Phase 4: Specialist Features (Month 3) [NEW]
 

@@ -1,18 +1,29 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import * as schema from "../drizzle/schema";
-import { 
-  InsertUser, users,
-  workspaces, InsertWorkspace,
-  goals, InsertGoal,
-  strategies, InsertStrategy,
-  todos, InsertTodo,
-  chatSessions, InsertChatSession,
-  chatMessages, InsertChatMessage,
-  planLimits, InsertPlanLimit,
-  onboardingData, InsertOnboardingData
+import {
+  InsertUser,
+  users,
+  workspaces,
+  InsertWorkspace,
+  goals,
+  InsertGoal,
+  strategies,
+  InsertStrategy,
+  todos,
+  InsertTodo,
+  chatSessions,
+  InsertChatSession,
+  chatMessages,
+  InsertChatMessage,
+  planLimits,
+  InsertPlanLimit,
+  onboardingData,
+  InsertOnboardingData,
+  contentLibrary,
+  InsertContentLibraryItem,
 } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -20,7 +31,7 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL, { schema, mode: 'default' });
+      _db = drizzle(process.env.DATABASE_URL, { schema, mode: "default" });
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -67,8 +78,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -95,7 +106,11 @@ export async function getUserByOpenId(openId: string) {
     return null;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : null;
 }
@@ -132,17 +147,27 @@ export async function createWorkspace(workspace: InsertWorkspace) {
 export async function getWorkspacesByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(workspaces).where(eq(workspaces.userId, userId));
+  return await db
+    .select()
+    .from(workspaces)
+    .where(eq(workspaces.userId, userId));
 }
 
 export async function getWorkspaceById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(workspaces).where(eq(workspaces.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(workspaces)
+    .where(eq(workspaces.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
-export async function updateWorkspace(id: number, data: Partial<InsertWorkspace>) {
+export async function updateWorkspace(
+  id: number,
+  data: Partial<InsertWorkspace>,
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(workspaces).set(data).where(eq(workspaces.id, id));
@@ -166,7 +191,10 @@ export async function createGoal(goal: InsertGoal) {
 export async function getGoalsByWorkspaceId(workspaceId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(goals).where(eq(goals.workspaceId, workspaceId));
+  return await db
+    .select()
+    .from(goals)
+    .where(eq(goals.workspaceId, workspaceId));
 }
 
 export async function getGoalById(id: number) {
@@ -193,11 +221,18 @@ export async function deleteGoal(id: number) {
 export async function createOrUpdateStrategy(strategy: InsertStrategy) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  const existing = await db.select().from(strategies).where(eq(strategies.workspaceId, strategy.workspaceId)).limit(1);
-  
+
+  const existing = await db
+    .select()
+    .from(strategies)
+    .where(eq(strategies.workspaceId, strategy.workspaceId))
+    .limit(1);
+
   if (existing.length > 0) {
-    await db.update(strategies).set(strategy).where(eq(strategies.workspaceId, strategy.workspaceId));
+    await db
+      .update(strategies)
+      .set(strategy)
+      .where(eq(strategies.workspaceId, strategy.workspaceId));
     return existing[0].id;
   } else {
     const result = await db.insert(strategies).values(strategy);
@@ -208,7 +243,11 @@ export async function createOrUpdateStrategy(strategy: InsertStrategy) {
 export async function getStrategyByWorkspaceId(workspaceId: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(strategies).where(eq(strategies.workspaceId, workspaceId)).limit(1);
+  const result = await db
+    .select()
+    .from(strategies)
+    .where(eq(strategies.workspaceId, workspaceId))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
@@ -224,7 +263,10 @@ export async function createTodo(todo: InsertTodo) {
 export async function getTodosByWorkspaceId(workspaceId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(todos).where(eq(todos.workspaceId, workspaceId));
+  return await db
+    .select()
+    .from(todos)
+    .where(eq(todos.workspaceId, workspaceId));
 }
 
 export async function getTodoById(id: number) {
@@ -258,13 +300,20 @@ export async function createChatSession(session: InsertChatSession) {
 export async function getChatSessionsByWorkspaceId(workspaceId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(chatSessions).where(eq(chatSessions.workspaceId, workspaceId));
+  return await db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.workspaceId, workspaceId));
 }
 
 export async function getChatSessionById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(chatSessions).where(eq(chatSessions.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
@@ -286,7 +335,10 @@ export async function createChatMessage(message: InsertChatMessage) {
 export async function getChatMessagesBySessionId(sessionId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId));
+  return await db
+    .select()
+    .from(chatMessages)
+    .where(eq(chatMessages.sessionId, sessionId));
 }
 
 // ============ Plan Limit Queries ============
@@ -301,11 +353,18 @@ export async function createPlanLimit(limit: InsertPlanLimit) {
 export async function getPlanLimitByUserId(userId: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(planLimits).where(eq(planLimits.userId, userId)).limit(1);
+  const result = await db
+    .select()
+    .from(planLimits)
+    .where(eq(planLimits.userId, userId))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
-export async function updatePlanLimit(userId: number, data: Partial<InsertPlanLimit>) {
+export async function updatePlanLimit(
+  userId: number,
+  data: Partial<InsertPlanLimit>,
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(planLimits).set(data).where(eq(planLimits.userId, userId));
@@ -314,11 +373,12 @@ export async function updatePlanLimit(userId: number, data: Partial<InsertPlanLi
 export async function incrementChatUsage(userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const limit = await getPlanLimitByUserId(userId);
   if (!limit) throw new Error("Plan limit not found");
-  
-  await db.update(planLimits)
+
+  await db
+    .update(planLimits)
     .set({ chatsUsedThisMonth: limit.chatsUsedThisMonth + 1 })
     .where(eq(planLimits.userId, userId));
 }
@@ -326,29 +386,37 @@ export async function incrementChatUsage(userId: number) {
 export async function getPlanLimitById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(planLimits).where(eq(planLimits.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(planLimits)
+    .where(eq(planLimits.id, id))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
 export async function countWorkspacesByUserId(userId: number) {
   const db = await getDb();
   if (!db) return 0;
-  const result = await db.select().from(workspaces).where(eq(workspaces.userId, userId));
+  const result = await db
+    .select()
+    .from(workspaces)
+    .where(eq(workspaces.userId, userId));
   return result.length;
 }
 
 export async function resetChatCounter(planId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
   const now = new Date();
   const periodEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
-  
-  await db.update(planLimits)
-    .set({ 
+
+  await db
+    .update(planLimits)
+    .set({
       chatsUsedThisMonth: 0,
       periodStart: now,
-      periodEnd: periodEnd
+      periodEnd: periodEnd,
     })
     .where(eq(planLimits.id, planId));
 }
@@ -358,7 +426,11 @@ export async function resetChatCounter(planId: number) {
 export async function getOnboardingDataByUserId(userId: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(onboardingData).where(eq(onboardingData.userId, userId)).limit(1);
+  const result = await db
+    .select()
+    .from(onboardingData)
+    .where(eq(onboardingData.userId, userId))
+    .limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
@@ -369,8 +441,36 @@ export async function createOnboardingData(data: InsertOnboardingData) {
   return { id: Number((result as any).insertId) };
 }
 
-export async function updateOnboardingData(id: number, data: Partial<InsertOnboardingData>) {
+export async function updateOnboardingData(
+  id: number,
+  data: Partial<InsertOnboardingData>,
+) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(onboardingData).set(data).where(eq(onboardingData.id, id));
+}
+
+// ============ Content Library Queries ============
+
+export async function createContentLibraryItem(item: InsertContentLibraryItem) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(contentLibrary).values(item);
+  return Number(result[0].insertId);
+}
+
+export async function getContentLibraryByWorkspaceId(workspaceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(contentLibrary)
+    .where(eq(contentLibrary.workspaceId, workspaceId))
+    .orderBy(desc(contentLibrary.createdAt));
+}
+
+export async function deleteContentLibraryItem(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(contentLibrary).where(eq(contentLibrary.id, id));
 }

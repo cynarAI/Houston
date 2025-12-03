@@ -139,6 +139,16 @@ export default function Settings() {
                 <p className="text-sm text-muted-foreground">
                   Du nutzt den {(user as any)?.plan || "Free"} Plan.
                 </p>
+                {(user as any)?.plan === "Team" ||
+                (user as any)?.plan === "team" ? (
+                  <p className="text-xs text-green-400 mt-1">
+                    ✓ Unbegrenzte Workspaces im Team Plan enthalten
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Upgrade auf Team Plan für unbegrenzte Workspaces
+                  </p>
+                )}
               </div>
               <Dialog
                 open={showNewWorkspaceDialog}

@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { Brain, Send, Loader2, Plus, MessageSquare, Sparkles, ThumbsUp, ThumbsDown, Copy, RotateCcw, Check, Download, BookOpen, Rocket } from "lucide-react";
+import { Brain, Send, Loader2, Plus, MessageSquare, Sparkles, ThumbsUp, ThumbsDown, Copy, RotateCcw, Check, Download, BookOpen, Rocket, Bookmark } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { toast } from "sonner";
@@ -54,6 +54,7 @@ export default function Chats() {
   const sendFeedbackMutation = trpc.chat.sendFeedback.useMutation();
   const regenerateResponseMutation = trpc.chat.regenerateResponse.useMutation();
   const exportPDFMutation = trpc.export.exportChatPDF.useMutation();
+  const saveToLibraryMutation = trpc.contentLibrary.create.useMutation();
 
 
   useEffect(() => {
@@ -196,6 +197,29 @@ export default function Chats() {
     trackEvent(AnalyticsEvents.MESSAGE_COPIED, { message_id: messageId });
     
     toast.success("In Zwischenablage kopiert");
+  };
+
+  const handleSaveToLibrary = async (content: string, messageId: number) => {
+    if (!workspaces?.[0]?.id) return;
+    
+    try {
+      // Extract a title from the first line or use a default
+      const firstLine = content.split('\n')[0].substring(0, 50);
+      const title = firstLine.length < content.length ? firstLine + '...' : firstLine;
+      
+      await saveToLibraryMutation.mutateAsync({
+        workspaceId: workspaces[0].id,
+        title: title || "Gespeicherte Antwort",
+        content,
+        category: "other",
+        sourceChatId: messageId,
+      });
+      
+      toast.success("In Bibliothek gespeichert");
+      trackEvent(AnalyticsEvents.MESSAGE_SAVED_TO_LIBRARY, { message_id: messageId });
+    } catch (error) {
+      toast.error("Konnte nicht speichern");
+    }
   };
 
   const handleRegenerate = async (messageId: number) => {
@@ -453,6 +477,15 @@ export default function Chats() {
                             onClick={() => handleRegenerate(msg.id)}
                           >
                             <RotateCcw className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 hover:bg-blue-500/10 hover:text-blue-500"
+                            onClick={() => handleSaveToLibrary(msg.content, msg.id)}
+                            title="In Bibliothek speichern"
+                          >
+                            <Bookmark className="h-3 w-3" />
                           </Button>
                         </div>
                       )}

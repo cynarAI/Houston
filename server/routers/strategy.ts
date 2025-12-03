@@ -21,7 +21,9 @@ export const strategyRouter = router({
         coreMessages: z.string().optional(), // JSON string
         channels: z.string().optional(), // JSON string
         contentPillars: z.string().optional(), // JSON string
-      })
+        brandVoice: z.string().optional(), // Brand voice description
+        pitchDeck: z.string().optional(), // Startup pitch narrative
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       // Verify user owns the workspace before updating strategy

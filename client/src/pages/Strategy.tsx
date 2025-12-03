@@ -180,11 +180,15 @@ export default function Strategy() {
           {/* Actions */}
           {!isEditing && strategy && (
             <div className="flex gap-3">
-              <Button variant="outline" onClick={handleExportPDF}>
+              <Button
+                variant="default"
+                onClick={handleExportPDF}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+              >
                 <Download className="mr-2 h-4 w-4" />
-                Export PDF
+                Als Report exportieren
               </Button>
-              <Button onClick={handleEdit}>
+              <Button variant="outline" onClick={handleEdit}>
                 <Edit className="mr-2 h-4 w-4" />
                 Bearbeiten
               </Button>
@@ -327,6 +331,34 @@ export default function Strategy() {
                   }
                   rows={5}
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="border-purple-500/20 bg-purple-500/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mic className="h-5 w-5 text-purple-400" />
+                  Brand Voice (Schreibstil)
+                </CardTitle>
+                <CardDescription>
+                  Wie soll Houston in Chats und generierten Texten klingen?
+                  (z.B. "Witty", "Professional", "Kein Jargon", "Casual")
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  id="brandVoice"
+                  placeholder="z.B. Professional aber zugänglich. Keine Marketing-Buzzwords. Direkt und ehrlich."
+                  value={formData.brandVoice}
+                  onChange={(e) =>
+                    setFormData({ ...formData, brandVoice: e.target.value })
+                  }
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  💡 Dieser Stil wird automatisch in allen Chat-Antworten
+                  verwendet.
+                </p>
               </CardContent>
             </Card>
 
