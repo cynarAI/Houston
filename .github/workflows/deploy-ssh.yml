@@ -1,0 +1,223 @@
+# SSH-Deployment Workflow (Kostenlos - keine Credits)
+# Aktiviert nach SSH-Zugang und GitHub Secrets Setup
+
+name: Deploy via SSH (Kostenlos)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_deploy:
+        description: 'Skip deployment (build only)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 TypeScript Check
+        run: pnpm check
+
+      - name: 🏗️ Build Application
+        run: |
+          export NODE_ENV=production
+          pnpm build
+
+      - name: 📤 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  deploy:
+    name: 🚀 Deploy via SSH (Kostenlos)
+    needs: build
+    runs-on: ubuntu-latest
+    if: |
+      github.ref == 'refs/heads/main' && 
+      github.event_name != 'pull_request' &&
+      (github.event.inputs.skip_deploy != 'true' || github.event.inputs.skip_deploy == null)
+
+    steps:
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: 📋 Get commit info
+        id: commit
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+          echo "✅ Deploying commit: $(git rev-parse --short HEAD)"
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 🔍 Test SSH connection
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "echo '✅ SSH connection successful'"
+
+      - name: 📦 Create deployment package
+        run: |
+          # Erstelle temporäres Verzeichnis für Deployment
+          mkdir -p deploy-package
+          cp -r dist/public/* deploy-package/
+          
+          # Erstelle Backup-Script
+          cat > deploy-package/.deploy-info.txt << EOF
+          Commit: ${{ steps.commit.outputs.sha_full }}
+          Short SHA: ${{ steps.commit.outputs.sha_short }}
+          Message: ${{ steps.commit.outputs.message }}
+          Deployed: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          EOF
+          
+          echo "📦 Deployment package created"
+
+      - name: 🚀 Deploy files via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "deploy-package/*"
+          target: "/var/www/houston.manus.space/dist"
+          strip_components: 1
+          rm: false  # Lösche alte Dateien nicht automatisch (Backup erstellen)
+
+      - name: 🔄 Create backup and cleanup
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            
+            DEPLOY_DIR="/var/www/houston.manus.space/dist"
+            BACKUP_DIR="${DEPLOY_DIR}.backup.$(date +%s)"
+            
+            # Erstelle Backup falls Verzeichnis existiert
+            if [ -d "$DEPLOY_DIR" ] && [ "$(ls -A $DEPLOY_DIR 2>/dev/null)" ]; then
+              echo "📦 Creating backup: $BACKUP_DIR"
+              sudo cp -r "$DEPLOY_DIR" "$BACKUP_DIR" || cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
+              echo "✅ Backup created"
+              
+              # Lösche alte Backups (behalte nur die letzten 5)
+              echo "🧹 Cleaning up old backups..."
+              ls -dt ${DEPLOY_DIR}.backup.* 2>/dev/null | tail -n +6 | xargs -r rm -rf || true
+            fi
+            
+            # Stelle sicher, dass Berechtigungen korrekt sind
+            echo "🔐 Setting permissions..."
+            sudo chown -R www-data:www-data "$DEPLOY_DIR" 2>/dev/null || \
+            sudo chown -R nginx:nginx "$DEPLOY_DIR" 2>/dev/null || \
+            sudo chown -R $USER:$USER "$DEPLOY_DIR" 2>/dev/null || true
+            
+            sudo chmod -R 755 "$DEPLOY_DIR" || chmod -R 755 "$DEPLOY_DIR"
+            
+            echo "✅ Deployment directory ready"
+
+      - name: 🔄 Restart server (if needed)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set +e  # Erlaube Fehler (Server-Restart ist optional)
+            
+            # Prüfe ob PM2 verwendet wird
+            if command -v pm2 &> /dev/null; then
+              echo "🔄 Restarting via PM2..."
+              pm2 restart houston || pm2 restart all || echo "⚠️ PM2 restart skipped"
+            fi
+            
+            # Prüfe ob systemd verwendet wird
+            if systemctl list-units --type=service | grep -q houston; then
+              echo "🔄 Restarting via systemd..."
+              sudo systemctl restart houston || echo "⚠️ systemd restart skipped"
+            fi
+            
+            # Prüfe ob Nginx neu geladen werden muss
+            if command -v nginx &> /dev/null; then
+              echo "🔄 Reloading Nginx..."
+              sudo nginx -t && sudo systemctl reload nginx || echo "⚠️ Nginx reload skipped"
+            fi
+            
+            echo "✅ Server restart completed (or skipped)"
+
+      - name: ✅ Verify deployment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            DEPLOY_DIR="/var/www/houston.manus.space/dist"
+            
+            if [ -f "$DEPLOY_DIR/index.html" ]; then
+              echo "✅ Deployment verified: index.html exists"
+              echo "📄 File size: $(du -h $DEPLOY_DIR/index.html | cut -f1)"
+              
+              # Zeige Commit-Info falls vorhanden
+              if [ -f "$DEPLOY_DIR/.deploy-info.txt" ]; then
+                echo "📋 Deployment info:"
+                cat "$DEPLOY_DIR/.deploy-info.txt"
+              fi
+            else
+              echo "⚠️ Warning: index.html not found in $DEPLOY_DIR"
+              exit 1
+            fi
+
+      - name: 📊 Deployment Summary
+        if: always()
+        run: |
+          echo "## 🚀 SSH Deployment (Kostenlos)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Info | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ steps.commit.outputs.sha_short }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Message | ${{ steps.commit.outputs.message }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | houston.manus.space |" >> $GITHUB_STEP_SUMMARY
+          echo "| Method | SSH/SCP (kostenlos) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Keine Credits benötigt!**" >> $GITHUB_STEP_SUMMARY
