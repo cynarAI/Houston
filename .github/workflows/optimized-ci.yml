@@ -227,47 +227,48 @@ jobs:
           git log -1 --oneline
           echo \"📝 Commit-Nachricht: ${{ steps.commit.outputs.message }}\"
 
-          SCHRITT 2: Verwende die bereits gebauten Artefakte (SCHNELLSTE OPTION)
-          Die App wurde bereits in GitHub Actions gebaut und getestet für diesen EXAKTEN Commit.
-          
-          OPTION A (BEVORZUGT - SCHNELLSTER WEG):
-          - Öffne im Browser: https://github.com/cynarAI/Houston/actions/runs/${{ github.run_id }}
-          - Lade das Artefakt 'dist-${{ github.sha }}' herunter (Button 'Download' bei dem Artefakt)
-          - Entpacke es: mkdir -p dist && unzip -q ~/Downloads/dist-${{ github.sha }}.zip -d dist/ || unzip -q dist-${{ github.sha }}.zip -d dist/
-          - Prüfe dass dist/public/ existiert: ls -la dist/public/ | head -10
-          - Prüfe dass index.html existiert: test -f dist/public/index.html && echo \"✅ index.html gefunden\" || echo \"❌ index.html fehlt!\"
-          
-          OPTION B (FALLBACK - nur wenn Option A nicht funktioniert):
+          SCHRITT 2: Dependencies installieren und App bauen
           - pnpm install --frozen-lockfile
           - pnpm build
-          - Prüfe dass dist/public/ existiert: ls -la dist/public/ | head -10
+          
+          # Verifiziere dass dist/public/ existiert
+          test -f dist/public/index.html && echo \"✅ index.html gefunden\" || (echo \"❌ index.html fehlt!\" && exit 1)
+          test -d dist/public/assets && echo \"✅ assets/ Verzeichnis gefunden\" || echo \"⚠️  assets/ Verzeichnis fehlt\"
+          ls -la dist/public/ | head -10
           
           ⚠️ WICHTIG: Das dist/public/ Verzeichnis muss die gebauten Dateien enthalten (index.html, assets/, etc.)!
 
-          SCHRITT 3: Veröffentliche die App mit deploy_apply_deployment (AKTUELLER STAND - VERIFIZIERUNG ERFORDERLICH!)
+          SCHRITT 3: App veröffentlichen
           
           VOR dem Deployment:
           - Verifiziere nochmal: git rev-parse HEAD sollte ${{ steps.commit.outputs.sha_short }} sein
           - Verifiziere dass dist/public/index.html existiert: test -f dist/public/index.html || exit 1
           - Verifiziere dass dist/public/assets/ existiert: test -d dist/public/assets || exit 1
           
-          DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
-          - Verwende die Manus deploy_apply_deployment Funktion/Tool
-          - ⚠️ WICHTIG: deploy_apply_deployment ist STANDARDMÄSSIG PERMANENT - keine temporären Deployments!
-          - Parameter: type=\"static\" (MUSS \"static\" sein für statische Websites)
-          - Parameter: local_dir=\"$(pwd)/dist/public\" (MUSS absoluter Pfad sein!)
-          - ⚠️ KRITISCH: Stelle sicher, dass die DATABASE_URL Umgebungsvariable erhalten bleibt!
-          - ⚠️ KRITISCH: Wenn du Umgebungsvariablen setzen musst, füge sie zur Shell-Konfiguration hinzu (z.B. ~/.bashrc oder ~/.zshrc) oder verwende export, aber ÜBERSCHREIBE NICHT bestehende Variablen!
-          - ⚠️ KRITISCH: KEINE Daten dürfen verloren gehen - die MySQL-Datenbank muss weiterhin erreichbar sein!
-          - ⚠️ KRITISCH: Dieses Deployment ist für echte Nutzer - Datenintegrität ist kritisch!
-          - Der API Key wurde bereits sicher im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung
-          - FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
-          - Nach dem Deployment: Verifiziere dass https://houston.manus.space erreichbar ist und den aktuellen Stand zeigt
+          ⚠️ WICHTIG: Dies ist eine FULL-STACK APP (Express Server + React Frontend), NICHT eine statische Website!
+          ⚠️ WICHTIG: Die App läuft bereits im Betrieb mit echten Nutzern und einer MySQL-Datenbank!
+          ⚠️ KRITISCH: KEINE Daten dürfen verloren gehen - die MySQL-Datenbank muss weiterhin erreichbar sein!
+          ⚠️ KRITISCH: Stelle sicher, dass die DATABASE_URL Umgebungsvariable erhalten bleibt!
           
-          Falls deploy_apply_deployment nicht verfügbar ist, verwende die Manus Publish-Funktion mit:
-          - Verzeichnis: dist/public/
+          DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
+          
+          Die deploy_apply_deployment Funktion existiert NICHT als direktes Tool. Verwende stattdessen:
+          
+          METHODE 1 (BEVORZUGT - Manus Publish-Funktion):
+          - Nutze die Manus Publish-Funktion (falls verfügbar in deinen Tools)
+          - Parameter: type=\"static\" (für statische Frontend-Dateien)
+          - Parameter: local_dir=\"\$(pwd)/dist/public\" (absoluter Pfad)
           - Ziel: houston.manus.space
-          - Der API Key wurde bereits sicher im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung
+          
+          METHODE 2 (ALTERNATIVE - Direktes Kopieren):
+          - Finde heraus, wo die aktuelle App deployed ist (z.B. /var/www/houston oder ähnlich)
+          - Backup erstellen: cp -r /var/www/houston /var/www/houston.backup.\$(date +%s)
+          - Neue Dateien kopieren: cp -r \$(pwd)/dist/public/* /var/www/houston/
+          - Stelle sicher, dass der Express Server neu gestartet wird, falls nötig
+          
+          ⚠️ KRITISCH: Der API Key wurde bereits sicher im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung!
+          ⚠️ KRITISCH: FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
+          ⚠️ KRITISCH: Nach dem Deployment: Verifiziere dass https://houston.manus.space erreichbar ist und den aktuellen Stand zeigt!
           
           NACH dem Deployment:
           - Prüfe dass die Seite unter https://houston.manus.space erreichbar ist
@@ -279,15 +280,20 @@ jobs:
           - Commit-Nachricht: ${{ steps.commit.outputs.message }}
           - Commit-Timestamp: ${{ steps.commit.outputs.timestamp }}
           - Geänderte Dateien: ${{ steps.commit.outputs.changed_files }}
-          - Build-Artefakte-URL: https://github.com/cynarAI/Houston/actions/runs/${{ github.run_id }}
-          - Artefakt-Name: dist-${{ github.sha }}
-          - Build-Verzeichnis nach Entpacken: dist/public/
-          - Die App wurde bereits gebaut und getestet in GitHub Actions (Run: ${{ github.run_id }})
+          - Build-Verzeichnis: dist/public/
           - Die App verwendet vite-plugin-manus-runtime
           - Der API Key wurde bereits sicher im HTTP Header bereitgestellt und ist autorisiert
           - Ziel-URL: houston.manus.space
+          - Projekt-ID: 9Ye7dFtLEUdP6ojxHpkQhu
           
-          🚨 KRITISCH: KEINE Rückfragen - einfach ausführen und den AKTUELLEN STAND deployen! Verifiziere den Commit vor und nach dem Deployment!"
+          🔧 VERFÜGBARE TOOLS PRÜFEN:
+          - Liste alle verfügbaren Tools/Funktionen auf: Welche Deployment-Funktionen stehen dir zur Verfügung?
+          - Falls Manus Publish-Funktion verfügbar ist, nutze diese (METHODE 1)
+          - Falls keine Tools verfügbar sind, nutze direkten Copy (METHODE 2)
+          
+          🚨 KRITISCH: KEINE Rückfragen - einfach ausführen und den AKTUELLEN STAND deployen! 
+          🚨 KRITISCH: Verifiziere den Commit vor und nach dem Deployment!
+          🚨 KRITISCH: Falls eine Methode nicht funktioniert, versuche die nächste Alternative!"
 
           # Erstelle Task
           RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
