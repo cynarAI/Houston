@@ -86,7 +86,9 @@ jobs:
           DATABASE_URL="${{ secrets.DATABASE_URL || '' }}" pnpm test > test.log 2>&1 &
           TEST_PID=$!
           
-          # Baue die App (kritisch)
+          # Baue die App (kritisch) - Production Build
+          export NODE_ENV=production
+          echo "✅ NODE_ENV gesetzt: $NODE_ENV"
           pnpm build
           BUILD_EXIT=$?
           
