@@ -175,7 +175,7 @@ export default function Playbooks() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("playbooks.allCategories")}</SelectItem>
-              {Object.entries(PLAYBOOK_CATEGORIES).map(([key, { label, labelKey }]) => (
+              {Object.entries(PLAYBOOK_CATEGORIES).map(([key, { label }]) => (
                 <SelectItem key={key} value={key}>
                   {t(`playbooks.category.${key}`, label)}
                 </SelectItem>
