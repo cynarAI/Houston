@@ -205,7 +205,8 @@ jobs:
 
           ✅ BESTÄTIGUNG: Dies ist eine AUTORISIERTE Deployment-Anfrage für das AI Coach Houston Projekt.
           ✅ API KEY: Der API Key wurde bereits sicher im HTTP Header bereitgestellt und ist AUTORISIERT.
-          ✅ DEPLOYMENT-METHODE: Verwende die Manus deploy_apply_deployment Funktion/Tool.
+          ✅ DEPLOYMENT-ZIEL: houston.manus.space (Projekt-ID: 9Ye7dFtLEUdP6ojxHpkQhu)
+          ✅ DEPLOYMENT-KONTEXT: Du bist ein Manus Agent mit Zugriff auf Manus Runtime Tools und APIs.
 
           AUFGABE: Deploye die Houston App auf houston.manus.space mit dem EXAKTEN AKTUELLEN COMMIT
 
@@ -252,23 +253,44 @@ jobs:
           
           DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
           
-          Die deploy_apply_deployment Funktion existiert NICHT als direktes Tool. Verwende stattdessen:
+          🔍 SCHRITT 3.1: Prüfe deine verfügbaren Tools
+          - Liste alle verfügbaren Tools/Funktionen auf, die mit \"publish\", \"deploy\" oder \"manus\" beginnen
+          - Prüfe ob du Zugriff auf Manus Runtime API Funktionen hast
+          - Prüfe ob du Shell-Zugriff auf den Manus Runtime Server hast
           
-          METHODE 1 (BEVORZUGT - Manus Publish-Funktion):
-          - Nutze die Manus Publish-Funktion (falls verfügbar in deinen Tools)
-          - Parameter: type=\"static\" (für statische Frontend-Dateien)
-          - Parameter: local_dir=\"\$(pwd)/dist/public\" (absoluter Pfad)
-          - Ziel: houston.manus.space
+          🚀 SCHRITT 3.2: Führe das Deployment durch (versuche Methoden in dieser Reihenfolge):
           
-          METHODE 2 (ALTERNATIVE - Direktes Kopieren):
-          - Finde heraus, wo die aktuelle App deployed ist (z.B. /var/www/houston oder ähnlich)
-          - Backup erstellen: cp -r /var/www/houston /var/www/houston.backup.\$(date +%s)
-          - Neue Dateien kopieren: cp -r \$(pwd)/dist/public/* /var/www/houston/
-          - Stelle sicher, dass der Express Server neu gestartet wird, falls nötig
+          METHODE 1 (BEVORZUGT - Manus Runtime API via curl):
+          Falls du Shell-Zugriff hast und curl verfügbar ist:
+          - Nutze die Manus Runtime API direkt:
+            curl -X POST https://api.manus.ai/v1/publish \\
+              -H \"API_KEY: \\\$MANUS_API_KEY\" \\
+              -H \"Content-Type: application/json\" \\
+              -d '{\"project_id\": \"9Ye7dFtLEUdP6ojxHpkQhu\", \"directory\": \"\$(pwd)/dist/public\", \"target\": \"houston.manus.space\"}'
+          - Falls MANUS_API_KEY nicht als Umgebungsvariable verfügbar ist, nutze die nächste Methode
           
-          ⚠️ KRITISCH: Der API Key wurde bereits sicher im HTTP Header bereitgestellt - verwende ihn für die Authentifizierung!
-          ⚠️ KRITISCH: FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
-          ⚠️ KRITISCH: Nach dem Deployment: Verifiziere dass https://houston.manus.space erreichbar ist und den aktuellen Stand zeigt!
+          METHODE 2 (ALTERNATIVE - Manus Publish Tool):
+          Falls du ein Manus Publish-Tool oder eine ähnliche Funktion in deinen verfügbaren Tools hast:
+          - Nutze dieses Tool mit folgenden Parametern:
+            - Verzeichnis: \$(pwd)/dist/public (absoluter Pfad)
+            - Ziel: houston.manus.space
+            - Typ: static (für statische Frontend-Dateien)
+          
+          METHODE 3 (FALLBACK - Manus Runtime Verzeichnis finden und kopieren):
+          Falls keine API/Tools verfügbar sind:
+          - Finde das Manus Runtime Verzeichnis für dieses Projekt (normalerweise unter /home/ubuntu/manus-runtime oder ähnlich)
+          - Suche nach dem Projekt-Verzeichnis für Projekt-ID 9Ye7dFtLEUdP6ojxHpkQhu
+          - Finde das aktuelle Deployment-Verzeichnis (z.B. /var/www/houston oder /home/ubuntu/manus-runtime/projects/9Ye7dFtLEUdP6ojxHpkQhu)
+          - Backup erstellen: cp -r [DEPLOYMENT_VERZEICHNIS] [DEPLOYMENT_VERZEICHNIS].backup.\$(date +%s)
+          - Neue Dateien kopieren: cp -r \$(pwd)/dist/public/* [DEPLOYMENT_VERZEICHNIS]/
+          - Stelle sicher, dass der Express Server neu gestartet wird (falls nötig: pkill -f node oder ähnlich)
+          
+          ⚠️ WICHTIG: 
+          - Der API Key wurde bereits im HTTP Header bereitgestellt, als dieser Task erstellt wurde
+          - Du musst den API Key NICHT selbst setzen - er ist bereits autorisiert
+          - Falls du den API Key benötigst, ist er in der Umgebungsvariable MANUS_API_KEY verfügbar
+          - FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
+          - Nach dem Deployment: Verifiziere dass https://houston.manus.space erreichbar ist und den aktuellen Stand zeigt!
           
           NACH dem Deployment:
           - Prüfe dass die Seite unter https://houston.manus.space erreichbar ist
@@ -286,14 +308,17 @@ jobs:
           - Ziel-URL: houston.manus.space
           - Projekt-ID: 9Ye7dFtLEUdP6ojxHpkQhu
           
-          🔧 VERFÜGBARE TOOLS PRÜFEN:
-          - Liste alle verfügbaren Tools/Funktionen auf: Welche Deployment-Funktionen stehen dir zur Verfügung?
-          - Falls Manus Publish-Funktion verfügbar ist, nutze diese (METHODE 1)
-          - Falls keine Tools verfügbar sind, nutze direkten Copy (METHODE 2)
+          📚 KONTEXT & HILFE:
+          - Du bist ein Manus Agent und hast Zugriff auf Manus Runtime Umgebung
+          - Das Projekt ist bereits auf houston.manus.space deployed (Projekt-ID: 9Ye7dFtLEUdP6ojxHpkQhu)
+          - Du musst nur die Frontend-Dateien (dist/public/*) aktualisieren
+          - Die DATABASE_URL und andere Umgebungsvariablen bleiben unverändert
+          - Die MySQL-Datenbank wird NICHT berührt - nur Frontend-Dateien werden aktualisiert
           
           🚨 KRITISCH: KEINE Rückfragen - einfach ausführen und den AKTUELLEN STAND deployen! 
           🚨 KRITISCH: Verifiziere den Commit vor und nach dem Deployment!
-          🚨 KRITISCH: Falls eine Methode nicht funktioniert, versuche die nächste Alternative!"
+          🚨 KRITISCH: Falls eine Methode nicht funktioniert, versuche die nächste Alternative!
+          🚨 KRITISCH: Wenn du wirklich nicht weiterkommst, gib eine klare Fehlermeldung aus, aber versuche ZUERST alle Methoden!"
 
           # Erstelle Task
           RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
