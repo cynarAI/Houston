@@ -1,0 +1,400 @@
+---
+name: Houston App Knowledge
+description: Vollständiges Wissen über die App, Landing Page, Branding und Zielgruppen
+ruleType: Always
+---
+
+# Houston App Knowledge - Vollständiges Produktwissen
+
+Du kennst Houston **auswendig** - die App, die Landing Page, das Branding, die Zielgruppen und alle User Flows. Dieses Wissen ist die Basis für alle deine Entscheidungen.
+
+## Was ist Houston?
+
+**Houston ist dein KI-Marketing-Copilot für den Alltag.**
+
+- Nicht ein Chatbot mit Marketing-Features
+- Nicht ein Tool mit KI-Integration
+- **Dein täglicher Partner**, der dir hilft, Marketing zu machen - auch wenn du kein Marketer bist
+
+### Core Job-to-be-done
+
+> **"Houston hilft beschäftigten KMU-Inhabern, vage Marketing-Ideen in einen fokussierten, umsetzbaren Plan zu verwandeln - mit KI, die das schwere Denken übernimmt."**
+
+### Was Houston macht
+
+1. **Versteht dein Business** (durch Onboarding und Gespräche)
+2. **Klärt deine Ziele** (nicht du musst SMART-Ziele formulieren)
+3. **Erstellt Strategien und Missionen** (du entscheidest nur, was passt)
+4. **Führt dich Schritt für Schritt** (jeden Tag weißt du, was zu tun ist)
+5. **Hilft dir zu reflektieren** (was funktioniert, was nicht)
+
+### Was Houston NICHT ist
+
+- ❌ Kein generischer Chatbot - Houston kennt dein Business und gibt spezifische Ratschläge
+- ❌ Kein Projektmanagement-Tool - Wir machen nur Marketing-Todos
+- ❌ Kein Social Media Scheduler - Wir helfen bei der Strategie, nicht beim Posten
+- ❌ Kein Analytics-Dashboard - Wir helfen bei Entscheidungen, nicht beim Daten-Sammeln
+- ❌ Keine Agentur-Ersatz - Wir helfen dir, es selbst zu machen
+
+## Zielgruppen & Personas
+
+### Primäre Zielgruppe
+
+**KMUs und Solo-Founder:**
+- Kleine und mittlere Unternehmen (KMUs)
+- Solo-Founder und Freelancer
+- Marketing-Einsteiger ohne großes Budget
+- Teams, die strukturiertes Marketing-Coaching suchen
+
+**Was sie gemeinsam haben:**
+- Wenig Zeit für Marketing
+- Viele Ideen, aber keine klare Strategie
+- Wissen, dass sie Marketing brauchen, aber wissen nicht wo anfangen
+- Budget für Tools, aber nicht für eine Agentur
+
+### Detaillierte Personas
+
+#### 1. Solo Coach Sandra
+- **Rolle:** Selbstständige Life & Business Coach
+- **Alter:** 38
+- **Marketing-Kenntnisse:** Anfänger
+- **Tech-Level:** Niedrig-Mittel
+- **Ziel:** "Hand-holding" - genau wissen, was am Dienstag zu posten ist
+- **Ängste:** "Ist das nur ein weiteres Tool, das ich nie nutze?" / "Klingt die KI wie ein Roboter?"
+
+#### 2. Lokaler Business-Owner Lukas
+- **Rolle:** Besitzer eines High-End-Friseursalons
+- **Alter:** 45
+- **Marketing-Kenntnisse:** Sehr niedrig
+- **Tech-Level:** Niedrig (hauptsächlich Handy)
+- **Ziel:** Mehr Buchungen/Kunden, keine Strategie-Dokumente
+- **Ängste:** "Ich habe keine Zeit dafür." / "Ist das zu kompliziert für mich?"
+
+#### 3. Marketing Manager Mia
+- **Rolle:** Marketing Managerin bei B2B-Software-Firma (50 Mitarbeiter)
+- **Alter:** 32
+- **Marketing-Kenntnisse:** Hoch
+- **Tech-Level:** Hoch
+- **Ziel:** Effizienz - Automatisierung der "langweiligen Sachen"
+- **Ängste:** "Ist die Qualität gut genug für B2B?" / "Kann ich das exportieren?"
+
+#### 4. Digital Creator Daniel
+- **Rolle:** Content Creator & Online-Kurs-Verkäufer
+- **Alter:** 29
+- **Marketing-Kenntnisse:** Mittel-Hoch (Social & Funnels)
+- **Tech-Level:** Sehr hoch
+- **Ziel:** Bessere Conversion-Funnels, taktische Ratschläge
+- **Ängste:** "Ist das nur ein ChatGPT-Wrapper?" / "Ist die UX smooth genug?"
+
+#### 5. Agency Owner Alex
+- **Rolle:** Besitzer einer Boutique-Marketing-Agentur (3 Mitarbeiter)
+- **Alter:** 40
+- **Marketing-Kenntnisse:** Experte
+- **Tech-Level:** Hoch
+- **Ziel:** Skalierbarkeit - schnelle Strategien für neue Kunden
+- **Ängste:** "Kann ich mehrere Workspaces verwalten?" / "Ist die Daten sicher?"
+
+## Landing Page Struktur
+
+### Section-Reihenfolge
+
+1. **Header** (sticky)
+   - Logo + Branding (Houston by AIstronaut)
+   - Navigation Links (How it Works, Features, Pricing, FAQ)
+   - Language Switcher (DE/EN)
+   - CTA Button ("Kostenlos starten")
+
+2. **Hero Section**
+   - Badge: "Dein KI-Marketing-Copilot"
+   - Headline: "Dein KI-Marketing-Copilot für den Alltag"
+   - Subline: Fokus auf tägliche Begleitung und "Marketing bleibt nicht liegen"
+   - Primary CTA: "Kostenlos starten mit 50 Credits"
+   - Secondary CTA: "So funktioniert's"
+   - Trust Badges: Keine Kreditkarte, 50 Credits, Jederzeit kündbar
+
+3. **How it Works** (4-Schritt-Prozess)
+   - Ziel erzählen → Plan erhalten → Umsetzen → Optimieren
+
+4. **Benefits** (Outcomes statt Features)
+   - "Dein Marketing bleibt nicht mehr liegen"
+   - "Klarer Plan statt Überforderung"
+   - "Weniger Grübeln, mehr Umsetzen"
+
+5. **For Whom** (3 Zielgruppen-Personas)
+   - Solo-Coach & Berater
+   - Kleine Agentur
+   - Lokales Business
+
+6. **Screenshots** ("Mission Control" Framing)
+   - Dashboard, Chat, Goals, Strategy
+
+7. **Credits Explained**
+   - Was sind Credits?
+   - Was kann man mit 50 Credits machen?
+   - Kosten-Tabelle (Chat kostenlos, Tiefenanalyse 3 Credits, etc.)
+
+8. **Pricing**
+   - 3 Pläne: Starter (kostenlos), Solo (€9,99), Team (€39,99)
+   - Credit-Booster als Addon
+   - Trust Signals
+
+9. **FAQ** (6 Fragen mit Accordion)
+   - Inklusive "Für wen ist Houston?" Frage
+
+10. **Testimonials**
+    - Stats (10K+ Nutzer, 50K+ Ziele, 95% Zufriedenheit)
+    - 3 Testimonial-Quotes
+    - Trust Badges (Sicherheit, Uptime, DSGVO)
+
+11. **Final CTA**
+    - "Bereit, dein Marketing auf Kurs zu bringen?"
+    - Großer CTA Button
+
+12. **Footer**
+    - Brand + Tagline
+
+## Branding & Design
+
+### Space-Theme (AIstronaut)
+
+- **App-Name:** Houston (wie Mission Control)
+- **Company:** AIstronaut
+- **Metaphern:** Missionen, Orbit, Raketen (sparsam einsetzen)
+- **Farben:**
+  - Cyan: `#00D4FF` (--aistronaut-cyan)
+  - Purple: `#8B5CF6` (--aistronaut-purple)
+  - Pink: `#FF6B9D` (--aistronaut-pink)
+- **Gradient:** `linear-gradient(135deg, #FF6B9D 0%, #8B5CF6 50%, #00D4FF 100%)`
+
+### Visueller Stil
+
+- **Glassmorphism:** `.glass-card` Klasse für Cards
+- **Space Background:** Animierter Sternenhimmel (SpaceBackground.tsx)
+- **Dark Theme:** Dunkler Hintergrund (`#0a0a0f`, `#1a1a2e`)
+- **Premium Look:** Hochwertige Animationen, smooth Transitions
+
+### Houston Charakter
+
+- **Rolle:** Erfahrener Marketing-Coach, der komplexe Dinge einfach erklärt
+- **Ton:** Freundlich, kompetent, motivierend
+- **Ansprache:** Du-Form (deutsch), direkt und persönlich
+- **Stil:** Klar, prägnant, action-orientiert
+
+### Tone of Voice
+
+- **Klar** - Keine Marketing-Buzzwords, keine Übertreibungen
+- **Warm** - Freundlich, aber nicht albern
+- **Kompetent** - Wie ein erfahrener Berater, nicht wie ein Tool
+- **Motivierend** - Positiv, aber nicht aufdringlich
+- **Direkt** - Du-Form, aktive Sprache, kurze Sätze
+
+**Beispiele:**
+- ✅ "Lass uns dein erstes Ziel definieren"
+- ❌ "Definieren Sie jetzt Ihre SMART-konformen Marketing-Objectives!"
+- ✅ "Du hast 3 offene Aufgaben. Starten wir mit der wichtigsten?"
+- ❌ "Sie haben noch unerledigte Tasks in Ihrem Dashboard!"
+
+## App-Features & Module
+
+### 1. Houston Coach (AI Chat)
+- **Kern der App** - KI-gestützter Marketing-Assistent
+- **Server:** `server/routers/chat.ts`, `server/_core/llm.ts`
+- **Client:** `client/src/pages/Chats.tsx`, `client/src/components/AIChatBox.tsx`
+- **Features:** Chat mit Houston, Streaming-Responses, Message-Feedback
+
+### 2. Goals & Todos
+- **SMART-Goal Management** und Aufgabenverwaltung
+- **Server:** `server/routers/goals.ts`, `server/routers/todos.ts`
+- **Client:** `client/src/pages/Goals.tsx`, `client/src/pages/Todos.tsx`
+- **Features:** SMART-Ziele erstellen, Fortschritt tracken, Todos zuordnen
+
+### 3. Strategy
+- **Marketing-Strategie-Editor**
+- **Server:** `server/routers/strategy.ts`
+- **Client:** `client/src/pages/Strategy.tsx`
+- **Features:** Strategie erstellen, bearbeiten, AI-generierte Vorschläge
+
+### 4. Credits (Billing)
+- **Credit-basiertes Abrechnungssystem - KRITISCH**
+- **Server:** `server/creditService.ts`, `server/routers/credits.ts`
+- **Client:** `client/src/pages/Credits.tsx`, `client/src/components/CreditIndicator.tsx`
+- **Features:** Credit-Balance, Kauf-History, Stripe-Integration
+
+### 5. Referrals
+- **Empfehlungsprogramm mit Credit-Bonus**
+- **Server:** `server/referralService.ts`, `server/routers/referrals.ts`
+- **Client:** `client/src/pages/Referrals.tsx`
+- **Features:** Referral-Code generieren, Credits für Empfehlungen
+
+### 6. Workspaces
+- **Multi-Workspace Support pro User**
+- **Server:** `server/routers/workspaces.ts`
+- **Schema:** `drizzle/schema.ts` (workspaces table)
+- **Features:** Mehrere Workspaces, Workspace-Switching
+
+### 7. Playbooks
+- **Vordefinierte Marketing-Strategien und Vorlagen**
+- **Server:** `server/routers/playbooks.ts`
+- **Client:** `client/src/pages/Playbooks.tsx`
+- **Features:** Playbook auswählen, automatische Todo-Generierung
+
+## Die 3 kritischen User Flows
+
+### Flow 1: Erster Kontakt
+`Landing → Sign-up → Onboarding → Erster Houston-Chat`
+
+**Erfolgskriterium:** In unter 5 Minuten hat der User sein erstes Aha-Erlebnis mit Houston.
+
+**Onboarding-Schritte:**
+1. Business Info (Industrie, Größe, Standort)
+2. Marketing Goals
+3. AI Summary (Magic Moment - User sieht sein Business verstanden)
+4. SMART-Ziele erstellen
+5. Confetti & Willkommen
+
+### Flow 2: Tägliche Rückkehr
+`Login → Dashboard → "Was soll ich heute tun?" → Action`
+
+**Erfolgskriterium:** In unter 10 Sekunden weiß der User, was sein nächster Schritt ist.
+
+**Dashboard-Elemente:**
+- "Today's Focus" Card mit klarem nächsten Schritt
+- Credit-Balance (oben rechts)
+- Offene Todos
+- Aktive Goals mit Fortschritt
+- Quick Actions
+
+### Flow 3: Arbeiten mit Houston
+`Chat → Frage/Prompt → Antwort → Actionable Ergebnis`
+
+**Erfolgskriterium:** Houston fühlt sich an wie ein Gespräch mit einem echten Marketing-Berater.
+
+**Chat-Features:**
+- Streaming Responses
+- Message Feedback (👍/👎)
+- Context-Aware (kennt Business, Goals, Strategy)
+- Actionable Advice (nicht nur generische Tipps)
+
+## Credit-System
+
+### Credit-Kosten
+
+```typescript
+// Kostenlos (0 Credits)
+CHAT_BASIC: 0
+VIEW_CONTENT: 0
+
+// Niedrig (1-3 Credits)
+CHAT_DEEP_ANALYSIS: 3
+PDF_EXPORT: 2
+AI_INSIGHTS: 3
+
+// Mittel (5-8 Credits)
+GOALS_GENERATION: 5
+STRATEGY_ANALYSIS: 8
+CAMPAIGN_BLUEPRINT: 7
+
+// Hoch (10+ Credits)
+MARKETING_AUDIT: 15
+COMPETITOR_ANALYSIS: 12
+CONTENT_CALENDAR: 10
+```
+
+### Credit-System Principles
+
+1. **Transparent** - User weiß VOR jeder Action, was es kostet
+2. **Fair** - Preise entsprechen dem Wert für den User
+3. **Keine Überraschungen** - Nie mehr abziehen als angekündigt
+4. **Basis ist kostenlos** - Chat ist gratis, tiefe Analysen kosten
+
+### Pricing-Pläne
+
+- **Starter:** Kostenlos, 50 Credits zum Start
+- **Solo:** €9,99/Monat, 200 Credits/Monat
+- **Team:** €39,99/Monat, 1000 Credits/Monat
+- **Credit-Booster:** Zusätzliche Credits als Addon
+
+## Product Principles
+
+**Wichtig:** Diese Principles werden von **Steve Jobs' Vision** geleitet. Siehe `005-steve-jobs-vision.mdc` für Details.
+
+### 1. Focus
+> Jeder Screen, jedes Feature, jede Zeile Code muss dem primären Job dienen: Marketing voranbringen.
+
+**Steve Jobs:** "Focus means saying no to the hundred other good ideas."
+
+**Frage bei jedem Feature:** "Hilft das dem User, sein Marketing voranzubringen?"
+
+### 2. Simplicity
+> Reduziere Entscheidungen, Friction und Noise. Der nächste Schritt muss immer offensichtlich sein.
+
+**Steve Jobs:** "Simple can be harder than complex: You have to work hard to get your thinking clean to make it simple."
+
+**Frage bei jedem Flow:** "Kann der User das in unter 10 Sekunden verstehen?" / "Kann ein 5-Jähriger das verstehen?"
+
+### 3. Coherence
+> App und Marketing-Site müssen sich anfühlen wie EIN durchdachtes Produkt.
+
+**Steve Jobs:** "Design is not just what it looks like and feels like. Design is how it works."
+
+**Frage bei jeder Änderung:** "Passt das zum Rest des Produkts?"
+
+### 4. Quality
+> Keine halbfertigen Flows, keine visuellen Glitches, keine inkonsistente Copy.
+
+**Steve Jobs:** "Details are not details, they make the design." / "Be a yardstick of quality."
+
+**Frage vor jedem Release:** "Würde Steve Jobs das auf der Bühne zeigen?"
+
+### 5. Habit
+> Das Produkt muss es wert sein, jeden Tag geöffnet zu werden.
+
+**Steve Jobs:** "People don't know what they want until you show it to them."
+
+**Frage bei jedem Feature:** "Macht das den User morgen wiederkommen?" / "Macht das den User glücklich?"
+
+## Wichtige Erkenntnisse aus User Testing
+
+### Top Findings
+
+1. **Onboarding "Magic Moment"**
+   - Step 3 (AI Summary) baut sofortiges Vertrauen auf
+   - User sehen, dass Houston ihr Business versteht
+
+2. **Integration Gap**
+   - User erwarten Result-Tracking
+   - Ohne Integrations fühlt sich "Progress" wie manuelle Dateneingabe an
+
+3. **Dashboard Overload**
+   - "Today's Focus" Card ist wichtig, aber Copy kann verwirrend sein
+   - Risk von "Choice Paralysis" beim ersten Besuch
+
+4. **Playbooks = Zeitersparnis**
+   - Auto-Generierung von To-Dos ist universell geliebt
+   - Das Feature, das "Zeit sparen" wirklich liefert
+
+5. **Space-Theme Balance**
+   - Einzigartig, aber riskiert Nicht-Tech-User zu alienieren
+   - Muss mit wärmerer, klarerer Copy ausgeglichen werden
+
+## Entscheidungs-Framework
+
+Wenn du bei einer Entscheidung unsicher bist, wähle die Option, die:
+
+1. **Cognitive Load reduziert** - Weniger denken für den User
+2. **Den nächsten Schritt klarer macht** - Offensichtlich, was zu tun ist
+3. **Die Brand und Vision stärker ausdrückt** - Premium, ruhig, vertrauensvoll
+4. **Die tägliche Nutzung verbessert** - Macht das Produkt sticky
+
+## Zusammenfassung
+
+- 🎯 **Houston = KI-Marketing-Copilot für KMUs**
+- 👥 **Zielgruppe:** Solo-Founder, KMUs, Marketing-Einsteiger
+- 🚀 **Space-Theme:** AIstronaut Branding, Premium Look
+- 💬 **Ton:** Freundlich, kompetent, direkt (Du-Form)
+- 🎨 **Design:** Glassmorphism, Dark Theme, Space Background
+- ⚡ **Kern-Features:** Chat, Goals, Todos, Strategy, Credits, Playbooks
+- 🔄 **Kritische Flows:** Onboarding, Daily Return, Chat mit Houston
+- 💳 **Credits:** Transparent, fair, Basis kostenlos
+
+**Du kennst Houston wie deine Westentasche. Nutze dieses Wissen für alle Entscheidungen.**

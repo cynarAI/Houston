@@ -1,0 +1,363 @@
+---
+name: Manus 1.5 Platform
+description: Manus 1.5 als Standard-Plattform - Architektur, Deployment und App-Builder Integration
+ruleType: Always
+---
+
+# Manus 1.5 Platform Standard
+
+**KRITISCH:** Houston wird ausschließlich auf **Manus 1.5** entwickelt und deployed. Alle Architektur-Entscheidungen, Code-Vorschläge und Infrastruktur-Empfehlungen müssen Manus-1.5-kompatibel sein.
+
+## Plattform-Definition
+
+### Manus 1.5 ist die einzige erlaubte Plattform
+
+- ✅ **Erlaubt:** Manus 1.5, Manus Platform, Manus OAuth, Manus LLM, Manus Cloud Browser
+- ❌ **Verboten:** AWS, Vercel, Railway, Heroku, Google Cloud, Azure, DigitalOcean, Render, Fly.io, Netlify, Cloudflare Pages, eigene Server-Infrastruktur
+
+### Was Manus 1.5 bietet
+
+1. **Full-Stack App Builder**
+   - Generiert komplette Apps aus Prompts (Frontend, Backend, DB, Auth)
+   - Automatisches Schema-Design und Migrationslogik
+   - Integrierte Authentifizierung (öffentlich, privat, rollenbasiert)
+   - Analytics & Event-Tracking
+
+2. **Gemanagte Cloud-Infrastruktur**
+   - Backend-Compute (automatisch skaliert)
+   - Datenbank (TiDB X für skalierbare, flexible Schemas)
+   - File-Storage
+   - Domains/Hosting
+   - SSL/HTTPS automatisch
+
+3. **One-Click Deployment**
+   - Einfacher Publish-/Deploy-Schritt
+   - Keine CI/CD-Pipelines nötig
+   - Keine manuelle Infrastruktur-Konfiguration
+
+4. **Cloud Browser & Automatisierung**
+   - Webseiten besuchen, Buttons klicken, Formulare ausfüllen
+   - Inhalte scrapen, Logins nutzen, mehrstufige Workflows
+
+5. **Kollaboration (Collab)**
+   - Echtzeit-Zusammenarbeit an Tasks
+   - Sharebare Links, Single Source of Truth
+
+## Architektur-Prinzipien für Manus-kompatible Apps
+
+### Code-Struktur
+
+Code muss so strukturiert sein, dass Manus 1.5 ihn:
+- **Verstehen** kann (klare Module, explizite Abhängigkeiten)
+- **Generieren** kann (standardisierte Patterns)
+- **Erweitern/Refactoren** kann (modulare Architektur)
+
+### Modulare Struktur
+
+```
+app/
+├── routes/              # Klare Route-Definitionen
+│   ├── GET /api/...    # Backend-Endpoints
+│   └── pages/          # Frontend-Routes
+├── models/             # Datenmodelle (Tabellen/Collections)
+│   ├── fields          # Felder mit Typen
+│   ├── indexes         # Indizes für Performance
+│   └── relations       # Relationen zwischen Modellen
+├── auth/               # Authentifizierung
+│   ├── roles           # Rollen-Definitionen
+│   └── permissions     # Zugriffsregeln
+└── events/             # Events/Analytics
+    └── tracking        # Event-Definitionen
+```
+
+### Datenmodell-Definition
+
+Bei neuen Features immer explizit definieren:
+
+```typescript
+// Beispiel: Datenmodell für Manus
+{
+  table: "feature_name",
+  fields: {
+    id: "int (primary, auto-increment)",
+    userId: "int (foreign key -> users.id, cascade delete)",
+    title: "varchar(255) (required)",
+    status: "enum('active', 'completed') (default: 'active')",
+    createdAt: "timestamp (auto)",
+    updatedAt: "timestamp (auto-update)"
+  },
+  indexes: [
+    { fields: ["userId"], type: "index" },
+    { fields: ["status", "createdAt"], type: "composite" }
+  ],
+  relations: {
+    user: { type: "belongsTo", table: "users", field: "userId" }
+  }
+}
+```
+
+### API-Endpunkte
+
+Klare Endpunkt-Definitionen:
+
+```typescript
+// Beispiel: API-Struktur für Manus
+{
+  route: "/api/feature",
+  methods: {
+    GET: {
+      auth: "protected",
+      params: { workspaceId: "number" },
+      returns: "Feature[]"
+    },
+    POST: {
+      auth: "protected",
+      body: { workspaceId: "number", title: "string" },
+      returns: "Feature",
+      costs: 5 // Credits
+    }
+  }
+}
+```
+
+## Prompt-Design für Manus 1.5 App Builder
+
+Wenn du Prompts für Manus formulierst, verwende diese Struktur:
+
+### Business-Kontext
+- Zielgruppe, Produkt, Geschäftsziele
+- Gewünschtes Nutzerverhalten
+
+### Funktionale Anforderungen
+- Features, die die App haben muss
+- User Journeys & kritische Flows
+
+### Nicht-funktionale Anforderungen
+- Performance, Skalierbarkeit, Datenschutz
+- Branding, Tonalität
+
+### Technische Anforderungen
+- Datenmodelle, Relationen
+- Auth-Modelle, Rollen
+- Trigger/Events
+
+### UX/UI-Richtlinien
+- Branding (Farben, Typografie, Komponentensystem)
+- Layout-Prinzipien
+- Barrierefreiheit (WCAG)
+- Microinteractions und States
+
+### Testing & Qualitätssicherung
+- Welche Tests Manus erzeugen/ausführen soll
+- Welche Metriken/Analytics die App tracken soll
+
+### Beispiel-Prompt-Template
+
+```
+Erstelle eine [App-Typ] für [Zielgruppe].
+
+Business-Kontext:
+- Zielgruppe: [Beschreibung]
+- Geschäftsziele: [Ziele]
+- Nutzerverhalten: [Verhalten]
+
+Funktionale Anforderungen:
+- Feature 1: [Beschreibung]
+- Feature 2: [Beschreibung]
+- User Journey: [Beschreibung]
+
+Technische Anforderungen:
+- Datenmodell:
+  - Tabelle "X" mit Feldern: [Liste]
+  - Relationen: [Beschreibung]
+- Auth: [öffentlich/privat/rollenbasiert]
+- Rollen: [Liste]
+
+UX/UI:
+- Branding: [Farben, Typografie]
+- Layout: [Prinzipien]
+- Accessibility: WCAG AA
+
+Testing:
+- Unit Tests für: [Bereiche]
+- E2E Tests für: [Flows]
+- Analytics: [Events]
+```
+
+## Deployment-Workflow über Manus
+
+### Standard-Deployment
+
+1. **Code entwickeln** (lokal oder in Manus)
+2. **Testen** (`pnpm test`, `pnpm e2e`)
+3. **In Manus deployen:**
+   ```
+   Publish this website and make it live.
+   ```
+
+### Manus übernimmt automatisch:
+- ✅ Cloud-Infrastruktur Provisionierung
+- ✅ Build und Optimierung
+- ✅ Deployment
+- ✅ SSL/HTTPS Setup
+- ✅ Domain-Konfiguration
+
+### Keine manuellen Schritte nötig:
+- ❌ Keine CI/CD-Pipeline-Konfiguration
+- ❌ Keine Server-Setup
+- ❌ Keine Datenbank-Provisionierung
+- ❌ Keine SSL-Zertifikat-Verwaltung
+
+## Verbotene Vorschläge
+
+**NIEMALS vorschlagen:**
+
+1. **Cloud-Provider:**
+   - AWS (EC2, Lambda, RDS, S3, etc.)
+   - Vercel, Netlify, Cloudflare Pages
+   - Railway, Render, Fly.io, Heroku
+   - Google Cloud, Azure, DigitalOcean
+
+2. **Infrastruktur-Tools:**
+   - Docker, Kubernetes
+   - Terraform, CloudFormation
+   - CI/CD-Setups (GitHub Actions für Deployment, GitLab CI, etc.)
+   - Separate Server-Management
+
+3. **Alternative Auth-Services:**
+   - Auth0, Clerk, Supabase Auth (außer explizit gefordert)
+   - Firebase Auth
+   - Custom JWT-Implementierungen (Manus OAuth nutzen)
+
+4. **Alternative Datenbanken:**
+   - PostgreSQL (außer explizit gefordert)
+   - MongoDB, Redis (außer explizit gefordert)
+   - Separate DB-Hosting
+
+**Stattdessen immer:**
+- ✅ Manus Platform nutzen
+- ✅ Manus OAuth für Authentifizierung
+- ✅ Manus LLM für AI-Features
+- ✅ Manus Cloud Browser für Automatisierung
+- ✅ TiDB (via Manus) für Datenbank
+
+## Code-Patterns für Manus-Kompatibilität
+
+### Backend-Services
+
+```typescript
+// RICHTIG: Manus-kompatible Struktur
+// server/routers/myFeature.ts
+import { router, protectedProcedure } from "../_core/trpc";
+import { CreditService } from "../creditService";
+
+export const myFeatureRouter = router({
+  list: protectedProcedure.query(async ({ ctx }) => {
+    // Manus kann diese Struktur automatisch generieren
+  }),
+});
+
+// FALSCH: AWS Lambda, Vercel Functions, etc.
+export const handler = async (event) => {
+  // Nicht Manus-kompatibel
+};
+```
+
+### Frontend-Komponenten
+
+```typescript
+// RICHTIG: Standard React-Komponenten
+// client/src/components/MyComponent.tsx
+export function MyComponent() {
+  // Manus kann React-Komponenten generieren
+}
+
+// FALSCH: Framework-spezifische Patterns, die Manus nicht versteht
+```
+
+### Datenbank-Schema
+
+```typescript
+// RICHTIG: Drizzle Schema (Manus-kompatibel)
+// drizzle/schema.ts
+export const myTable = mysqlTable("myTable", {
+  id: int("id").autoincrement().primaryKey(),
+  // ...
+});
+
+// FALSCH: Raw SQL, ORM-spezifische Patterns
+```
+
+## Integration mit Manus-Services
+
+### Manus OAuth
+
+```typescript
+// server/_core/oauth.ts
+// Nutze Manus OAuth für Authentifizierung
+// VITE_APP_ID und OAUTH_SERVER_URL aus Environment
+```
+
+### Manus LLM
+
+```typescript
+// server/_core/llm.ts
+// Nutze Manus LLM für AI-Features
+// BUILT_IN_FORGE_API_URL und BUILT_IN_FORGE_API_KEY
+```
+
+### Manus Cloud Browser
+
+Wenn Automatisierung nötig ist:
+- Erwäge, ob Manus Cloud Browser die Aufgabe erledigen kann
+- Nur bei Bedarf klassische APIs/Webhooks verwenden
+
+## Checkliste für neue Features
+
+Vor jedem neuen Feature prüfen:
+
+- [ ] Ist die Architektur Manus-1.5-kompatibel?
+- [ ] Nutzt es Manus-Services (OAuth, LLM, etc.)?
+- [ ] Ist das Datenmodell klar definiert?
+- [ ] Sind die API-Endpunkte dokumentiert?
+- [ ] Gibt es keine Abhängigkeiten zu verbotenen Plattformen?
+- [ ] Kann Manus den Code automatisch generieren/erweitern?
+- [ ] Ist das Deployment über Manus möglich?
+
+## Fehlerbehandlung
+
+Wenn eine Anforderung außerhalb des Manus-Workflows liegt:
+
+1. **Explizit darauf hinweisen**, dass zusätzliche manuelle Infrastruktur nötig wäre
+2. **Alternative Manus-kompatible Lösung vorschlagen**
+3. **Falls nicht möglich:** Klar kommunizieren, dass die Anforderung nicht Manus-kompatibel ist
+
+## Manus-Dokumentation konsultieren
+
+**IMMER** bei Manus-bezogenen Fragen die offizielle Dokumentation prüfen:
+
+- **Manus Docs:** https://docs.manus.im
+- **Manus Help:** https://help.manus.im
+- **Manus Platform Features:** Aktuelle Capabilities, Limits, Best Practices
+
+**Vorgehen:**
+1. Bei Unklarheiten zuerst Manus-Docs durchsuchen
+2. Spezifische API-Dokumentation für OAuth, LLM, Cloud Browser prüfen
+3. Deployment-Prozess und Best Practices nachschlagen
+4. Neue Features oder Updates in der Dokumentation checken
+
+**Recherche-Ergebnisse:**
+- Kurz zusammenfassen, was in den Docs steht
+- Quellen erwähnen (z.B. "Laut Manus Docs v1.5...")
+- Empfehlung klar begründen
+
+## Zusammenfassung
+
+- ✅ **Immer:** Manus 1.5 als Plattform verwenden
+- ✅ **Immer:** Manus-kompatible Architektur-Patterns nutzen
+- ✅ **Immer:** Klare Strukturen für Manus App Builder
+- ✅ **Immer:** Manus-Docs konsultieren bei Fragen
+- ❌ **Niemals:** Andere Cloud-Provider oder Infrastruktur-Tools vorschlagen
+- ❌ **Niemals:** Code-Patterns, die Manus nicht verstehen kann
+
+**Houston = Manus 1.5 Platform. Punkt.**

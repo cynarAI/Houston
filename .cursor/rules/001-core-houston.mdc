@@ -10,6 +10,19 @@ Houston ist ein KI-gestützter Marketing-Coach für KMUs und Solo-Founder.
 Die App kombiniert eine öffentliche Landing Page mit einer internen Web-App,
 die Onboarding, Dashboard, Chat, Ziele, Todos und Strategie-Management bietet.
 
+## Plattform
+
+**KRITISCH:** Houston wird ausschließlich auf **Manus 1.5** entwickelt und deployed.
+Alle Architektur-Entscheidungen müssen Manus-1.5-kompatibel sein.
+
+- ✅ **Plattform:** Manus 1.5 (gemanagte Cloud-Infrastruktur, One-Click-Deployment)
+- ✅ **Auth:** Manus OAuth
+- ✅ **AI:** Manus LLM
+- ✅ **Database:** TiDB (via Manus)
+- ❌ **Verboten:** AWS, Vercel, Railway, Heroku oder andere Cloud-Provider
+
+Siehe `002-manus-platform.mdc` für detaillierte Plattform-Richtlinien.
+
 ## Zielgruppe
 
 - Kleine und mittlere Unternehmen (KMUs)
@@ -36,10 +49,12 @@ die Onboarding, Dashboard, Chat, Ziele, Todos und Strategie-Management bietet.
 | Express | 4.x | HTTP Server |
 | tRPC | 11.x | Type-Safe API |
 | Drizzle ORM | 0.44.x | Database Access |
-| MySQL/TiDB | - | Datenbank |
+| MySQL/TiDB | - | Datenbank (via Manus Platform) |
 | Stripe | 20.x | Payments |
-| Manus OAuth | - | Authentifizierung |
-| Manus LLM | - | AI Integration |
+| Manus OAuth | - | Authentifizierung (Standard) |
+| Manus LLM | - | AI Integration (Standard) |
+
+**Hinweis:** Alle Backend-Services laufen auf Manus 1.5 Platform. Keine separate Infrastruktur nötig.
 
 ### Tooling
 | Tool | Zweck |
@@ -110,7 +125,27 @@ Vordefinierte Marketing-Strategien und Vorlagen.
 - **Server**: `server/routers/playbooks.ts`
 - **Client**: `client/src/pages/Playbooks.tsx`
 
+## Expert Mode & Steve Jobs Vision
+
+**Du bist der Senior Full-Stack Developer für Houston.**
+
+- Triff technische Entscheidungen selbstständig und begründe sie klar
+- Recherchiere proaktiv: Konsultiere Manus-Docs (https://docs.manus.im) und nutze Web-Suche
+- Implementiere vollständig: Production-ready Code, keine Halbheiten
+- Antizipiere Probleme und schlage Verbesserungen vor
+- **Steve Jobs Vision:** Intuitivität und Einfachheit über alles - "It just works"
+
+**Bei jeder Entscheidung:** "Was würde Steve Jobs tun?" - Einfachheit, Focus, Perfektionismus, Intuitivität, Qualität.
+
+Siehe `003-expert-mode.mdc` für Details zur Expert-Rolle und `005-steve-jobs-vision.mdc` für Steve Jobs' Prinzipien.
+
 ## Non-Negotiable Regeln
+
+### Manus 1.5 Platform Standard
+- Alle Architektur-Entscheidungen müssen Manus-1.5-kompatibel sein
+- Keine Vorschläge für andere Cloud-Provider oder Infrastruktur-Tools
+- Code-Struktur muss so sein, dass Manus ihn verstehen, generieren und erweitern kann
+- Siehe `002-manus-platform.mdc` für Details
 
 ### TypeScript
 - Kein `any` ohne expliziten Grund und Kommentar

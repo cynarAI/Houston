@@ -1,0 +1,263 @@
+---
+name: Steve Jobs Vision & Principles
+description: Steve Jobs als visionärer Leiter - Intuitivität und Einfachheit über alles
+ruleType: Always
+---
+
+# Steve Jobs Vision für Houston
+
+**Houston wird fiktiv von Steve Jobs geleitet.** Seine Vision und Prinzipien sind die Richtschnur für alle Entscheidungen. Das Produkt muss so **intuitiv und einfach** wie möglich sein.
+
+## Steve Jobs' Kernprinzipien für Houston
+
+### 1. Simplicity über alles
+
+> **"Simple can be harder than complex: You have to work hard to get your thinking clean to make it simple."**
+
+**Was das bedeutet:**
+- Jeder Screen hat **EINEN** klaren Zweck
+- Jede Interaktion ist **offensichtlich** - keine Erklärung nötig
+- Jede Entscheidung reduziert Komplexität, nicht erhöht sie
+- "It just works" - keine Konfiguration, keine Einstellungen, keine Hürden
+
+**Frage bei jedem Feature:** "Kann ein 5-Jähriger das verstehen?"
+
+### 2. Focus - Weniger ist mehr
+
+> **"Focus means saying no to the hundred other good ideas."**
+
+**Was das bedeutet:**
+- Kein Feature-Bloat - nur was wirklich nötig ist
+- Jede neue Idee muss gegen bestehende Features kämpfen
+- Wenn etwas hinzugefügt wird, muss etwas anderes entfernt werden
+- "Die Kunst ist, zu wissen, was man weglassen kann"
+
+**Frage bei jedem Feature:** "Braucht der User das wirklich, oder können wir es weglassen?"
+
+### 3. Perfektionismus in Details
+
+> **"Details are not details, they make the design."**
+
+**Was das bedeutet:**
+- Jede Animation ist **smooth** und **sinnvoll**
+- Jeder Text ist **perfekt** formuliert
+- Jede Interaktion fühlt sich **natürlich** an
+- Keine halbfertigen Flows, keine visuellen Glitches
+
+**Frage bei jedem Detail:** "Würde Steve Jobs das auf der Bühne zeigen?"
+
+### 4. User Experience First
+
+> **"Design is not just what it looks like and feels like. Design is how it works."**
+
+**Was das bedeutet:**
+- UX kommt vor Technik
+- Der User spürt die Qualität, nicht die Komplexität dahinter
+- Jede Entscheidung wird aus User-Sicht getroffen
+- "Der User weiß nicht, was er will, bis du es ihm zeigst"
+
+**Frage bei jeder Entscheidung:** "Macht das die Erfahrung besser oder komplizierter?"
+
+### 5. Intuitive Bedienbarkeit
+
+> **"It just works."**
+
+**Was das bedeutet:**
+- Keine Anleitung nötig - alles ist selbsterklärend
+- Der nächste Schritt ist **immer** offensichtlich
+- Keine versteckten Features, keine komplexen Menüs
+- "Wenn du eine Anleitung brauchst, ist es zu kompliziert"
+
+**Frage bei jedem Flow:** "Kann der User das intuitiv verstehen, ohne nachzudenken?"
+
+### 6. Qualität über Features
+
+> **"Quality is more important than quantity. One home run is much better than two doubles."**
+
+**Was das bedeutet:**
+- Lieber **ein perfektes** Feature als zehn halbfertige
+- Jedes Feature muss **vollständig** sein - von Anfang bis Ende
+- Keine Kompromisse bei der Qualität
+- "Entweder es ist gut, oder es wird nicht shipped"
+
+**Frage vor jedem Release:** "Ist das gut genug für Steve Jobs?"
+
+### 7. Emotionale Verbindung
+
+> **"People don't know what they want until you show it to them."**
+
+**Was das bedeutet:**
+- Das Produkt muss sich **gut anfühlen**
+- Jede Interaktion sollte **Freude** machen
+- Der User soll **stolz** sein, Houston zu nutzen
+- "Wir machen nicht nur ein Tool, wir machen eine Erfahrung"
+
+**Frage bei jedem Feature:** "Macht das den User glücklich?"
+
+## Steve Jobs' Entscheidungs-Framework
+
+### Bei jeder Entscheidung frage:
+
+1. **Ist es einfach?** - Kann ein 5-Jähriger das verstehen?
+2. **Ist es fokussiert?** - Braucht der User das wirklich?
+3. **Ist es perfekt?** - Würde Steve Jobs das zeigen?
+4. **Ist es intuitiv?** - Funktioniert es ohne Erklärung?
+5. **Macht es Freude?** - Fühlt sich die Erfahrung gut an?
+
+### Wenn eine Antwort "Nein" ist:
+
+- **Einfach?** → Vereinfachen, reduzieren, klarer machen
+- **Fokussiert?** → Entfernen oder mit bestehendem Feature kombinieren
+- **Perfekt?** → Weiterarbeiten bis es perfekt ist
+- **Intuitiv?** → Umdenken, User-Test, vereinfachen
+- **Freude?** → Emotionale Verbindung stärken, Details polieren
+
+## Anwendung auf Houston
+
+### Landing Page
+
+**Steve Jobs würde sagen:**
+- "Eine klare Botschaft, ein klarer CTA, keine Ablenkung"
+- "Der User muss in 3 Sekunden verstehen, was Houston ist"
+- "Jede Section hat einen Zweck oder wird entfernt"
+
+**Umsetzung:**
+- Hero: Eine Headline, eine Subline, ein CTA
+- Keine überflüssigen Sections
+- Jede Section beantwortet eine Frage des Users
+
+### Onboarding
+
+**Steve Jobs würde sagen:**
+- "Der User soll sich willkommen fühlen, nicht überfordert"
+- "Jeder Schritt ist offensichtlich, jeder nächste Schritt klar"
+- "Das Onboarding ist die erste Erfahrung - sie muss perfekt sein"
+
+**Umsetzung:**
+- Maximal 3-5 Schritte
+- Jeder Schritt hat einen klaren Zweck
+- Keine unnötigen Fragen
+- Sofortiges Aha-Erlebnis (Magic Moment)
+
+### Dashboard
+
+**Steve Jobs würde sagen:**
+- "Der User soll sofort wissen, was zu tun ist"
+- "Keine leeren Räume, keine Verwirrung"
+- "Ein klarer Fokus, nicht 10 verschiedene Optionen"
+
+**Umsetzung:**
+- "Today's Focus" ist der einzige wichtige Bereich
+- Alles andere ist sekundär
+- Klarer nächster Schritt, immer sichtbar
+
+### Chat mit Houston
+
+**Steve Jobs würde sagen:**
+- "Es soll sich anfühlen wie ein Gespräch mit einem Freund"
+- "Keine Verzögerungen, keine Fehler, keine Verwirrung"
+- "Der User soll das Gefühl haben, verstanden zu werden"
+
+**Umsetzung:**
+- Streaming Responses (kein Warten)
+- Kontext-Aware (Houston kennt das Business)
+- Actionable Advice (nicht nur generische Tipps)
+
+### Features
+
+**Steve Jobs würde sagen:**
+- "Jedes Feature muss perfekt sein, bevor es shipped wird"
+- "Lieber weniger Features, aber jedes ist ein Meisterwerk"
+- "Wenn ein Feature nicht intuitiv ist, ist es falsch"
+
+**Umsetzung:**
+- Keine halbfertigen Features
+- Jedes Feature hat einen klaren Zweck
+- Jedes Feature ist selbsterklärend
+
+## Steve Jobs' Zitate für Houston
+
+### Bei Feature-Entscheidungen:
+
+> **"Innovation is saying no to 1,000 things."**
+
+→ Nicht jedes Feature ist ein gutes Feature. Focus ist alles.
+
+### Bei Design-Entscheidungen:
+
+> **"Design is not just what it looks like and feels like. Design is how it works."**
+
+→ Die UX ist wichtiger als das Aussehen.
+
+### Bei Qualitäts-Entscheidungen:
+
+> **"Be a yardstick of quality. Some people aren't used to an environment where excellence is expected."**
+
+→ Keine Kompromisse bei der Qualität.
+
+### Bei Simplicity-Entscheidungen:
+
+> **"Simple can be harder than complex: You have to work hard to get your thinking clean to make it simple."**
+
+→ Einfachheit erfordert harte Arbeit.
+
+### Bei User-Experience-Entscheidungen:
+
+> **"You've got to start with the customer experience and work back toward the technology."**
+
+→ Der User kommt zuerst, nicht die Technik.
+
+## Integration mit Manus 1.5
+
+**Steve Jobs würde Manus 1.5 lieben** - weil es genau seine Vision erfüllt:
+
+### Manus 1.5 = "It just works"
+
+- ✅ **One-Prompt-App-Builder** - Einfachheit über alles
+- ✅ **Gemanagte Infrastruktur** - Keine Komplexität für den Developer
+- ✅ **One-Click-Deployment** - Perfekt, ohne DevOps-Hürden
+- ✅ **Automatisches Provisioning** - "It just works"
+
+### Architektur für Manus 1.5
+
+**Steve Jobs würde sagen:**
+- "Die Architektur muss so einfach sein, dass Manus sie automatisch generieren kann"
+- "Keine unnötige Komplexität - klare Strukturen, klare Patterns"
+- "Wenn Manus es nicht versteht, ist es zu kompliziert"
+
+**Umsetzung:**
+- Klare, modulare Struktur (Routes, Models, Auth, Events)
+- Manus-kompatible Patterns (siehe `002-manus-platform.mdc`)
+- Keine komplexen Multi-Cloud-Setups
+- Einfache, verständliche Code-Struktur
+
+### Prompt-Design für Manus
+
+**Steve Jobs würde sagen:**
+- "Ein Prompt muss so klar sein, dass Manus sofort versteht, was zu tun ist"
+- "Keine Unklarheiten, keine Widersprüche, keine Komplexität"
+- "Wenn der Prompt lang ist, ist die Idee zu kompliziert"
+
+**Umsetzung:**
+- Klare Business-Kontext-Beschreibung
+- Explizite funktionale Anforderungen
+- Einfache, verständliche UX/UI-Richtlinien
+- Fokussierte, nicht überfrachtete Prompts
+
+## Zusammenfassung
+
+**Steve Jobs' Vision für Houston:**
+
+- 🎯 **Einfachheit** - Jeder Screen, jede Interaktion ist offensichtlich
+- 🎯 **Focus** - Nur was wirklich nötig ist, kein Feature-Bloat
+- 🎯 **Perfektionismus** - Jedes Detail ist durchdacht und poliert
+- 🎯 **Intuitivität** - "It just works" - keine Anleitung nötig
+- 🎯 **Qualität** - Lieber ein perfektes Feature als zehn halbfertige
+- 🎯 **Emotion** - Das Produkt muss sich gut anfühlen
+- 🚀 **Manus 1.5** - Architektur so einfach, dass Manus sie automatisch generieren kann
+
+**Bei jeder Entscheidung:** "Was würde Steve Jobs tun?"
+
+**Das Ziel:** Ein Produkt, das so intuitiv und einfach ist, dass der User denkt: "Warum ist das nicht schon immer so gewesen?"
+
+**Mit Manus 1.5:** Ein Produkt, das so einfach zu entwickeln ist, dass der Developer denkt: "Warum war Entwicklung nicht schon immer so einfach?"

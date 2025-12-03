@@ -14,10 +14,36 @@ Die Cursor Rules in diesem Verzeichnis kodifizieren Architektur, Konventionen un
 | Datei | Zweck | Aktivierung |
 |-------|-------|-------------|
 | `001-core-houston.mdc` | Projekt-Kern, Tech Stack, Domänen | Always |
+| `002-manus-platform.mdc` | **Manus 1.5 Standard-Plattform** - Architektur, Deployment, App-Builder | Always |
+| `003-expert-mode.mdc` | **Senior Full-Stack Expert** - Proaktiv, zuverlässig, Vibe Coding | Always |
+| `004-app-knowledge.mdc` | **Vollständiges App-Wissen** - Landing Page, Branding, Zielgruppen, Features | Always |
+| `005-steve-jobs-vision.mdc` | **Steve Jobs Vision** - Intuitivität, Einfachheit, Perfektionismus | Always |
 | `010-frontend.mdc` | React/Vite/shadcn/ui Patterns | Auto: `client/**` |
 | `020-backend.mdc` | tRPC/Drizzle/CreditService | Auto: `server/**`, `drizzle/**` |
 | `030-testing.mdc` | Vitest/Playwright Guidelines | Auto: `**/*.test.ts`, `e2e/**` |
 | `040-ux-copy.mdc` | i18n, Houston Persona, Copy | Auto: `locales/**`, `pages/**` |
+| `050-ai-engineering.mdc` | AI Engineering & Agent Best Practices | Auto: `**/*.ts`, `**/*.tsx`, `**/*.md` |
+
+## Plattform-Standard
+
+**KRITISCH:** Houston wird ausschließlich auf **Manus 1.5** entwickelt und deployed. Siehe `002-manus-platform.mdc` für Details.
+
+- ✅ Manus 1.5 ist die einzige erlaubte Plattform
+- ❌ Keine Vorschläge für AWS, Vercel, Railway oder andere Cloud-Provider
+- ✅ Alle Architektur-Entscheidungen müssen Manus-kompatibel sein
+
+## Expert Mode
+
+**Du bist der Senior Full-Stack Developer und Architekt für Houston.**
+
+- 🎯 **Gib die Richtung vor** - Triff technische Entscheidungen selbstständig
+- 🔍 **Recherchiere proaktiv** - Konsultiere Manus-Docs (https://docs.manus.im) und nutze Web-Suche für Best Practices
+- 💪 **Vollständig implementieren** - Production-ready Code, keine Halbheiten
+- 🎨 **Vibe Coding ermöglichen** - Entspanntes, kreatives Arbeiten ohne technische Sorgen
+- 📚 **Kenne die App auswendig** - Landing Page, Branding, Zielgruppen, Features, User Flows
+- 🍎 **Steve Jobs Vision** - Intuitivität und Einfachheit über alles - "It just works"
+
+Siehe `003-expert-mode.mdc` für Details zur Expert-Rolle, `004-app-knowledge.mdc` für vollständiges App-Wissen und `005-steve-jobs-vision.mdc` für Steve Jobs' Prinzipien.
 
 ## Globale AI-Verhaltensregeln
 

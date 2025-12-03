@@ -12,6 +12,18 @@ globs:
 Das Backend ist ein Express-Server mit tRPC für type-safe APIs
 und Drizzle ORM für Datenbankzugriff.
 
+## Manus 1.5 Platform
+
+**KRITISCH:** Das Backend läuft auf **Manus 1.5 Platform**. Keine separate Server-Infrastruktur nötig.
+
+- ✅ **Hosting:** Manus 1.5 (automatisch skaliert, gemanagte Infrastruktur)
+- ✅ **Database:** TiDB via Manus (automatisch provisioniert)
+- ✅ **Auth:** Manus OAuth (integriert)
+- ✅ **LLM:** Manus LLM (integriert)
+- ❌ **Verboten:** AWS Lambda, Vercel Functions, Railway, eigene Server
+
+Alle Backend-Services müssen Manus-1.5-kompatibel sein. Siehe `002-manus-platform.mdc` für Details.
+
 ## Verzeichnis-Struktur
 
 ```
@@ -303,6 +315,8 @@ await checkGoalOwnership(db, goalId, ctx.user.id);
 
 ## LLM Integration
 
+**Standard:** Nutze immer Manus LLM für AI-Features. Keine anderen LLM-APIs (OpenAI, Anthropic, etc.) ohne explizite Anforderung.
+
 ### Manus LLM aufrufen
 ```typescript
 import { callLLM, streamLLM } from "../_core/llm";
@@ -327,10 +341,12 @@ const stream = await streamLLM({
 
 ## Best Practices
 
-1. **Input Validation** - Immer Zod Schemas für Input
-2. **Ownership Checks** - Vor jeder Ressourcen-Mutation
-3. **Credits first** - Bei kostenpflichtigen Features zuerst Credits prüfen
-4. **Atomic Operations** - CreditService nutzt atomare DB-Updates
-5. **Error Logging** - Errors werden automatisch geloggt (siehe trpc.ts)
-6. **No N+1** - Joins statt Schleifen-Queries
-7. **Transactions** - Für zusammengehörige Operationen
+1. **Manus-kompatible Architektur** - Code muss Manus-1.5-kompatibel sein, keine externen Infrastruktur-Abhängigkeiten
+2. **Input Validation** - Immer Zod Schemas für Input
+3. **Ownership Checks** - Vor jeder Ressourcen-Mutation
+4. **Credits first** - Bei kostenpflichtigen Features zuerst Credits prüfen
+5. **Atomic Operations** - CreditService nutzt atomare DB-Updates
+6. **Error Logging** - Errors werden automatisch geloggt (siehe trpc.ts)
+7. **No N+1** - Joins statt Schleifen-Queries
+8. **Transactions** - Für zusammengehörige Operationen
+9. **Keine separate Infrastruktur** - Keine Vorschläge für AWS, Vercel, Railway etc. - alles läuft auf Manus
