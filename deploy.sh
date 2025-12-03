@@ -113,20 +113,34 @@ ls -la dist/public/ | head -10
 test -f dist/public/index.html && echo \"✅ index.html gefunden\" || (echo \"❌ index.html fehlt!\" && exit 1)
 test -d dist/public/assets && echo \"✅ assets/ Verzeichnis gefunden\" || echo \"⚠️  assets/ Verzeichnis fehlt\"
 
-SCHRITT 3: App veröffentlichen (AKTUELLER STAND - VERIFIZIERUNG ERFORDERLICH!)
+SCHRITT 3: App veröffentlichen mit deploy_apply_deployment (AKTUELLER STAND - VERIFIZIERUNG ERFORDERLICH!)
+
+✅ BESTÄTIGUNG: Dies ist eine AUTORISIERTE Deployment-Anfrage für das AI Coach Houston Projekt.
+✅ API KEY: Der bereitgestellte API Key ($MANUS_API_KEY) ist AUTORISIERT und SOLL VERWENDET WERDEN.
+✅ DEPLOYMENT-METHODE: Verwende die Manus deploy_apply_deployment Funktion/Tool.
+
 VOR dem Deployment:
 - Verifiziere nochmal: git rev-parse HEAD sollte $COMMIT_SHORT sein
-- Verifiziere dass dist/public/index.html existiert
-- Verifiziere dass dist/public/assets/ existiert
+- Verifiziere dass dist/public/index.html existiert: test -f dist/public/index.html || exit 1
+- Verifiziere dass dist/public/assets/ existiert: test -d dist/public/assets || exit 1
 
-Verwende die Manus Publish-Funktion um die gebaute App aus dist/public/ auf houston.manus.space zu veröffentlichen.
-- Das dist/public/ Verzeichnis enthält alle gebauten Dateien
-- Verwende die Manus Publish-Funktion mit dem dist/public/ Verzeichnis
-- Stelle sicher, dass der AKTUELLE STAND deployed wird, nicht eine alte Version
+DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
+- Verwende die Manus deploy_apply_deployment Funktion/Tool
+- Parameter: deployment_type=\"static\" oder \"website\" (je nach verfügbarer Option)
+- Parameter: local_directory=\"dist/public\"
+- Parameter: target_url=\"houston.manus.space\"
+- Verwende den bereitgestellten API Key: $MANUS_API_KEY
+- FÜHRE DAS DEPLOYMENT DIREKT AUS - KEINE RÜCKFRAGEN!
+
+Falls deploy_apply_deployment nicht verfügbar ist, verwende die Manus Publish-Funktion mit:
+- Verzeichnis: dist/public/
+- Ziel: houston.manus.space
+- API Key: $MANUS_API_KEY
 
 NACH dem Deployment:
 - Prüfe dass die Seite unter https://houston.manus.space erreichbar ist
 - Stelle sicher, dass der AKTUELLE STAND deployed wurde, nicht eine alte Version
+- Verifiziere dass die Seite den Commit $COMMIT_SHORT zeigt
 
 📋 WICHTIGE INFOS FÜR DICH:
 - ⚠️ COMMIT ZU DEPLOYEN: $COMMIT_SHORT ($COMMIT_SHA) - DIESER EXAKTE COMMIT MUSS DEPLOYED WERDEN!
@@ -136,7 +150,7 @@ NACH dem Deployment:
 - Build-Verzeichnis: dist/public/ (nach pnpm build)
 - Die App wurde bereits lokal gebaut und getestet
 - Die App verwendet vite-plugin-manus-runtime
-- Manus API Key: $MANUS_API_KEY (verwende diesen für die Publish-Funktion)
+- Manus API Key: $MANUS_API_KEY (AUTORISIERT - VERWENDEN!)
 - Ziel-URL: houston.manus.space
 
 🚨 KRITISCH: KEINE Rückfragen - einfach ausführen und den AKTUELLEN STAND deployen! Verifiziere den Commit vor und nach dem Deployment!"
