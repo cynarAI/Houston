@@ -28,6 +28,7 @@ export function CheckInModal({ open, onOpenChange, goalId, goalTitle, currentPro
       await updateGoalMutation.mutateAsync({
         id: goalId,
         progress: progress,
+        note: note,
       });
       
       trackEvent(AnalyticsEvents.GOAL_UPDATED, { goal_id: goalId, new_progress: progress });

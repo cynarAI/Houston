@@ -92,6 +92,9 @@ export default function Chats() {
       
       // Clear the URL parameter
       setLocation("/app/chats", { replace: true });
+
+      // Send the message immediately
+      setTimeout(() => handleSend(prompt), 0);
     }
   }, [searchString, promptProcessed, workspaces, activeSessionId, createSessionMutation, refetchSessions, setLocation]);
 
@@ -124,12 +127,12 @@ export default function Chats() {
     }
   };
 
-  const handleSend = async () => {
-    if (!message.trim() || isStreaming || !activeSessionId) return;
+  const handleSend = async (content?: string) => {
+    const userMessage = content || message;
+    if (!userMessage.trim() || isStreaming || !activeSessionId) return;
 
-    const userMessage = message;
     const isFirstMessage = messages.length === 0;
-    setMessage("");
+    if (!content) setMessage("");
     setIsStreaming(true);
     setStreamingMessage("");
 
@@ -527,7 +530,7 @@ export default function Chats() {
                 disabled={isStreaming || !activeSessionId}
                 className="flex-1"
               />
-              <Button onClick={handleSend} disabled={isStreaming || !message.trim() || !activeSessionId}>
+              <Button onClick={() => handleSend()} disabled={isStreaming || !message.trim() || !activeSessionId}>
                 {isStreaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>

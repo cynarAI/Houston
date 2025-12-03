@@ -2,6 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import * as db from "../db";
 import { verifyWorkspaceOwnership, verifyGoalOwnership } from "../_core/ownership";
+import { NotificationService } from "../notificationService";
 
 export const goalsRouter = router({
   listByWorkspace: protectedProcedure
@@ -62,6 +63,38 @@ export const goalsRouter = router({
       await verifyGoalOwnership(input.id, ctx.user.id);
       const { id, ...data } = input;
       await db.updateGoal(id, data);
+      return { success: true };
+    }),
+
+  updateProgress: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        progress: z.number().min(0).max(100),
+        note: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Verify user has access to this goal
+      await verifyGoalOwnership(input.id, ctx.user.id);
+      
+      await db.updateGoal(input.id, { progress: input.progress });
+
+      if (input.note) {
+        const goal = await db.getGoalById(input.id);
+        await NotificationService.createNotification({
+          userId: ctx.user.id,
+          type: "system_message",
+          title: `Check-in: ${goal?.title || "Ziel"}`,
+          message: `Fortschritt aktualisiert auf ${input.progress}%. Notiz: ${input.note}`,
+          metadata: {
+            goalId: input.id,
+            progress: input.progress,
+            note: input.note
+          }
+        });
+      }
+      
       return { success: true };
     }),
 
