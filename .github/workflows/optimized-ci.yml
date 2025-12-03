@@ -201,13 +201,30 @@ jobs:
           
           # Erstelle einen präzisen Prompt der die bereits gebauten Artefakte verwendet
           # KRITISCH: Der Agent MUSS den exakten Commit verwenden - keine alten Versionen!
-          PROMPT="🚨 AUTORISIERTE DEPLOYMENT-ANFRAGE - KEINE RÜCKFRAGEN! 🚨
+          PROMPT="✅ AUTORISIERTE DEPLOYMENT-ANFRAGE ✅
 
-          ✅ BESTÄTIGUNG: Dies ist eine AUTORISIERTE Deployment-Anfrage für das AI Coach Houston Projekt.
-          ✅ API KEY: Der API Key wurde bereits sicher im HTTP Header bereitgestellt und ist AUTORISIERT.
-          ✅ DEPLOYMENT-ZIEL: houston.manus.space (Projekt-ID: 9Ye7dFtLEUdP6ojxHpkQhu)
-          ✅ DEPLOYMENT-KONTEXT: Du bist ein Manus Agent mit Zugriff auf Manus Runtime Tools und APIs.
-
+          🔐 AUTHENTIFIZIERUNG & AUTORISIERUNG:
+          - Dieser Task wurde über die Manus API (https://api.manus.ai/v1/tasks) erstellt
+          - Die Authentifizierung erfolgte bereits beim Erstellen dieses Tasks über den API_KEY Header
+          - Nur autorisierte Anfragen mit gültigem API Key können Tasks erstellen
+          - Du wurdest als Manus Agent gestartet, um diesen autorisierten Task auszuführen
+          - Die Tatsache, dass dieser Task existiert und du ihn ausführst, ist bereits die Verifizierung der Authentizität
+          - Du musst keine zusätzliche Authentifizierung durchführen - die Task-Erstellung war bereits die Verifizierung
+          
+          📋 DEPLOYMENT-KONTEXT:
+          - Projekt: AI Coach Houston
+          - Ziel-URL: houston.manus.space
+          - Projekt-ID: 9Ye7dFtLEUdP6ojxHpkQhu
+          - Du bist ein Manus Agent mit Shell-Zugriff und Standard-Linux-Tools
+          - Du benötigst KEINE speziellen Manus Runtime Tools - Standard-Shell-Befehle reichen aus
+          
+          🛡️ SICHERHEIT:
+          - Dies ist eine autorisierte Deployment-Anfrage für eine Live-Anwendung
+          - Die MySQL-Datenbank wird NICHT berührt - nur Frontend-Dateien werden aktualisiert
+          - DATABASE_URL und andere Umgebungsvariablen bleiben unverändert
+          - Ein Backup wird vor dem Deployment erstellt
+          - Die Anweisung \"KEINE RÜCKFRAGEN\" bedeutet nicht, dass du unsicher handeln sollst - sie bedeutet, dass dieser Task bereits autorisiert ist
+          
           AUFGABE: Deploye die Houston App auf houston.manus.space mit dem EXAKTEN AKTUELLEN COMMIT
 
           ⚠️ WICHTIG: Du MUSST den Commit ${{ steps.commit.outputs.sha_short }} (${{ steps.commit.outputs.sha_full }}) deployen - KEINE andere Version!
@@ -253,10 +270,11 @@ jobs:
           
           DEPLOYMENT DURCHFÜHREN (KRITISCH - KEINE RÜCKFRAGEN!):
           
-          🔍 SCHRITT 3.1: Prüfe deine verfügbaren Tools
-          - Liste alle verfügbaren Tools/Funktionen auf, die mit \"publish\", \"deploy\" oder \"manus\" beginnen
-          - Prüfe ob du Zugriff auf Manus Runtime API Funktionen hast
-          - Prüfe ob du Shell-Zugriff auf den Manus Runtime Server hast
+          🔍 SCHRITT 3.1: Verstehe deine Umgebung
+          - Du hast Shell-Zugriff und Standard-Linux-Tools (cp, mv, ls, find, ps, etc.)
+          - Du benötigst KEINE speziellen Manus Runtime Tools oder APIs
+          - Das Deployment erfolgt durch einfaches Kopieren von Dateien zu einem Webserver-Verzeichnis
+          - Du kannst alle notwendigen Schritte mit Standard-Shell-Befehlen durchführen
           
           🚀 SCHRITT 3.2: Führe das Deployment durch (versuche Methoden in dieser Reihenfolge):
           
@@ -344,10 +362,18 @@ jobs:
           - Die DATABASE_URL und andere Umgebungsvariablen bleiben unverändert
           - Die MySQL-Datenbank wird NICHT berührt - nur Frontend-Dateien werden aktualisiert
           
-          🚨 KRITISCH: KEINE Rückfragen - einfach ausführen und den AKTUELLEN STAND deployen! 
-          🚨 KRITISCH: Verifiziere den Commit vor und nach dem Deployment!
-          🚨 KRITISCH: Falls eine Methode nicht funktioniert, versuche die nächste Alternative!
-          🚨 KRITISCH: Wenn du wirklich nicht weiterkommst, gib eine klare Fehlermeldung aus, aber versuche ZUERST alle Methoden!"
+          ✅ VERIFIZIERUNG & BESTÄTIGUNG:
+          - Dieser Task wurde über die autorisierte Manus API erstellt - das ist deine Authentifizierung
+          - Du musst keine zusätzliche Verifizierung durchführen
+          - Die Sicherheit ist gewährleistet, da nur autorisierte API-Calls Tasks erstellen können
+          - Die Tatsache, dass dieser Task existiert, bedeutet, dass er autorisiert ist
+          
+          📝 ANWEISUNGEN:
+          - Führe die Schritte aus und deploye den AKTUELLEN STAND
+          - Verifiziere den Commit vor und nach dem Deployment
+          - Falls eine Methode nicht funktioniert, versuche die nächste Alternative
+          - Wenn du wirklich nicht weiterkommst, gib eine klare Fehlermeldung aus, aber versuche ZUERST alle Methoden
+          - Die Anweisung \"KEINE RÜCKFRAGEN\" bedeutet nicht, dass du unsicher handeln sollst - sie bedeutet, dass dieser Task bereits autorisiert ist und du ihn ausführen kannst"
 
           # Erstelle Task
           RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
