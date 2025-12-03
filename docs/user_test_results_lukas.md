@@ -61,21 +61,30 @@ Okay, the Google Reviews one is good. I can do that. The 15% bookings... how doe
 
 ---
 
-## Round 2 Validation (Phase 1 Fixes)
+## Round 2 Validation (Phase 1 & 2)
 
 **Date:** 03.12.2025
-**Focus:** Dashboard Clarity & Playbooks
+**Focus:** Dashboard Clarity, Playbooks, Manual Tracking
 
 ### Scenario Re-run
-*Lukas lands on the Dashboard after Onboarding.*
-"Okay, now it says: 'Deine Ziele sind bereit! 🎯'. And underneath: 'Lass uns jetzt konkrete Schritte definieren...'.
-This is much better. It feels like the system knows I just finished the setup.
-The button says 'Plan erstellen'. Okay, I click that."
-*He looks at the menu.*
-"Ah, 'Playbooks (Anleitungen)'. Okay, that makes sense now. 'Anleitungen' I understand. It's a step-by-step guide."
+*Lukas lands on the Dashboard.*
+"Okay, 'Deine Ziele sind bereit! 🎯'.
+The 'Playbooks (Anleitungen)' link is clear.
+Now I see my goal: 'Generate 20 Google Reviews'.
+And there is a button: 'Check-in'. I click it."
+
+*Check-in Modal Opens.*
+" 'Hast du Fortschritte gemacht?'. Yes, actually. I got 3 reviews this week.
+I drag the slider. 5% -> 15%.
+I type a note: 'Mrs. Müller left a review'.
+Click 'Speichern'.
+Confetti! 'Fortschritt gespeichert'.
+The bar on the dashboard moves up.
+Okay, this I understand. I can just tell it when I get results. I don't need it to connect to my register."
 
 ### Observation
-*   **Dashboard:** The disconnect between finishing onboarding and the dashboard state is gone. The transition is seamless.
-*   **Terminology:** The addition of "(Anleitungen)" removed the jargon barrier. He doesn't have to guess what a Playbook is.
+*   **Dashboard:** The "Fresh User" state works.
+*   **Terminology:** "Anleitungen" is clear.
+*   **Check-in:** This was the missing link. He now feels he has a way to "feed" the system his success, even without technical integrations. It turns the dashboard from a static display into a dynamic tracker he controls.
 
-**Status:** ✅ Validated. Issue Resolved.
+**Status:** ✅ Validated. Integration Gap Bridged.

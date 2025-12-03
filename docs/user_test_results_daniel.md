@@ -62,3 +62,24 @@ I'd use this to structure my launches. The 'Mission' feature is the best part—
 *   **Ease of Onboarding:** 8/10 (Mobile typing friction).
 *   **Confidence:** 9/10
 *   **Likelihood to Return:** 9/10 (For launch planning).
+
+---
+
+## Round 2 Validation (Phase 2 Polish)
+
+**Date:** 03.12.2025
+**Focus:** Mobile Onboarding Friction
+
+### Scenario Re-run
+*Daniel starts Onboarding on Mobile.*
+"Industry step... oh, look at these pills. 'E-Commerce', 'Content Creator'.
+Nice. I just tap 'Content Creator'. No typing.
+Next step.
+Goals... 'Mehr Leads', 'Social Media Wachstum'.
+Tap, Tap. Done.
+This is SO much faster. I only had to type my 'Product Name' manually. The rest was just tapping."
+
+### Observation
+The addition of "Pill Selectors" significantly reduced the interaction cost. Daniel breezed through the setup in half the time. The "Mobile Friction" issue is largely resolved for the standard paths.
+
+**Status:** ✅ Validated. Friction Reduced.

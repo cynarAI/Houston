@@ -57,4 +57,13 @@ We implemented **critical UX fixes** and re-tested with personas Sandra and Luka
 *   **Onboarding Edit:** Enabling goal editing allowed Sandra to switch from "LinkedIn" to "Instagram" easily, increasing her ownership of the plan.
 *   **Terminology:** Adding "(Anleitungen)" to "Playbooks" removed the confusion for Lukas.
 
-**Status:** Phase 1 Improvements are **VALIDATED** and live.
+## Phase 2 Validation (Update)
+**Date:** 03.12.2025 (Round 2)
+
+We implemented **Mobile Polish** and **Manual Check-ins**.
+
+### Results:
+*   **Mobile Pills (Daniel):** Selecting Industry and Goals via "Pills/Chips" instead of typing drastically improved the mobile onboarding speed.
+*   **Check-in Modal (Lukas):** The "Check-in" button allows users to manually update progress. This successfully bridges the "Integration Gap" by giving users control over their metrics without needing complex API setups.
+
+**Status:** Phase 1 & 2 Improvements are **VALIDATED** and live.
