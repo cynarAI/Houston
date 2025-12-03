@@ -49,33 +49,45 @@ export function LoadingState({
     : "py-12";
 
   // Random message if none provided
-  const displayMessage = message || loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+  const displayMessage =
+    message ||
+    loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
 
   return (
     <div
       className={cn(
         "flex flex-col items-center justify-center animate-in fade-in duration-300",
         containerClasses,
-        className
+        className,
       )}
     >
       <div className="relative">
         {/* Outer glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B9D] to-[#C44FE2] rounded-full blur-xl opacity-30 animate-pulse" />
-        
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] rounded-full blur-xl opacity-30 animate-pulse" />
+
         {/* Icon Container */}
-        <div className={cn(
-          "relative flex items-center justify-center rounded-full bg-gradient-to-br from-[#FF6B9D]/10 to-[#C44FE2]/10 border border-[#FF6B9D]/20",
-          size === "sm" ? "w-8 h-8" : size === "md" ? "w-14 h-14" : "w-20 h-20"
-        )}>
+        <div
+          className={cn(
+            "relative flex items-center justify-center rounded-full bg-gradient-to-br from-[#FF6B9D]/10 via-[#C44FE2]/10 via-[#8B5CF6]/10 to-[#00D4FF]/10 border border-[#FF6B9D]/20",
+            size === "sm"
+              ? "w-8 h-8"
+              : size === "md"
+                ? "w-14 h-14"
+                : "w-20 h-20",
+          )}
+        >
           {branded ? (
-            <Brain className={cn("text-[#FF6B9D] animate-pulse", iconSizes[size])} />
+            <Brain
+              className={cn("text-[#FF6B9D] animate-pulse", iconSizes[size])}
+            />
           ) : (
-            <Loader2 className={cn("animate-spin text-[#FF6B9D]", sizeClasses[size])} />
+            <Loader2
+              className={cn("animate-spin text-[#FF6B9D]", sizeClasses[size])}
+            />
           )}
         </div>
       </div>
-      
+
       {displayMessage && (
         <p className="text-sm text-muted-foreground mt-4 animate-pulse">
           {displayMessage}
@@ -93,7 +105,7 @@ export function LoadingCard({ className }: { className?: string }) {
     <div
       className={cn(
         "glass border-white/10 rounded-lg p-6 animate-pulse",
-        className
+        className,
       )}
     >
       <div className="flex items-center gap-4 mb-4">

@@ -1,4 +1,11 @@
-import { AlertTriangle, RotateCcw, Wifi, WifiOff, ServerCrash, Sparkles } from "lucide-react";
+import {
+  AlertTriangle,
+  RotateCcw,
+  Wifi,
+  WifiOff,
+  ServerCrash,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "./button";
 import { Card, CardContent } from "./card";
 import { cn } from "@/lib/utils";
@@ -23,21 +30,24 @@ const errorConfig = {
   default: {
     icon: AlertTriangle,
     title: "Houston, wir haben ein Problem! 🚀",
-    message: "Keine Sorge – das passiert den Besten. Versuch es einfach nochmal.",
+    message:
+      "Keine Sorge – das passiert den Besten. Versuch es einfach nochmal.",
     iconColor: "text-red-400",
     bgColor: "from-red-500/20 to-orange-500/20",
   },
   network: {
     icon: WifiOff,
     title: "Houston meldet: Kein Signal!",
-    message: "Wir haben die Verbindung verloren. Prüf mal dein Internet – ich warte hier.",
+    message:
+      "Wir haben die Verbindung verloren. Prüf mal dein Internet – ich warte hier.",
     iconColor: "text-orange-400",
     bgColor: "from-orange-500/20 to-yellow-500/20",
   },
   server: {
     icon: ServerCrash,
     title: "Mission Control ist beschäftigt",
-    message: "Unsere Server arbeiten gerade auf Hochtouren. Gib uns einen Moment.",
+    message:
+      "Unsere Server arbeiten gerade auf Hochtouren. Gib uns einen Moment.",
     iconColor: "text-purple-400",
     bgColor: "from-purple-500/20 to-indigo-500/20",
   },
@@ -46,7 +56,8 @@ const errorConfig = {
     title: "Zeit für einen Tankstop! ⛽",
     message: "Deine Credits sind aufgebraucht. Lade nach, um weiterzumachen.",
     iconColor: "text-[#FF6B9D]",
-    bgColor: "from-[#FF6B9D]/20 to-[#C44FE2]/20",
+    bgColor:
+      "from-[#FF6B9D]/20 via-[#C44FE2]/20 via-[#8B5CF6]/20 to-[#00D4FF]/20",
   },
   notFound: {
     icon: AlertTriangle,
@@ -85,13 +96,13 @@ export function ErrorState({
               <div
                 className={cn(
                   "absolute inset-0 bg-gradient-to-br rounded-full blur-2xl opacity-30 animate-pulse",
-                  config.bgColor
+                  config.bgColor,
                 )}
               />
               <div
                 className={cn(
                   "relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br",
-                  config.bgColor
+                  config.bgColor,
                 )}
               >
                 <Icon className={cn("h-8 w-8", config.iconColor)} />
@@ -117,7 +128,7 @@ export function ErrorState({
                 Erneut versuchen
               </Button>
             )}
-            
+
             {variant === "credits" && (
               <Link href="/app/credits">
                 <Button className="gap-2 bg-gradient-to-r from-[#ffb606] to-[#442e66]">
@@ -149,7 +160,7 @@ export function InlineError({
     <div
       className={cn(
         "flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20",
-        className
+        className,
       )}
     >
       <AlertTriangle className="h-5 w-5 text-red-400 flex-shrink-0" />

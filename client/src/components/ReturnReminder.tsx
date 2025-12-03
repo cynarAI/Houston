@@ -1,6 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { X, ArrowRight, Target, CheckSquare, MessageSquare, Sparkles, CalendarClock } from "lucide-react";
+import {
+  X,
+  ArrowRight,
+  Target,
+  CheckSquare,
+  MessageSquare,
+  Sparkles,
+  CalendarClock,
+} from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 
@@ -52,15 +60,21 @@ export function ReturnReminder({
     const now = new Date();
     const dayOfWeek = now.getDay();
     const isMonday = dayOfWeek === 1;
-    
+
     // Calculate days since last visit
-    const daysSinceLastVisit = lastVisit 
-      ? Math.floor((now.getTime() - new Date(lastVisit).getTime()) / (1000 * 60 * 60 * 24))
+    const daysSinceLastVisit = lastVisit
+      ? Math.floor(
+          (now.getTime() - new Date(lastVisit).getTime()) /
+            (1000 * 60 * 60 * 24),
+        )
       : 0;
-    
+
     // Calculate days since last chat
     const daysSinceLastChat = lastChatDate
-      ? Math.floor((now.getTime() - new Date(lastChatDate).getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor(
+          (now.getTime() - new Date(lastChatDate).getTime()) /
+            (1000 * 60 * 60 * 24),
+        )
       : 7; // Default to 7 days if no chat
 
     // Welcome back message after inactivity
@@ -71,7 +85,7 @@ export function ReturnReminder({
         message: `Willkommen zurück! Houston hat auf dich gewartet. ${openTodosCount > 0 ? `Du hast noch ${openTodosCount} offene Aufgaben.` : "Zeit für neue Marketing-Ideen!"}`,
         cta: openTodosCount > 0 ? "Aufgaben ansehen" : "Mit Houston chatten",
         link: openTodosCount > 0 ? "/app/todos" : "/app/chats",
-        gradient: "from-[#FF6B9D] to-[#8B5CF6]",
+        gradient: "from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF]",
       };
     }
 
@@ -116,7 +130,8 @@ export function ReturnReminder({
       return {
         type: "chat",
         icon: MessageSquare,
-        message: "Houston wartet auf dich! Was beschäftigt dich gerade im Marketing?",
+        message:
+          "Houston wartet auf dich! Was beschäftigt dich gerade im Marketing?",
         cta: "Chat starten",
         link: "/app/chats",
         gradient: "from-[#EC4899] to-[#F97316]",
@@ -145,41 +160,43 @@ export function ReturnReminder({
       className={cn(
         "relative overflow-hidden rounded-lg border border-white/10 backdrop-blur-xl",
         "bg-gradient-to-r",
-        className
+        className,
       )}
       style={{
         backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))`,
       }}
     >
       {/* Background gradient overlay */}
-      <div 
+      <div
         className={cn(
           "absolute inset-0 opacity-10 bg-gradient-to-r",
-          reminderConfig.gradient
-        )} 
+          reminderConfig.gradient,
+        )}
       />
-      
+
       {/* Content */}
       <div className="relative flex items-center justify-between gap-4 p-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className={cn(
-            "flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br flex-shrink-0",
-            reminderConfig.gradient
-          )}>
+          <div
+            className={cn(
+              "flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br flex-shrink-0",
+              reminderConfig.gradient,
+            )}
+          >
             <Icon className="h-5 w-5 text-white" />
           </div>
           <p className="text-sm font-medium truncate">
             {reminderConfig.message}
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2 flex-shrink-0">
           <Link href={reminderConfig.link}>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               className={cn(
                 "bg-gradient-to-r text-white border-none hover:opacity-90",
-                reminderConfig.gradient
+                reminderConfig.gradient,
               )}
             >
               {reminderConfig.cta}

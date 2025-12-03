@@ -18,6 +18,7 @@ Die Cursor Rules in diesem Verzeichnis kodifizieren Architektur, Konventionen un
 | `003-expert-mode.mdc` | **Senior Full-Stack Expert** - Proaktiv, zuverlässig, Vibe Coding | Always |
 | `004-app-knowledge.mdc` | **Vollständiges App-Wissen** - Landing Page, Branding, Zielgruppen, Features | Always |
 | `005-steve-jobs-vision.mdc` | **Steve Jobs Vision** - Intuitivität, Einfachheit, Perfektionismus | Always |
+| `006-auto-analysis.mdc` | **Auto-Analyse bei Chat-Start** - Automatische App-Analyse vor jedem Chat | Always |
 | `010-frontend.mdc` | React/Vite/shadcn/ui Patterns | Auto: `client/**` |
 | `020-backend.mdc` | tRPC/Drizzle/CreditService | Auto: `server/**`, `drizzle/**` |
 | `030-testing.mdc` | Vitest/Playwright Guidelines | Auto: `**/*.test.ts`, `e2e/**` |

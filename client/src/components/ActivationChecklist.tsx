@@ -69,7 +69,7 @@ export function ActivationChecklist({
     {
       id: "chat",
       title: "Mit Houston chatten",
-      description: "Starte dein erstes Gespräch mit deinem KI-Marketing-Coach",
+      description: "Starte dein erstes Gespräch mit deinem Marketing-Genius",
       icon: MessageSquare,
       completed: hasFirstChat,
       link: "/app/chats",
@@ -280,7 +280,7 @@ export function ActivationChecklist({
                         className={cn(
                           "flex-shrink-0",
                           isNext &&
-                            "bg-gradient-to-r from-[#FF6B9D] to-[#8B5CF6] hover:opacity-90",
+                            "bg-gradient-to-r from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] hover:opacity-90",
                         )}
                       >
                         {step.linkText}

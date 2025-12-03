@@ -29,8 +29,8 @@ function PageLoader() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-background animate-in fade-in duration-300">
       {/* Houston Logo Pulse */}
       <div className="relative mb-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B9D] to-[#C44FE2] rounded-full blur-2xl opacity-30 animate-pulse" />
-        <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B9D]/20 to-[#C44FE2]/20 border border-[#FF6B9D]/30">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] rounded-full blur-2xl opacity-30 animate-pulse" />
+        <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B9D]/20 via-[#C44FE2]/20 via-[#8B5CF6]/20 to-[#00D4FF]/20 border border-[#FF6B9D]/30">
           <Loader2 className="h-8 w-8 animate-spin text-[#FF6B9D]" />
         </div>
       </div>

@@ -495,10 +495,7 @@ export default function Strategy() {
                 Houstons Unterstützung.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  className="btn-gradient"
-                >
+                <Button onClick={() => setIsEditing(true)} variant="gradient">
                   <Edit className="mr-2 h-4 w-4" />
                   Strategie erstellen
                 </Button>

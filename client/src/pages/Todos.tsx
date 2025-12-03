@@ -5,12 +5,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { CheckSquare, Plus, Trash2, Sparkles, Filter, ArrowUpDown, Loader2 } from "lucide-react";
+import {
+  CheckSquare,
+  Plus,
+  Trash2,
+  Sparkles,
+  Filter,
+  ArrowUpDown,
+  Loader2,
+} from "lucide-react";
 import ViewSwitcher, { ViewType } from "@/components/ViewSwitcher";
 import TableView from "@/components/views/TableView";
 import TimelineView from "@/components/views/TimelineView";
@@ -64,12 +85,22 @@ export default function Todos() {
     dueDate: undefined as Date | undefined,
   });
 
-  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
-  const { data: todosData, isLoading: todosLoading, isError: todosError, refetch } = trpc.todos.listByWorkspace.useQuery(
+  const {
+    data: workspaces,
+    isLoading: workspacesLoading,
+    isError: workspacesError,
+    refetch: refetchWorkspaces,
+  } = trpc.workspaces.list.useQuery();
+  const {
+    data: todosData,
+    isLoading: todosLoading,
+    isError: todosError,
+    refetch,
+  } = trpc.todos.listByWorkspace.useQuery(
     { workspaceId: workspaces?.[0]?.id || 0 },
-    { enabled: !!workspaces?.[0]?.id }
+    { enabled: !!workspaces?.[0]?.id },
   );
-  
+
   // Combined states
   const isLoading = workspacesLoading || (workspaces?.[0]?.id && todosLoading);
   const hasError = workspacesError || todosError;
@@ -85,7 +116,10 @@ export default function Todos() {
       if (sortBy === "title") return a.title.localeCompare(b.title);
       if (sortBy === "priority") {
         const priorityOrder = { high: 0, medium: 1, low: 2 };
-        return (priorityOrder[a.priority as keyof typeof priorityOrder] || 1) - (priorityOrder[b.priority as keyof typeof priorityOrder] || 1);
+        return (
+          (priorityOrder[a.priority as keyof typeof priorityOrder] || 1) -
+          (priorityOrder[b.priority as keyof typeof priorityOrder] || 1)
+        );
       }
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
@@ -100,7 +134,7 @@ export default function Todos() {
     if (!workspaces?.[0]?.id || !formData.title) return;
 
     const isFirstTodo = !todosData || todosData.length === 0;
-    
+
     try {
       await createTodoMutation.mutateAsync({
         workspaceId: workspaces[0].id,
@@ -109,15 +143,23 @@ export default function Todos() {
         priority: formData.priority,
         dueDate: formData.dueDate,
       });
-      
+
       // Track todo creation
-      trackEvent(AnalyticsEvents.TODO_CREATED, { priority: formData.priority, has_due_date: !!formData.dueDate });
-      
+      trackEvent(AnalyticsEvents.TODO_CREATED, {
+        priority: formData.priority,
+        has_due_date: !!formData.dueDate,
+      });
+
       toast.success("To-do erfolgreich erstellt!");
       setIsCreateDialogOpen(false);
-      setFormData({ title: "", description: "", priority: "medium", dueDate: undefined });
+      setFormData({
+        title: "",
+        description: "",
+        priority: "medium",
+        dueDate: undefined,
+      });
       refetch();
-      
+
       // Celebrate first todo
       if (isFirstTodo) {
         celebrations.firstTodo();
@@ -129,22 +171,25 @@ export default function Todos() {
 
   const handleToggle = async (id: number, status: string) => {
     const isCompletingTask = status !== "done";
-    const currentCompletedCount = todosData?.filter((t: Todo) => t.status === "done").length || 0;
-    
+    const currentCompletedCount =
+      todosData?.filter((t: Todo) => t.status === "done").length || 0;
+
     try {
       await updateTodoMutation.mutateAsync({
         id,
         status: status === "done" ? "todo" : "done",
       });
       refetch();
-      
+
       // Celebrate task completion milestones and track analytics
       if (isCompletingTask) {
         trackEvent(AnalyticsEvents.TODO_COMPLETED, { todo_id: id });
         checkTaskMilestone(currentCompletedCount + 1);
-        
+
         // Check if all tasks are done
-        const openTasksAfter = (todosData?.filter((t: Todo) => t.status !== "done" && t.id !== id).length || 0);
+        const openTasksAfter =
+          todosData?.filter((t: Todo) => t.status !== "done" && t.id !== id)
+            .length || 0;
         if (openTasksAfter === 0 && (todosData?.length || 0) > 1) {
           setTimeout(() => {
             celebrations.allTasksCompleted();
@@ -161,10 +206,10 @@ export default function Todos() {
 
     try {
       await deleteTodoMutation.mutateAsync({ id });
-      
+
       // Track todo deletion
       trackEvent(AnalyticsEvents.TODO_DELETED, { todo_id: id });
-      
+
       toast.success("To-do erfolgreich gelöscht!");
       refetch();
     } catch (error) {
@@ -240,12 +285,15 @@ export default function Todos() {
             description="Verwalte deine Marketing-Aufgaben und behalte den Überblick."
             className="mb-0"
           />
-          
+
           {/* Controls */}
           <div className="flex items-center justify-between gap-4">
             {/* View Switcher - Left */}
-            <ViewSwitcher currentView={currentView} onViewChange={handleViewChange} />
-            
+            <ViewSwitcher
+              currentView={currentView}
+              onViewChange={handleViewChange}
+            />
+
             {/* Filters & Actions - Right */}
             <div className="flex items-center gap-3">
               <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -274,73 +322,92 @@ export default function Todos() {
             </div>
           </div>
         </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Neues To-do
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Neues To-do erstellen</DialogTitle>
-                <DialogDescription>
-                  Füge eine neue Aufgabe zu deiner Liste hinzu.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div>
-                  <Label htmlFor="title">Titel *</Label>
-                  <Input
-                    id="title"
-                    placeholder="z.B. Social Media Post erstellen"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Beschreibung</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Details zur Aufgabe..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="priority">Priorität</Label>
-                  <Select
-                    value={formData.priority}
-                    onValueChange={(value: "low" | "medium" | "high") =>
-                      setFormData({ ...formData, priority: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Niedrig</SelectItem>
-                      <SelectItem value="medium">Mittel</SelectItem>
-                      <SelectItem value="high">Hoch</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="dueDate">Fälligkeitsdatum</Label>
-                  <Input
-                    id="dueDate"
-                    type="date"
-                    value={formData.dueDate ? new Date(formData.dueDate).toISOString().split('T')[0] : ""}
-                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value ? new Date(e.target.value) : undefined })}
-                  />
-                </div>
-                <Button onClick={handleCreate} className="w-full" disabled={!formData.title}>
-                  To-do erstellen
-                </Button>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Neues To-do
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Neues To-do erstellen</DialogTitle>
+              <DialogDescription>
+                Füge eine neue Aufgabe zu deiner Liste hinzu.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label htmlFor="title">Titel *</Label>
+                <Input
+                  id="title"
+                  placeholder="z.B. Social Media Post erstellen"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                />
               </div>
-            </DialogContent>
-          </Dialog>
+              <div>
+                <Label htmlFor="description">Beschreibung</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Details zur Aufgabe..."
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label htmlFor="priority">Priorität</Label>
+                <Select
+                  value={formData.priority}
+                  onValueChange={(value: "low" | "medium" | "high") =>
+                    setFormData({ ...formData, priority: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Niedrig</SelectItem>
+                    <SelectItem value="medium">Mittel</SelectItem>
+                    <SelectItem value="high">Hoch</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="dueDate">Fälligkeitsdatum</Label>
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={
+                    formData.dueDate
+                      ? new Date(formData.dueDate).toISOString().split("T")[0]
+                      : ""
+                  }
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      dueDate: e.target.value
+                        ? new Date(e.target.value)
+                        : undefined,
+                    })
+                  }
+                />
+              </div>
+              <Button
+                onClick={handleCreate}
+                className="w-full"
+                disabled={!formData.title}
+              >
+                To-do erstellen
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">
@@ -383,127 +450,155 @@ export default function Todos() {
         )}
 
         {/* Original Kanban View (hidden) */}
-        {false && (<div className="grid md:grid-cols-2 gap-6">
-          {/* Open Todos */}
-          <div className="space-y-4">
-            <h2 className="font-semibold text-lg flex items-center gap-2">
-              <CheckSquare className="h-5 w-5 text-primary" />
-              Offen ({openTodos.length})
-            </h2>
-            {openTodos.length > 0 ? (
-              <div className="space-y-3">
-                {openTodos.map((todo: Todo) => (
-                  <Card key={todo.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          checked={todo.status === "done"}
-                          onCheckedChange={() => handleToggle(todo.id, todo.status)}
-                          className="mt-1"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium text-sm">{todo.title}</h3>
-                            <Badge variant={getPriorityColor(todo.priority)} className="text-xs">
-                              {getPriorityLabel(todo.priority)}
-                            </Badge>
+        {false && (
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Open Todos */}
+            <div className="space-y-4">
+              <h2 className="font-semibold text-lg flex items-center gap-2">
+                <CheckSquare className="h-5 w-5 text-primary" />
+                Offen ({openTodos.length})
+              </h2>
+              {openTodos.length > 0 ? (
+                <div className="space-y-3">
+                  {openTodos.map((todo: Todo) => (
+                    <Card key={todo.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            checked={todo.status === "done"}
+                            onCheckedChange={() =>
+                              handleToggle(todo.id, todo.status)
+                            }
+                            className="mt-1"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium text-sm">
+                                {todo.title}
+                              </h3>
+                              <Badge
+                                variant={getPriorityColor(todo.priority)}
+                                className="text-xs"
+                              >
+                                {getPriorityLabel(todo.priority)}
+                              </Badge>
+                            </div>
+                            {todo.description && (
+                              <p className="text-xs text-muted-foreground mb-2">
+                                {todo.description}
+                              </p>
+                            )}
+                            {todo.dueDate && (
+                              <p className="text-xs text-muted-foreground">
+                                Fällig:{" "}
+                                {new Date(todo.dueDate).toLocaleDateString(
+                                  "de-DE",
+                                )}
+                              </p>
+                            )}
                           </div>
-                          {todo.description && (
-                            <p className="text-xs text-muted-foreground mb-2">{todo.description}</p>
-                          )}
-                          {todo.dueDate && (
-                            <p className="text-xs text-muted-foreground">
-                              Fällig: {new Date(todo.dueDate).toLocaleDateString("de-DE")}
-                            </p>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(todo.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(todo.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <GlassCard variant="elevated">
+                  <GlassCardContent className="py-12 text-center">
+                    <div className="flex justify-center mb-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gradient-purple)] to-[var(--color-gradient-indigo)] rounded-full blur-xl opacity-20 animate-pulse"></div>
+                        <GradientIcon
+                          icon={CheckSquare}
+                          gradient="purple-indigo"
+                          size="xl"
+                          className="relative"
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <GlassCard variant="elevated">
-                <GlassCardContent className="py-12 text-center">
-                  <div className="flex justify-center mb-4">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gradient-purple)] to-[var(--color-gradient-indigo)] rounded-full blur-xl opacity-20 animate-pulse"></div>
-                      <GradientIcon icon={CheckSquare} gradient="purple-indigo" size="xl" className="relative" />
                     </div>
-                  </div>
-                  <h3 className="font-semibold mb-2">Alle Aufgaben erledigt! 🎉</h3>
-                  <p className="text-sm text-muted-foreground">Super Arbeit! Erstelle neue Aufgaben, um produktiv zu bleiben.</p>
-                </GlassCardContent>
-              </GlassCard>
-            )}
-          </div>
-
-          {/* Completed Todos */}
-          <div className="space-y-4">
-            <h2 className="font-semibold text-lg flex items-center gap-2">
-              <CheckSquare className="h-5 w-5 text-muted-foreground" />
-              Erledigt ({completedTodos.length})
-            </h2>
-            {completedTodos.length > 0 ? (
-              <div className="space-y-3">
-                {completedTodos.map((todo: Todo) => (
-                  <Card key={todo.id} className="opacity-60">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          checked={todo.status === "done"}
-                          onCheckedChange={() => handleToggle(todo.id, todo.status)}
-                          className="mt-1"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium text-sm line-through">{todo.title}</h3>
-                            <Badge variant="secondary" className="text-xs">
-                              {getPriorityLabel(todo.priority)}
-                            </Badge>
-                          </div>
-                          {todo.description && (
-                            <p className="text-xs text-muted-foreground mb-2 line-through">
-                              {todo.description}
-                            </p>
-                          )}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(todo.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <GlassCard variant="default">
-                <GlassCardContent className="py-12 text-center space-y-3">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#FF6B9D]/10 to-[#C44FE2]/10 flex items-center justify-center mx-auto">
-                    <CheckSquare className="h-7 w-7 text-[#FF6B9D]" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Noch nichts erledigt</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Hake deine erste Aufgabe ab – jeder Schritt zählt! 💪
+                    <h3 className="font-semibold mb-2">
+                      Alle Aufgaben erledigt! 🎉
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Super Arbeit! Erstelle neue Aufgaben, um produktiv zu
+                      bleiben.
                     </p>
-                  </div>
-                </GlassCardContent>
-              </GlassCard>
-            )}
+                  </GlassCardContent>
+                </GlassCard>
+              )}
+            </div>
+
+            {/* Completed Todos */}
+            <div className="space-y-4">
+              <h2 className="font-semibold text-lg flex items-center gap-2">
+                <CheckSquare className="h-5 w-5 text-muted-foreground" />
+                Erledigt ({completedTodos.length})
+              </h2>
+              {completedTodos.length > 0 ? (
+                <div className="space-y-3">
+                  {completedTodos.map((todo: Todo) => (
+                    <Card key={todo.id} className="opacity-60">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            checked={todo.status === "done"}
+                            onCheckedChange={() =>
+                              handleToggle(todo.id, todo.status)
+                            }
+                            className="mt-1"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium text-sm line-through">
+                                {todo.title}
+                              </h3>
+                              <Badge variant="secondary" className="text-xs">
+                                {getPriorityLabel(todo.priority)}
+                              </Badge>
+                            </div>
+                            {todo.description && (
+                              <p className="text-xs text-muted-foreground mb-2 line-through">
+                                {todo.description}
+                              </p>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(todo.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <GlassCard variant="default">
+                  <GlassCardContent className="py-12 text-center space-y-3">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#FF6B9D]/10 via-[#C44FE2]/10 via-[#8B5CF6]/10 to-[#00D4FF]/10 flex items-center justify-center mx-auto">
+                      <CheckSquare className="h-7 w-7 text-[#FF6B9D]" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Noch nichts erledigt</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Hake deine erste Aufgabe ab – jeder Schritt zählt! 💪
+                      </p>
+                    </div>
+                  </GlassCardContent>
+                </GlassCard>
+              )}
+            </div>
           </div>
-        </div>)}
+        )}
       </div>
     </DashboardLayout>
   );

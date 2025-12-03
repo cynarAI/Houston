@@ -14,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MessageBubble } from "@/components/ui/MessageBubble";
+import { ConversationCard } from "@/components/ui/ConversationCard";
 import { trpc } from "@/lib/trpc";
 import {
   Brain,
@@ -41,6 +43,8 @@ import { handleMutationError, ErrorMessages } from "@/lib/errorHandling";
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
 import { celebrations } from "@/lib/celebrations";
 import { useLocation, useSearch } from "wouter";
+import { designTokens } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export default function Chats() {
   const { user } = useAuth();
@@ -427,7 +431,7 @@ export default function Chats() {
     <DashboardLayout>
       <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Header with Session Selector */}
-        <div className="border-b border-white/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
+        <div className="border-b border-border/50 dark:border-white/10 bg-background/95 dark:bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:backdrop-blur-xl">
           <div className="chat-header container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <div className="chat-header-title flex items-center gap-3 flex-1 min-w-0">
               <div className="flex items-center gap-2">
@@ -435,7 +439,7 @@ export default function Chats() {
                 <h1 className="text-lg font-semibold">Houston</h1>
               </div>
               <Badge variant="secondary" className="text-xs">
-                KI Marketing-Assistent
+                Dein Marketing-Genius
               </Badge>
             </div>
 
@@ -486,34 +490,51 @@ export default function Chats() {
                   </div>
                   <h2
                     className="text-2xl md:text-3xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-300"
-                    style={{ animationDelay: "100ms" }}
+                    style={{
+                      animationDelay: designTokens.animation.delay.stagger2,
+                    }}
                   >
                     Hey! 👋 Womit kann ich helfen?
                   </h2>
                   <p
                     className="text-muted-foreground max-w-md animate-in fade-in slide-in-from-bottom-2 duration-300"
-                    style={{ animationDelay: "200ms" }}
+                    style={{
+                      animationDelay: designTokens.animation.delay.stagger4,
+                    }}
                   >
-                    Ich bin Houston, dein KI Marketing-Coach. Frag mich nach
+                    Ich bin Houston, dein Marketing-Genius. Frag mich nach
                     Strategien, Content-Ideen oder lass uns deine nächste
                     Kampagne planen.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
-                  {quickActions.map((action, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setMessage(action.prompt)}
-                      className="flex items-center gap-3 p-4 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-accent/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 text-left group animate-in fade-in slide-in-from-bottom-2"
-                      style={{ animationDelay: `${idx * 75}ms` }}
-                    >
-                      <action.icon className="w-5 h-5 text-[var(--color-gradient-pink)] shrink-0" />
-                      <span className="text-sm font-medium">
-                        {action.label}
-                      </span>
-                    </button>
-                  ))}
+                  {quickActions.map((action, idx) => {
+                    const delays = [
+                      designTokens.animation.delay.stagger1,
+                      designTokens.animation.delay.stagger2,
+                      designTokens.animation.delay.stagger3,
+                      designTokens.animation.delay.stagger4,
+                    ];
+                    return (
+                      <ConversationCard
+                        key={idx}
+                        title={action.label}
+                        icon={<action.icon className="w-5 h-5" />}
+                        action={{
+                          label: "Verwenden",
+                          onClick: () => setMessage(action.prompt),
+                          variant: "outline",
+                        }}
+                        gradient="pink-purple"
+                        className="animate-in fade-in slide-in-from-bottom-2 cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+                        style={{
+                          animationDelay:
+                            delays[idx] || delays[delays.length - 1],
+                        }}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -521,98 +542,20 @@ export default function Chats() {
             {messages.length > 0 && (
               <div className="space-y-6">
                 {messages.map((msg: any, index: number) => (
-                  <div
+                  <MessageBubble
                     key={msg.id}
-                    className="flex gap-3 items-start animate-in fade-in slide-in-from-bottom-2 duration-300"
+                    role={msg.role === "user" ? "user" : "coach"}
+                    content={msg.content}
+                    userName={user?.name}
+                    messageId={msg.id}
+                    onCopy={(content) => handleCopy(content, msg.id)}
+                    onRegenerate={handleRegenerate}
+                    onSave={handleSaveToLibrary}
+                    onFeedback={handleFeedback}
+                    copied={copiedMessageId === msg.id}
+                    className="animate-in fade-in slide-in-from-bottom-2 duration-300"
                     style={{ animationDelay: `${Math.min(index * 50, 200)}ms` }}
-                  >
-                    {/* Avatar - Always show */}
-                    <Avatar className="w-9 h-9 shrink-0 ring-2 ring-background shadow-md">
-                      <AvatarFallback
-                        className={
-                          msg.role === "user"
-                            ? "bg-gradient-to-br from-pink-500 to-purple-600 text-white text-sm font-medium"
-                            : "bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white"
-                        }
-                      >
-                        {msg.role === "user" ? (
-                          user?.name?.charAt(0).toUpperCase()
-                        ) : (
-                          <Brain className="w-4 h-4" />
-                        )}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                      <div className="text-xs font-medium text-muted-foreground">
-                        {msg.role === "user" ? "Du" : "Houston"}
-                      </div>
-
-                      <Card
-                        className={`p-4 transition-all duration-200 hover:shadow-md ${
-                          msg.role === "user"
-                            ? "bg-primary/10 border-primary/20 text-foreground"
-                            : "bg-card border-border hover:border-border/80"
-                        }`}
-                      >
-                        <div className="prose prose-sm dark:prose-invert max-w-none">
-                          <Streamdown>{msg.content}</Streamdown>
-                        </div>
-                      </Card>
-
-                      {msg.role === "coach" && (
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2 hover:bg-green-500/10 hover:text-green-500"
-                            onClick={() => handleFeedback(msg.id, "positive")}
-                          >
-                            <ThumbsUp className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2 hover:bg-red-500/10 hover:text-red-500"
-                            onClick={() => handleFeedback(msg.id, "negative")}
-                          >
-                            <ThumbsDown className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2"
-                            onClick={() => handleCopy(msg.content, msg.id)}
-                          >
-                            {copiedMessageId === msg.id ? (
-                              <Check className="h-3 w-3 text-green-500" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2"
-                            onClick={() => handleRegenerate(msg.id)}
-                          >
-                            <RotateCcw className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2 hover:bg-blue-500/10 hover:text-blue-500"
-                            onClick={() =>
-                              handleSaveToLibrary(msg.content, msg.id)
-                            }
-                            title="In Bibliothek speichern"
-                          >
-                            <Bookmark className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  />
                 ))}
 
                 {isStreaming && !streamingMessage && (
@@ -632,24 +575,12 @@ export default function Chats() {
                 )}
 
                 {streamingMessage && (
-                  <div className="flex gap-3 items-start">
-                    <Avatar className="w-9 h-9 shrink-0">
-                      <AvatarFallback className="bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white">
-                        <Brain className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                      <div className="text-xs font-medium text-muted-foreground">
-                        Houston
-                      </div>
-                      <Card className="p-4 bg-card border-border">
-                        <div className="prose prose-sm dark:prose-invert max-w-none">
-                          <Streamdown>{streamingMessage}</Streamdown>
-                        </div>
-                      </Card>
-                    </div>
-                  </div>
+                  <MessageBubble
+                    role="coach"
+                    content={streamingMessage}
+                    showActions={false}
+                    className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                  />
                 )}
               </div>
             )}
@@ -657,7 +588,7 @@ export default function Chats() {
         </ScrollArea>
 
         {/* Input Area - Centered */}
-        <div className="border-t border-white/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
+        <div className="border-t border-border/50 dark:border-white/10 bg-background/95 dark:bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:backdrop-blur-xl">
           <div className="container max-w-3xl mx-auto px-4 py-4 space-y-3">
             {/* Quick Chips - Show when there are messages */}
             {messages.length > 0 && !isStreaming && (
@@ -666,7 +597,7 @@ export default function Chats() {
                   <button
                     key={idx}
                     onClick={() => setMessage(chip.prompt)}
-                    className="px-3 py-1.5 text-xs font-medium rounded-full border border-border/50 hover:border-primary/40 hover:bg-primary/10 hover:text-primary transition-all duration-150 text-muted-foreground active:scale-95"
+                    className="px-3 py-1.5 text-xs font-medium rounded-full border border-border/50 dark:border-white/10 hover:border-primary/40 dark:hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary transition-all duration-150 text-muted-foreground dark:text-muted-foreground active:scale-95"
                   >
                     {chip.label}
                   </button>
@@ -686,11 +617,20 @@ export default function Chats() {
                 }}
                 placeholder="Stelle Houston eine Frage zum Marketing..."
                 disabled={isStreaming || !activeSessionId}
-                className="flex-1"
+                className={cn(
+                  "flex-1 bg-background dark:bg-background border-border/50 dark:border-white/10 focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/30",
+                  "ai-gradient-input",
+                  isStreaming && "ai-working",
+                )}
               />
               <Button
                 onClick={() => handleSend()}
                 disabled={isStreaming || !message.trim() || !activeSessionId}
+                variant="gradient"
+                className={cn(
+                  "transition-all duration-200 hover:scale-105 active:scale-95 relative",
+                  isStreaming && "ai-working ai-gradient-glow",
+                )}
               >
                 {isStreaming ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

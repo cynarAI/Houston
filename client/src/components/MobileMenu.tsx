@@ -53,7 +53,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               className="block py-3 px-4 text-lg text-white hover:bg-white/10 rounded-lg transition-colors"
               onClick={onClose}
             >
-              {t('landing.nav.features')}
+              {t("landing.nav.features")}
             </a>
           </Link>
           <Link href="#pricing">
@@ -61,25 +61,25 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               className="block py-3 px-4 text-lg text-white hover:bg-white/10 rounded-lg transition-colors"
               onClick={onClose}
             >
-              {t('landing.nav.pricing')}
+              {t("landing.nav.pricing")}
             </a>
           </Link>
 
           {/* Language Switcher */}
           <div className="pt-4 border-t border-white/10">
             <p className="text-sm text-[var(--color-text-secondary)] mb-2 px-4">
-              {t('landing.nav.language')}
+              {t("landing.nav.language")}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  changeLanguage('de');
+                  changeLanguage("de");
                   onClose();
                 }}
                 className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                  i18n.language === 'de'
-                    ? 'bg-white/20 text-white'
-                    : 'bg-white/5 text-[var(--color-text-secondary)] hover:bg-white/10'
+                  i18n.language === "de"
+                    ? "bg-white/20 text-white"
+                    : "bg-white/5 text-[var(--color-text-secondary)] hover:bg-white/10"
                 }`}
                 aria-label="Switch to German"
               >
@@ -87,13 +87,13 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </button>
               <button
                 onClick={() => {
-                  changeLanguage('en');
+                  changeLanguage("en");
                   onClose();
                 }}
                 className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                  i18n.language === 'en'
-                    ? 'bg-white/20 text-white'
-                    : 'bg-white/5 text-[var(--color-text-secondary)] hover:bg-white/10'
+                  i18n.language === "en"
+                    ? "bg-white/20 text-white"
+                    : "bg-white/5 text-[var(--color-text-secondary)] hover:bg-white/10"
                 }`}
                 aria-label="Switch to English"
               >
@@ -106,8 +106,12 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           <div className="pt-6">
             <Link href="/app">
               <a onClick={onClose}>
-                <Button className="btn-gradient w-full" aria-label="Go to Dashboard">
-                  {t('landing.nav.dashboard')}
+                <Button
+                  variant="gradient"
+                  className="w-full"
+                  aria-label="Go to Dashboard"
+                >
+                  {t("landing.nav.dashboard")}
                 </Button>
               </a>
             </Link>

@@ -37,6 +37,7 @@ import { PlaybookDetailModal } from "@/components/PlaybookDetailModal";
 import { getSuggestedPlaybooks, type Playbook } from "@/data/playbooks";
 import { useLocation } from "wouter";
 import { CheckInModal } from "@/components/CheckInModal";
+import { designTokens } from "@/lib/design-tokens";
 
 // Type for AI Insights recommendations
 interface InsightRecommendation {
@@ -82,9 +83,9 @@ export default function Dashboard() {
   // Time-based greeting
   const getTimeGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return "Guten Morgen";
+    if (hour < 18) return "Guten Tag";
+    return "Guten Abend";
   };
 
   const [dailyTip] = useState(
@@ -303,18 +304,19 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="container py-8 space-y-6">
+      {/* Mobile-first: Smaller padding on mobile, larger on desktop */}
+      <div className="container py-4 md:py-6 lg:py-8 space-y-4 md:space-y-6">
         {/* Credit Banner - Shows when credits are low */}
         <CreditBanner threshold={20} />
 
         {/* ============ TODAY'S FOCUS - Hero Element ============ */}
-        <Card className="glass border-border/50 backdrop-blur-xl bg-gradient-to-br from-primary/5 via-background to-primary/10 dark:from-[#1a1a2e]/80 dark:to-[#0a0a0f]/80 overflow-hidden hero-entrance">
-          <CardContent className="p-6 md:p-8">
+        {/* Steve Jobs: Eine visuelle Schicht - nur elevated, kein Glassmorphism + Gradient */}
+        <Card variant="elevated" className="hero-entrance">
+          <CardContent className="!py-6 md:!py-8">
             <div className="flex flex-col md:flex-row md:items-center gap-6">
               {/* Left: Focus Content */}
               <div className="flex-1">
                 <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                   {getTimeGreeting()}, {user?.name?.split(" ")[0] || "Captain"}
                 </p>
 
@@ -322,23 +324,32 @@ export default function Dashboard() {
                 {openTodos > 0 ? (
                   <>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      You have {openTodos} {openTodos === 1 ? "task" : "tasks"}{" "}
-                      pending
+                      {openTodos} {openTodos === 1 ? "Aufgabe" : "Aufgaben"}{" "}
+                      warten auf dich
                     </h1>
-                    <p className="text-muted-foreground mb-4 max-w-lg">
-                      Tackle them step by step. Houston is here to help if you
-                      get stuck.
+                    <p className="text-muted-foreground mb-6 max-w-lg">
+                      Schritt für Schritt zum Ziel. Houston hilft dir, wenn du
+                      nicht weiter weißt.
                     </p>
-                    <div className="flex flex-wrap gap-3">
+                    {/* Steve Jobs: Klarer primärer CTA, sekundärer subtiler */}
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Link href="/app/todos">
-                        <Button variant="gradient" size="lg">
-                          View Tasks
+                        <Button
+                          variant="gradient"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          Aufgaben ansehen
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                       <Link href="/app/chats">
-                        <Button variant="outline" size="lg">
-                          Ask Houston
+                        <Button
+                          variant="ghost"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          Houston fragen
                         </Button>
                       </Link>
                     </div>
@@ -346,21 +357,30 @@ export default function Dashboard() {
                 ) : activeGoals > 0 && (todos?.length || 0) === 0 ? (
                   <>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      Your goals are ready! 🎯
+                      Deine Ziele sind bereit! 🎯
                     </h1>
-                    <p className="text-muted-foreground mb-4 max-w-lg">
-                      Let's define concrete steps now to reach your first goal.
+                    <p className="text-muted-foreground mb-6 max-w-lg">
+                      Lass uns jetzt konkrete Schritte definieren, um dein
+                      erstes Ziel zu erreichen.
                     </p>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Link href="/app/chats?prompt=Let's+create+a+plan+for+my+first+goal">
-                        <Button variant="gradient" size="lg">
-                          Create Plan
+                        <Button
+                          variant="gradient"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          Plan erstellen
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                       <Link href="/app/goals">
-                        <Button variant="outline" size="lg">
-                          View Goals
+                        <Button
+                          variant="ghost"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          Ziele ansehen
                         </Button>
                       </Link>
                     </div>
@@ -368,21 +388,30 @@ export default function Dashboard() {
                 ) : activeGoals > 0 ? (
                   <>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      All tasks completed! 🎉
+                      Alle Aufgaben erledigt! 🎉
                     </h1>
-                    <p className="text-muted-foreground mb-4 max-w-lg">
-                      Great job! Ask Houston for the next steps on your goal.
+                    <p className="text-muted-foreground mb-6 max-w-lg">
+                      Großartig! Frag Houston nach den nächsten Schritten für
+                      dein Ziel.
                     </p>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Link href="/app/chats">
-                        <Button variant="gradient" size="lg">
-                          Plan with Houston
+                        <Button
+                          variant="gradient"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          Mit Houston planen
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                       <Link href="/app/goals">
-                        <Button variant="outline" size="lg">
-                          View Goals
+                        <Button
+                          variant="ghost"
+                          size="lg"
+                          className="w-full sm:w-auto"
+                        >
+                          Ziele ansehen
                         </Button>
                       </Link>
                     </div>
@@ -390,12 +419,12 @@ export default function Dashboard() {
                 ) : (
                   <>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      Let's get started! 🚀
+                      Los geht's! 🚀
                     </h1>
-                    <p className="text-muted-foreground mb-4 max-w-lg">
+                    <p className="text-muted-foreground mb-6 max-w-lg">
                       {activationStatus.hasStrategy
-                        ? "Your strategy is set. Now we need concrete goals for your success."
-                        : "Tell Houston about your business and goals. He'll create a plan for you."}
+                        ? "Deine Strategie steht. Jetzt brauchen wir konkrete Ziele für deinen Erfolg."
+                        : "Erzähl Houston von deinem Business und deinen Träumen. Er erstellt dir einen Plan."}
                     </p>
                     <Link
                       href={
@@ -404,10 +433,14 @@ export default function Dashboard() {
                           : "/app/chats"
                       }
                     >
-                      <Button variant="gradient" size="lg">
+                      <Button
+                        variant="gradient"
+                        size="lg"
+                        className="w-full sm:w-auto"
+                      >
                         {activationStatus.hasStrategy
-                          ? "Define Goal"
-                          : "Start First Chat"}
+                          ? "Ziel definieren"
+                          : "Erstes Gespräch starten"}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </Link>
@@ -415,22 +448,37 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Right: Quick Stats */}
-              <div className="flex gap-4 md:gap-6">
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">
+              {/* Right: Quick Stats - Mobile-first: Stack on mobile, horizontal on desktop */}
+              <div className="flex flex-col sm:flex-row gap-4 md:gap-6 mt-4 md:mt-0">
+                <div
+                  className="text-center animate-in fade-in slide-in-from-right-2 duration-300"
+                  style={{
+                    animationDelay: designTokens.animation.delay.stagger2,
+                  }}
+                >
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text-aistronaut">
                     {activeGoals}
                   </div>
                   <div className="text-xs text-muted-foreground">Goals</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">
+                <div
+                  className="text-center animate-in fade-in slide-in-from-right-2 duration-300"
+                  style={{
+                    animationDelay: designTokens.animation.delay.stagger3,
+                  }}
+                >
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text-aistronaut">
                     {openTodos}
                   </div>
                   <div className="text-xs text-muted-foreground">To-dos</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold gradient-text-aistronaut">
+                <div
+                  className="text-center animate-in fade-in slide-in-from-right-2 duration-300"
+                  style={{
+                    animationDelay: designTokens.animation.delay.stagger4,
+                  }}
+                >
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text-aistronaut">
                     {totalChatSessions}
                   </div>
                   <div className="text-xs text-muted-foreground">Chats</div>
@@ -454,11 +502,8 @@ export default function Dashboard() {
         ) : null}
 
         {/* AI Insights Card - Prominent */}
-        {/* SMART INSIGHTS: Daily Wisdom + Upsell */}
-        <Card className="glass border-border/50 backdrop-blur-xl relative overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[var(--color-gradient-purple)]/10 to-transparent rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-
+        {/* Steve Jobs: Eine visuelle Schicht - nur glass, kein elevated */}
+        <Card variant="glass" className="relative overflow-hidden">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -552,7 +597,7 @@ export default function Dashboard() {
 
         {/* Recommended Playbooks */}
         {suggestedPlaybooks.length > 0 && (
-          <Card className="glass border-border/50 backdrop-blur-xl">
+          <Card variant="glass">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -592,7 +637,7 @@ export default function Dashboard() {
         {/* Secondary Content Grid - Just 2 essential cards */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Goals & Progress */}
-          <Card>
+          <Card variant="elevated">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="space-y-1">
                 <CardTitle>Goals & Progress</CardTitle>
@@ -685,7 +730,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Recent Conversations with Houston */}
-          <Card>
+          <Card variant="elevated">
             <CardHeader>
               <CardTitle>Conversations with Houston</CardTitle>
               <CardDescription>Your chat history</CardDescription>

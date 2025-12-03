@@ -27,7 +27,7 @@ export function PlanBadge({ plan, className }: PlanBadgeProps) {
     return (
       <Badge
         className={cn(
-          "gap-1 bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] border-0 text-white shadow-md shadow-purple-500/20",
+          "gap-1 bg-gradient-to-r from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] border-0 text-white shadow-md shadow-purple-500/20",
           className,
         )}
       >

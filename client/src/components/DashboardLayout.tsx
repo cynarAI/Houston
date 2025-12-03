@@ -89,17 +89,31 @@ function SpaceBackground() {
     return () => clearTimeout(timeout);
   }, [theme]);
 
-  // Light theme - Ultra subtle, clean
+  // Light theme - Ultra subtle, clean with minimal space elements
   if (theme === "light") {
     return (
       <div
-        className="fixed inset-0 -z-10 pointer-events-none"
+        className="fixed inset-0 -z-10 pointer-events-none overflow-hidden"
         aria-hidden="true"
       >
-        <div className="absolute inset-0 bg-slate-50/80" />
+        {/* Augenfreundlicher Light Mode: Warme, gedämpfte Töne statt reines Weiß */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-100/90 via-slate-50/95 to-slate-100/90" />
         {/* Very subtle gradients */}
         <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-[#FF6B9D]/[0.02] to-transparent" />
         <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-tr from-[#C44FE2]/[0.02] to-transparent" />
+        {/* Minimal stars for light mode - very subtle */}
+        <svg className="absolute inset-0 w-full h-full opacity-20">
+          {stars.slice(0, 15).map((star) => (
+            <circle
+              key={star.id}
+              cx={`${star.x}%`}
+              cy={`${star.y}%`}
+              r={star.size * 0.5}
+              fill="#8B5CF6"
+              opacity={star.opacity * 0.3}
+            />
+          ))}
+        </svg>
       </div>
     );
   }
@@ -112,7 +126,7 @@ function SpaceBackground() {
     >
       <div className="absolute inset-0 bg-gradient-to-b from-[#050510] via-[#0a0a18] to-[#050510]" />
 
-      {/* Nebula accents - Reduced opacity */}
+      {/* Nebula accents - Optimized opacity for dark mode */}
       <div className="absolute top-0 right-0 w-2/3 h-2/3 bg-gradient-to-bl from-[#FF6B9D]/5 via-[#C44FE2]/3 to-transparent blur-3xl" />
       <div className="absolute bottom-0 left-0 w-2/3 h-2/3 bg-gradient-to-tr from-[#00D4FF]/4 via-[#C44FE2]/2 to-transparent blur-3xl" />
 
@@ -146,11 +160,11 @@ function SpaceBackground() {
         ))}
       </svg>
 
-      {/* Shooting Stars */}
+      {/* Shooting Stars - Only in dark mode */}
       {shootingStars.map((star) => (
         <div
           key={star.id}
-          className="absolute animate-shooting-star opacity-40" // Reduced opacity
+          className="absolute animate-shooting-star opacity-40"
           style={{
             left: `${star.x}%`,
             top: `${star.y}%`,
@@ -251,8 +265,8 @@ export default function DashboardLayout({
         <SpaceBackground />
         <div className="relative z-10 flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B9D] to-[#C44FE2] rounded-full blur-2xl opacity-30 animate-pulse" />
-            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B9D]/20 to-[#C44FE2]/20 border border-[#FF6B9D]/30">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] rounded-full blur-2xl opacity-30 animate-pulse" />
+            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B9D]/20 via-[#C44FE2]/20 via-[#8B5CF6]/20 to-[#00D4FF]/20 border border-[#FF6B9D]/30">
               <Sparkles className="h-8 w-8 text-[#FF6B9D] animate-pulse" />
             </div>
           </div>
@@ -307,12 +321,13 @@ export default function DashboardLayout({
       <SpaceBackground />
 
       {/* ========== TOP NAVIGATION BAR ========== */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center gap-4 px-4 md:px-6 max-w-screen-2xl mx-auto">
+      {/* Mobile-first: Smaller height on mobile, larger on desktop */}
+      <header className="sticky top-0 z-50 w-full border-b border-border/50 dark:border-white/10 bg-background/95 dark:bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:backdrop-blur-xl">
+        <div className="flex h-14 md:h-14 items-center gap-3 md:gap-6 px-3 md:px-6 max-w-screen-2xl mx-auto">
           {/* Logo */}
           <button
             onClick={() => setLocation("/app/dashboard")}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
+            className="flex items-center gap-2 hover:opacity-70 transition-opacity duration-150 shrink-0"
           >
             <Sparkles className="w-5 h-5 text-[#FF6B9D]" />
             <span className="font-semibold gradient-text-aistronaut hidden sm:inline">
@@ -320,8 +335,8 @@ export default function DashboardLayout({
             </span>
           </button>
 
-          {/* Desktop Navigation - Center */}
-          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+          {/* Desktop Navigation - Left-aligned (Steve Jobs: Clear hierarchy) */}
+          <nav className="hidden md:flex items-center gap-0.5">
             {navItems.map((item) => {
               const isActive =
                 location === item.path ||
@@ -335,13 +350,13 @@ export default function DashboardLayout({
                   key={item.path}
                   onClick={() => setLocation(item.path)}
                   className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
+                    relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150
                     ${
                       isActive
                         ? item.primary
-                          ? "bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] text-white shadow-lg shadow-[#FF6B9D]/20"
-                          : "bg-accent text-accent-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                          ? "bg-gradient-to-r from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] text-white"
+                          : "bg-accent dark:bg-accent text-accent-foreground dark:text-accent-foreground"
+                        : "text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-foreground hover:bg-accent/50 dark:hover:bg-accent/50"
                     }
                   `}
                 >
@@ -352,53 +367,24 @@ export default function DashboardLayout({
             })}
           </nav>
 
-          {/* Mobile: Menu Button */}
-          <button
-            className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
+          {/* Spacer - pushes right actions to the end */}
+          <div className="flex-1" />
 
-          {/* Spacer for mobile */}
-          <div className="flex-1 md:hidden" />
-
-          {/* Right Side Actions */}
-          <div className="flex items-center gap-1 shrink-0">
-            {/* Credits */}
+          {/* Right Side Actions - Minimal, Essential Only (Steve Jobs: Focus) */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Credits - Essential */}
             <div className="hidden sm:block">
               <CreditIndicator />
             </div>
 
-            {/* Notifications */}
+            {/* Notifications - Essential */}
             <NotificationCenter />
 
-            {/* Language Toggle */}
-            <button
-              onClick={toggleLanguage}
-              className="hidden sm:flex items-center gap-1 px-2 py-1.5 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
-              aria-label={
-                currentLanguage === "de"
-                  ? "Sprache wechseln"
-                  : "Switch language"
-              }
-            >
-              <Globe className="w-4 h-4" />
-              <span className="text-xs font-medium">
-                {currentLanguage.toUpperCase()}
-              </span>
-            </button>
-
-            {/* Theme Toggle */}
+            {/* Theme Toggle - Essential - Touch-optimized */}
             {switchable && toggleTheme && (
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+                className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-accent dark:hover:bg-accent transition-colors duration-150 text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-foreground active:scale-95 touch-manipulation"
                 aria-label={theme === "light" ? "Dark mode" : "Light mode"}
               >
                 {theme === "light" ? (
@@ -409,16 +395,29 @@ export default function DashboardLayout({
               </button>
             )}
 
-            {/* User Menu */}
+            {/* Mobile: Menu Button - Touch-optimized (min 44x44px) */}
+            <button
+              className="md:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-accent dark:hover:bg-accent rounded-lg transition-colors duration-150 active:scale-95 touch-manipulation"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
+
+            {/* User Menu - Clean, Simple (Steve Jobs: Simplicity) */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full hover:bg-accent/50 transition-colors p-1 pr-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ml-2">
-                  <Avatar className="h-8 w-8 border border-white/20">
-                    <AvatarFallback className="text-xs font-medium bg-gradient-to-br from-[#FF6B9D] to-[#C44FE2] text-white">
+                <button className="flex items-center gap-2 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/50 transition-colors duration-150 p-1 pr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <Avatar className="h-8 w-8 border border-border/50 dark:border-white/20">
+                    <AvatarFallback className="text-xs font-medium bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] text-white">
                       {user?.name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground hidden sm:block" />
+                  <ChevronDown className="h-3 w-3 text-muted-foreground dark:text-muted-foreground hidden sm:block" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -486,10 +485,10 @@ export default function DashboardLayout({
           </div>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
+        {/* Mobile Navigation Dropdown - Simple, Clean, Touch-optimized */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-white/10 bg-background/95 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200">
-            <nav className="flex flex-col p-3 gap-1">
+          <div className="md:hidden border-t border-border/50 dark:border-white/10 bg-background/95 dark:bg-background/95 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200">
+            <nav className="flex flex-col p-2 gap-1">
               {navItems.map((item) => {
                 const isActive = location === item.path;
                 const displayLabel =
@@ -500,24 +499,24 @@ export default function DashboardLayout({
                     key={item.path}
                     onClick={() => setLocation(item.path)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left
+                      flex items-center gap-3 px-4 py-3.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors duration-150 text-left touch-manipulation active:scale-[0.98]
                       ${
                         isActive
                           ? item.primary
-                            ? "bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] text-white"
-                            : "bg-accent text-accent-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                            ? "bg-gradient-to-r from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] text-white"
+                            : "bg-accent dark:bg-accent text-accent-foreground dark:text-accent-foreground"
+                          : "text-muted-foreground dark:text-muted-foreground active:bg-accent/50 dark:active:bg-accent/50"
                       }
                     `}
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className="h-5 w-5 shrink-0" />
                     <span>{displayLabel}</span>
                   </button>
                 );
               })}
 
               {/* Mobile Credits */}
-              <div className="px-4 py-3 border-t border-white/10 mt-2">
+              <div className="px-4 py-3 border-t border-border/50 dark:border-white/10 mt-2">
                 <CreditIndicator />
               </div>
             </nav>

@@ -263,7 +263,7 @@ export default function Landing() {
         <div className="container-premium mx-auto">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#FF6B9D]/20 to-[#8B5CF6]/20 border border-[#FF6B9D]/30 backdrop-blur-sm mb-8 animate-glow">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#FF6B9D]/20 via-[#C44FE2]/20 via-[#8B5CF6]/20 to-[#00D4FF]/20 border border-[#FF6B9D]/30 backdrop-blur-sm mb-8 animate-glow">
               <Sparkles className="w-4 h-4 text-[#FF6B9D]" />
               <span className="text-sm text-white font-medium">
                 {t("landing.hero.badge")}
@@ -358,7 +358,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {/* Step 1 */}
             <div className="glass-card p-6 text-center group hover:scale-105 transition-transform duration-300">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#FF6B9D] to-[#8B5CF6] flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] flex items-center justify-center">
                 <MessageCircle className="w-8 h-8 text-white" />
               </div>
               <div className="text-sm font-bold text-[#FF6B9D] mb-2">01</div>
@@ -433,7 +433,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Benefit 1 */}
             <div className="glass-card p-8 group hover:scale-105 transition-transform duration-300">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF6B9D] to-[#8B5CF6] flex items-center justify-center mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-7 h-7 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-white">
@@ -640,7 +640,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* What are Credits */}
             <div className="glass-card p-8">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FF6B9D] to-[#8B5CF6] flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] flex items-center justify-center mb-4">
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">
@@ -810,7 +810,7 @@ export default function Landing() {
 
             {/* Solo - Recommended */}
             <div className="glass-card p-8 relative border-2 border-[#FF6B9D]/30 hover:scale-105 transition-transform duration-300 shadow-2xl shadow-[#FF6B9D]/10">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#FF6B9D] to-[#8B5CF6] text-white text-sm font-bold">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] text-white text-sm font-bold">
                 {t("landing.pricing.solo.badge")}
               </div>
               <div className="flex items-center gap-3 mb-6">
@@ -827,7 +827,7 @@ export default function Landing() {
                   {t("landing.pricing.solo.period")}
                 </p>
               </div>
-              <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-[#FF6B9D]/10 to-[#8B5CF6]/10 border border-[#FF6B9D]/20">
+              <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-[#FF6B9D]/10 via-[#C44FE2]/10 via-[#8B5CF6]/10 to-[#00D4FF]/10 border border-[#FF6B9D]/20">
                 <p className="text-xl font-bold text-white mb-1">
                   {t("landing.pricing.solo.credits")}
                 </p>
@@ -1066,7 +1066,7 @@ export default function Landing() {
                 className="glass-card p-8 hover:scale-105 transition-transform duration-300"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6B9D] to-[#8B5CF6] flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] flex items-center justify-center text-white font-bold text-lg">
                     {t(`landing.testimonials.testimonial${num}.name`)
                       .split(" ")
                       .map((n) => n[0])

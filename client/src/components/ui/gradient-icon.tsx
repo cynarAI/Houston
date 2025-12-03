@@ -14,25 +14,33 @@ const gradientIconVariants = cva(
         xl: "w-20 h-20",
       },
       gradient: {
-        "orange-pink": "bg-gradient-to-br from-[var(--color-gradient-orange)] to-[var(--color-gradient-pink)]",
-        "pink-purple": "bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)]",
-        "blue-purple": "bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)]",
-        "purple-indigo": "bg-gradient-to-br from-[var(--color-gradient-purple)] to-[var(--color-gradient-indigo)]",
-        "cyan-purple": "bg-gradient-to-br from-[var(--color-gradient-cyan)] to-[var(--color-gradient-purple)]",
-        "red-orange": "bg-gradient-to-br from-[var(--color-gradient-red)] to-[var(--color-gradient-orange)]",
-        "green-emerald": "bg-gradient-to-br from-[var(--color-gradient-green)] to-[var(--color-gradient-emerald)]",
-        "aistronaut": "bg-gradient-to-br from-[#FF6B9D] to-[#8B5CF6]",
+        "orange-pink":
+          "bg-gradient-to-br from-[var(--color-gradient-orange)] to-[var(--color-gradient-pink)]",
+        "pink-purple":
+          "bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)]",
+        "blue-purple":
+          "bg-gradient-to-br from-[var(--color-gradient-blue)] to-[var(--color-gradient-purple)]",
+        "purple-indigo":
+          "bg-gradient-to-br from-[var(--color-gradient-purple)] to-[var(--color-gradient-indigo)]",
+        "cyan-purple":
+          "bg-gradient-to-br from-[var(--color-gradient-cyan)] to-[var(--color-gradient-purple)]",
+        "red-orange":
+          "bg-gradient-to-br from-[var(--color-gradient-red)] to-[var(--color-gradient-orange)]",
+        "green-emerald":
+          "bg-gradient-to-br from-[var(--color-gradient-green)] to-[var(--color-gradient-emerald)]",
+        aistronaut:
+          "bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF]",
         // Priority-based gradients
-        "high": "bg-gradient-to-br from-red-500 to-orange-500",
-        "medium": "bg-gradient-to-br from-blue-500 to-purple-500",
-        "low": "bg-gradient-to-br from-green-500 to-emerald-500",
+        high: "bg-gradient-to-br from-red-500 to-orange-500",
+        medium: "bg-gradient-to-br from-blue-500 to-purple-500",
+        low: "bg-gradient-to-br from-green-500 to-emerald-500",
       },
     },
     defaultVariants: {
       size: "md",
       gradient: "blue-purple",
     },
-  }
+  },
 );
 
 const iconSizeMap = {
@@ -51,18 +59,18 @@ interface GradientIconProps
 
 /**
  * GradientIcon - Icon wrapped in a gradient circle for Houston's space theme
- * 
+ *
  * @example
- * <GradientIcon 
- *   icon={Brain} 
- *   gradient="blue-purple" 
- *   size="lg" 
+ * <GradientIcon
+ *   icon={Brain}
+ *   gradient="blue-purple"
+ *   size="lg"
  * />
- * 
+ *
  * @example Priority-based usage
- * <GradientIcon 
- *   icon={Sparkles} 
- *   gradient={priority === 'high' ? 'high' : priority === 'medium' ? 'medium' : 'low'} 
+ * <GradientIcon
+ *   icon={Sparkles}
+ *   gradient={priority === 'high' ? 'high' : priority === 'medium' ? 'medium' : 'low'}
  * />
  */
 function GradientIcon({

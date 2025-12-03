@@ -1,0 +1,188 @@
+---
+name: Auto-Analyse bei Chat-Start
+description: Automatische App-Analyse vor jedem Chat - stellt sicher, dass Cursor immer den aktuellen Zustand kennt
+ruleType: Always
+---
+
+# Automatische App-Analyse bei Chat-Start
+
+**KRITISCH:** Diese Regel wird bei jedem Chat-Start automatisch ausgeführt. Sie stellt sicher, dass Cursor immer den aktuellen Zustand der App kennt, bevor eine Antwort gegeben wird.
+
+## Analyse-Protokoll
+
+### Bei jedem Chat-Start MÜSSEN folgende Analysen durchgeführt werden:
+
+#### 1. Projekt-Struktur & Architektur
+- ✅ Aktuelle Verzeichnisstruktur prüfen (`client/`, `server/`, `drizzle/`, `shared/`)
+- ✅ Haupt-Router und Module identifizieren (`server/routers.ts`)
+- ✅ Datenbank-Schema überprüfen (`drizzle/schema.ts`)
+- ✅ Frontend-Routing-Struktur analysieren (`client/src/App.tsx`)
+
+#### 2. Domain-Module Status
+- ✅ **Houston Coach (Chat)**: `server/routers/chat.ts`, `client/src/pages/Chats.tsx`
+- ✅ **Goals & Todos**: `server/routers/goals.ts`, `server/routers/todos.ts`
+- ✅ **Strategy**: `server/routers/strategy.ts`
+- ✅ **Credits**: `server/creditService.ts`, `server/routers/credits.ts`
+- ✅ **Referrals**: `server/referralService.ts`, `server/routers/referrals.ts`
+- ✅ **Workspaces**: `server/routers/workspaces.ts`
+- ✅ **Playbooks**: `server/routers/playbooks.ts`
+
+#### 3. Kritische Services
+- ✅ **CreditService**: Funktionsweise und Credit-Kosten prüfen
+- ✅ **LLM Integration**: `server/_core/llm.ts` - Manus LLM Integration
+- ✅ **Auth**: `server/_core/auth.ts` - OAuth Flow
+- ✅ **tRPC Setup**: `server/_core/trpc.ts` - Procedures und Error Handling
+
+#### 4. Frontend-Komponenten
+- ✅ Haupt-Layout: `client/src/components/DashboardLayout.tsx`
+- ✅ UI-Komponenten: `client/src/components/ui/` (shadcn/ui)
+- ✅ Seiten: `client/src/pages/` - Alle Route-Pages
+- ✅ Hooks & Contexts: `client/src/hooks/`, `client/src/contexts/`
+
+#### 5. Aktuelle Änderungen
+- ✅ Git-Status prüfen (uncommitted changes, aktuelle Branch)
+- ✅ Kürzlich geänderte Dateien analysieren
+- ✅ Offene Linter-Fehler identifizieren
+- ✅ Test-Status prüfen (falls vorhanden)
+
+#### 6. Konfiguration & Dependencies
+- ✅ `package.json` - Dependencies und Scripts
+- ✅ `tailwind.config.js` - Design-System
+- ✅ `drizzle.config.ts` - DB-Konfiguration
+- ✅ Environment-Variablen (`.env.example`)
+
+## Analyse-Methodik
+
+### Codebase-Search Strategie
+
+Nutze `codebase_search` für semantische Analysen:
+
+1. **Architektur-Verständnis:**
+   - "How does the app structure work?"
+   - "What are the main components and modules?"
+   - "How does authentication work?"
+
+2. **Domain-Module:**
+   - "How does the credit system work?"
+   - "How does the chat feature work?"
+   - "How are goals and todos managed?"
+
+3. **Aktuelle Implementierungen:**
+   - "Where is feature X implemented?"
+   - "How does Y work in the codebase?"
+
+### File-Reading Strategie
+
+Lese kritische Dateien direkt:
+
+1. **Architektur-Dateien:**
+   - `server/routers.ts` - Alle Router
+   - `drizzle/schema.ts` - DB-Schema
+   - `client/src/App.tsx` - Frontend-Routing
+
+2. **Service-Dateien:**
+   - `server/creditService.ts` - Credit-Logik
+   - `server/_core/llm.ts` - LLM-Integration
+   - `server/_core/trpc.ts` - tRPC-Setup
+
+3. **Dokumentation:**
+   - `docs/architecture/architecture.md` - Architektur-Übersicht
+   - `README.md` - Projekt-Übersicht
+
+## Analyse-Ausgabe
+
+Nach der Analyse solltest du folgendes wissen:
+
+### ✅ Projekt-Kontext
+- Was ist Houston? (KI-Marketing-Coach für KMUs)
+- Tech Stack (React, Vite, tRPC, Drizzle, Manus 1.5)
+- Plattform (Manus 1.5 - KRITISCH)
+
+### ✅ Architektur-Verständnis
+- Client-Server-Struktur
+- Domain-Module und ihre Verantwortlichkeiten
+- Datenfluss (Frontend → tRPC → Services → DB)
+
+### ✅ Aktuelle Implementierung
+- Welche Features sind implementiert?
+- Wie funktionieren kritische Services?
+- Welche Patterns werden verwendet?
+
+### ✅ Code-Qualität
+- Gibt es offene Linter-Fehler?
+- Gibt es uncommitted Changes?
+- Gibt es bekannte Issues?
+
+## Wann die Analyse durchführen
+
+**IMMER bei Chat-Start:**
+- Bevor die erste Antwort gegeben wird
+- Automatisch, ohne explizite Aufforderung
+- Stillschweigend im Hintergrund
+
+**NICHT bei:**
+- Einfachen Fragen, die keine Code-Analyse benötigen
+- Fragen zu bereits analysierten Bereichen (innerhalb derselben Session)
+
+## Analyse-Tiefe
+
+### Minimal-Analyse (Standard)
+- Projekt-Struktur prüfen
+- Haupt-Module identifizieren
+- Kritische Services überprüfen
+- Aktuelle Änderungen erkennen
+
+### Tiefe-Analyse (bei Bedarf)
+- Vollständige Codebase-Suche
+- Alle relevanten Dateien lesen
+- Detaillierte Architektur-Analyse
+- Pattern-Analyse und Best Practices
+
+## Beispiel-Analyse-Ablauf
+
+```
+1. [Automatisch] Projekt-Struktur prüfen
+   → client/, server/, drizzle/, shared/ vorhanden
+
+2. [Automatisch] Haupt-Router analysieren
+   → server/routers.ts: chat, goals, todos, strategy, credits, referrals, workspaces, playbooks
+
+3. [Automatisch] CreditService prüfen
+   → server/creditService.ts: CREDIT_COSTS definiert, charge/getCost Funktionen vorhanden
+
+4. [Automatisch] Frontend-Routing prüfen
+   → client/src/App.tsx: Wouter-Router mit Routes für alle Pages
+
+5. [Automatisch] Git-Status prüfen
+   → Auf main branch, keine uncommitted changes
+
+6. [Bereit] Kontext vollständig - kann jetzt Fragen beantworten
+```
+
+## Wichtige Erkenntnisse für den Chat
+
+Nach der Analyse solltest du immer wissen:
+
+- ✅ **Was ist Houston?** - KI-Marketing-Coach für KMUs auf Manus 1.5
+- ✅ **Wie ist es strukturiert?** - React Frontend, Express+tRPC Backend, Drizzle ORM
+- ✅ **Welche Features gibt es?** - Chat, Goals, Todos, Strategy, Credits, Referrals, Workspaces, Playbooks
+- ✅ **Wie funktioniert X?** - Basierend auf aktueller Code-Analyse
+- ✅ **Was wurde kürzlich geändert?** - Basierend auf Git-Status und Datei-Änderungen
+
+## Zusammenfassung
+
+**Diese Regel stellt sicher, dass Cursor bei jedem Chat-Start:**
+- Den aktuellen Zustand der App kennt
+- Die Architektur versteht
+- Die Implementierung der Features kennt
+- Aktuelle Änderungen berücksichtigt
+- Kontextuell relevante Antworten geben kann
+
+**Ohne diese Analyse:** Cursor könnte veraltete Informationen haben oder wichtige Details übersehen.
+
+**Mit dieser Analyse:** Cursor ist immer auf dem neuesten Stand und kann präzise, kontextuell relevante Antworten geben.
+
+---
+
+**WICHTIG:** Diese Analyse wird automatisch bei jedem Chat-Start durchgeführt. Sie muss nicht explizit angefordert werden.
+

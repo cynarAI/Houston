@@ -7,7 +7,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Sparkles, Zap, ArrowRight, Rocket, Shield } from "lucide-react";
+import {
+  AlertTriangle,
+  Sparkles,
+  Zap,
+  ArrowRight,
+  Rocket,
+  Shield,
+} from "lucide-react";
 import { Link } from "wouter";
 
 interface LowCreditsDialogProps {
@@ -54,19 +61,20 @@ export function LowCreditsDialog({
               {isEmpty
                 ? "Credits aufgebraucht"
                 : !canAfford
-                ? "Nicht genug Credits"
-                : isLow
-                ? "Guthaben knapp"
-                : "Credit-Kosten bestätigen"}
+                  ? "Nicht genug Credits"
+                  : isLow
+                    ? "Guthaben knapp"
+                    : "Credit-Kosten bestätigen"}
             </DialogTitle>
           </div>
           <DialogDescription className="text-base">
             {isEmpty ? (
               <>
-                Dein Guthaben ist leer. Um{" "}
-                <strong>{actionName}</strong> zu nutzen, brauchst du {creditsNeeded} Credits.
+                Dein Guthaben ist leer. Um <strong>{actionName}</strong> zu
+                nutzen, brauchst du {creditsNeeded} Credits.
                 <span className="block mt-2 text-muted-foreground">
-                  Keine Sorge – mit einem kleinen Booster bist du sofort wieder dabei.
+                  Keine Sorge – mit einem kleinen Booster bist du sofort wieder
+                  dabei.
                 </span>
               </>
             ) : !canAfford ? (
@@ -102,7 +110,9 @@ export function LowCreditsDialog({
           <div className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10">
             <div>
               <p className="text-sm text-muted-foreground">Dein Guthaben</p>
-              <p className={`text-2xl font-bold ${isEmpty ? 'text-red-400' : isLow || !canAfford ? 'text-orange-400' : 'text-white'}`}>
+              <p
+                className={`text-2xl font-bold ${isEmpty ? "text-red-400" : isLow || !canAfford ? "text-orange-400" : "text-white"}`}
+              >
                 {currentCredits} Credits
               </p>
             </div>
@@ -116,7 +126,8 @@ export function LowCreditsDialog({
 
           {canAfford && (
             <p className="text-sm text-muted-foreground mt-3 text-center">
-              Nach der Aktion: <strong>{currentCredits - creditsNeeded} Credits</strong> übrig
+              Nach der Aktion:{" "}
+              <strong>{currentCredits - creditsNeeded} Credits</strong> übrig
             </p>
           )}
         </div>
@@ -127,12 +138,12 @@ export function LowCreditsDialog({
             <>
               {/* Primary: Quick Booster Purchase */}
               <Link href="/app/credits?tab=topups" className="w-full">
-                <Button className="w-full bg-gradient-to-r from-[#FF6B9D] to-[#8B5CF6] hover:shadow-lg">
+                <Button className="w-full bg-gradient-to-r from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] hover:shadow-lg hover:shadow-[#FF6B9D]/30">
                   <Zap className="mr-2 h-4 w-4" />
                   Schnell-Booster (ab €5,99)
                 </Button>
               </Link>
-              
+
               {/* Secondary: View Plans */}
               <Link href="/app/credits?tab=plans" className="w-full">
                 <Button variant="outline" className="w-full">
@@ -140,9 +151,13 @@ export function LowCreditsDialog({
                   Monatliche Pläne ansehen
                 </Button>
               </Link>
-              
+
               {/* Tertiary: Cancel */}
-              <Button variant="ghost" onClick={onClose} className="w-full text-muted-foreground">
+              <Button
+                variant="ghost"
+                onClick={onClose}
+                className="w-full text-muted-foreground"
+              >
                 Später erinnern
               </Button>
             </>
@@ -161,24 +176,31 @@ export function LowCreditsDialog({
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               )}
-              
+
               {/* If low credits, offer to top up */}
               {isLow && (
                 <Link href="/app/credits?tab=topups" className="w-full">
-                  <Button variant="outline" className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10">
+                  <Button
+                    variant="outline"
+                    className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                  >
                     <Zap className="mr-2 h-4 w-4" />
                     Trotzdem aufladen
                   </Button>
                 </Link>
               )}
-              
-              <Button variant="ghost" onClick={onClose} className="w-full text-muted-foreground">
+
+              <Button
+                variant="ghost"
+                onClick={onClose}
+                className="w-full text-muted-foreground"
+              >
                 Abbrechen
               </Button>
             </>
           )}
         </DialogFooter>
-        
+
         {/* Trust signal */}
         <div className="pt-2 border-t border-white/10">
           <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-2">
