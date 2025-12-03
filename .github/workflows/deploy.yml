@@ -87,6 +87,13 @@ jobs:
           TASK_URL=$(echo "$BODY" | jq -r '.task_url // empty')
           TASK_ID=$(echo "$BODY" | jq -r '.task_id // empty')
           
+          # Validierung: Prüfe ob Task-ID und URL vorhanden sind
+          if [ -z "$TASK_ID" ] || [ -z "$TASK_URL" ]; then
+            echo "::error::API response did not contain valid task_id or task_url"
+            echo "Response body: $BODY"
+            exit 1
+          fi
+          
           echo "task_url=$TASK_URL" >> $GITHUB_OUTPUT
           echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
           echo "✅ Deployment task created: $TASK_URL"
@@ -97,6 +104,13 @@ jobs:
           MANUS_API_KEY: ${{ secrets.MANUS_API_KEY }}
         run: |
           TASK_ID="${{ steps.deploy.outputs.task_id }}"
+          
+          # Validierung: Prüfe ob Task-ID vorhanden ist
+          if [ -z "$TASK_ID" ]; then
+            echo "::error::No task_id available from deploy step"
+            exit 1
+          fi
+          
           MAX_WAIT=300  # 5 Minuten
           INTERVAL=30
           ELAPSED=0
@@ -124,20 +138,15 @@ jobs:
               exit 1
             fi
             
-            # Wenn Task auf Eingabe wartet, sende Fortsetzungsbefehl
+            # Wenn Task auf Eingabe wartet, logge Warnung
+            # Hinweis: Die Manus API hat keinen Endpoint zum Fortsetzen von Tasks.
+            # Ein POST zu /v1/tasks würde einen NEUEN Task erstellen, nicht den bestehenden fortsetzen.
             if [ "$STATUS" = "pending" ]; then
               LAST_MSG=$(echo "$STATUS_RESPONSE" | jq -r '.output[-1].content[0].text // ""' | tail -c 500)
               if echo "$LAST_MSG" | grep -qi "frag\|information\|benötige\|question\|authentif"; then
-                echo "📝 Task wartet auf Eingabe, sende Fortsetzung..."
-                curl -s --request POST \
-                  --url "https://api.manus.ai/v1/tasks" \
-                  --header "API_KEY: $MANUS_API_KEY" \
-                  --header "Content-Type: application/json" \
-                  --data "{
-                    \"prompt\": \"Führe die Schritte einfach aus. Du bist auf der Manus-Plattform, nutze die eingebaute Publish-Funktion. Keine weitere Authentifizierung nötig.\",
-                    \"agentProfile\": \"manus-1.5\",
-                    \"taskId\": \"$TASK_ID\"
-                  }" > /dev/null
+                echo "⚠️ Task wartet auf Eingabe und muss manuell fortgesetzt werden."
+                echo "Task URL: ${{ steps.deploy.outputs.task_url }}"
+                echo "Letzte Nachricht: $LAST_MSG"
               fi
             fi
           done
