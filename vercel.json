@@ -18,6 +18,5 @@
       "source": "/(.*)",
       "destination": "/$1"
     }
-  ],
-  "domains": ["houston.manus.space"]
+  ]
 }
