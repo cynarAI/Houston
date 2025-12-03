@@ -64,22 +64,52 @@ jobs:
             ${{ runner.os }}-vite-
 
       - name: 🔍 TypeScript Check
+        id: typescript-check
         run: pnpm check
 
-      - name: 🧹 Lint
-        run: pnpm lint
-        continue-on-error: true
-
-      - name: 🧪 Unit Tests
-        run: pnpm test
-        continue-on-error: true
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || '' }}
-
-      - name: 🏗️ Build Application
-        run: pnpm build
+      - name: 🏗️ Build Application & Run Checks in Parallel
+        # Build startet direkt nach TypeScript Check, Lint/Tests laufen parallel
+        run: |
+          # Starte Lint und Tests im Hintergrund
+          pnpm lint > lint.log 2>&1 &
+          LINT_PID=$!
+          
+          DATABASE_URL="${{ secrets.DATABASE_URL || '' }}" pnpm test > test.log 2>&1 &
+          TEST_PID=$!
+          
+          # Baue die App (kritisch)
+          pnpm build
+          BUILD_EXIT=$?
+          
+          # Warte auf Lint und Tests
+          wait $LINT_PID
+          LINT_EXIT=$?
+          wait $TEST_PID
+          TEST_EXIT=$?
+          
+          # Zeige Logs
+          echo "=== Lint Output ==="
+          cat lint.log || true
+          echo ""
+          echo "=== Test Output ==="
+          cat test.log || true
+          
+          # Build muss erfolgreich sein, Lint/Tests können fehlschlagen
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "::error::Build failed"
+            exit $BUILD_EXIT
+          fi
+          
+          # Logge Ergebnisse (non-kritisch)
+          if [ $LINT_EXIT -ne 0 ]; then
+            echo "::warning::Lint failed (non-critical)"
+          fi
+          if [ $TEST_EXIT -ne 0 ]; then
+            echo "::warning::Tests failed (non-critical)"
+          fi
 
       - name: 📤 Upload build artifacts
+        # Artefakte werden sofort hochgeladen, damit Deployment früher starten kann
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ github.sha }}
@@ -94,8 +124,11 @@ jobs:
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| TypeScript | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ✅ Passed (kritisch) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ⚠️ Non-kritisch (parallel) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ⚠️ Non-kritisch (parallel) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Optimierung:** Build startet direkt nach TypeScript Check, Lint/Tests laufen parallel" >> $GITHUB_STEP_SUMMARY
           echo "**Artifact:** \`dist-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
 
   deploy:
