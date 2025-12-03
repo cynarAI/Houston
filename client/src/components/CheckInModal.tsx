@@ -90,8 +90,8 @@ export function CheckInModal({ open, onOpenChange, goalId, goalTitle, currentPro
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Abbrechen
           </Button>
-          <Button onClick={handleSubmit} disabled={updateGoalMutation.isLoading}>
-            {updateGoalMutation.isLoading ? "Speichert..." : "Check-in speichern"}
+          <Button onClick={handleSubmit} disabled={updateGoalMutation.isPending}>
+            {updateGoalMutation.isPending ? "Speichert..." : "Check-in speichern"}
           </Button>
         </DialogFooter>
       </DialogContent>
