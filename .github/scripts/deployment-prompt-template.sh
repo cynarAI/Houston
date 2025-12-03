@@ -439,6 +439,50 @@ fi
 sleep 2
 echo "✅ Webserver-Reload abgeschlossen"
 
+═══════════════════════════════════════════════════════════════════
+SCHRITT 3.2.5: Verifiziere Deployment & Assets-Dateien
+═══════════════════════════════════════════════════════════════════
+
+echo "🔍 Verifiziere Deployment..."
+
+# WICHTIG: Prüfe ob neue Assets-Dateien vorhanden sind
+echo "📊 Prüfe deployte Assets-Dateien..."
+if [ -d "$DEPLOY_DIR/assets" ]; then
+  ASSET_COUNT=$(find "$DEPLOY_DIR/assets" -type f | wc -l)
+  echo "   Anzahl Assets-Dateien: $ASSET_COUNT"
+  
+  # Prüfe ob neue index-*.js Dateien vorhanden sind
+  NEW_INDEX_FILES=$(find "$DEPLOY_DIR/assets" -name "index-*.js" | wc -l)
+  echo "   Anzahl index-*.js Dateien: $NEW_INDEX_FILES"
+  
+  if [ "$NEW_INDEX_FILES" -gt 0 ]; then
+    echo "✅ Neue JavaScript-Dateien gefunden"
+    # Zeige Dateinamen (für Debugging)
+    find "$DEPLOY_DIR/assets" -name "index-*.js" | head -3 | while read file; do
+      echo "   - $(basename "$file") ($(du -h "$file" | cut -f1))"
+    done
+  else
+    echo "⚠️  WARNUNG: Keine index-*.js Dateien gefunden!"
+  fi
+else
+  echo "❌ FEHLER: Assets-Verzeichnis fehlt!"
+fi
+
+# Prüfe ob index.html existiert und lesbar ist
+if [ -f "$DEPLOY_DIR/index.html" ]; then
+  echo "✅ index.html gefunden"
+  # Prüfe ob index.html auf neue Assets verweist
+  if grep -q "assets/index-" "$DEPLOY_DIR/index.html" 2>/dev/null; then
+    echo "✅ index.html verweist auf Assets-Dateien"
+  else
+    echo "⚠️  WARNUNG: index.html verweist möglicherweise nicht auf Assets-Dateien"
+  fi
+else
+  echo "❌ FEHLER: index.html fehlt!"
+fi
+
+echo "✅ Deployment-Verifizierung abgeschlossen"
+
 ⚠️ WICHTIGE HINWEISE:
 - Der API Key wurde beim Erstellen dieses Tasks verwendet (nicht für dich verfügbar)
 - Du benötigst den API Key NICHT für das Deployment - nutze Standard-Shell-Befehle
