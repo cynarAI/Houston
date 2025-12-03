@@ -16,6 +16,12 @@ on:
 env:
   NODE_VERSION: '20'
 
+# Sicherheit: Minimale Berechtigungen für Workflows
+permissions:
+  contents: read
+  actions: read
+  # Keine write-Berechtigungen für Repository
+
 jobs:
   build:
     name: Test & Build
@@ -53,15 +59,16 @@ jobs:
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🗄️ Cache Vite build
+      # KEIN Cache für dist/ - wir wollen immer frisch bauen um sicherzustellen dass der aktuelle Stand deployed wird
+      # Cache nur für node_modules/.vite (Vite's interne Cache)
+      - name: 🗄️ Cache Vite internal cache only
         uses: actions/cache@v4
         with:
           path: |
             node_modules/.vite
-            dist
-          key: ${{ runner.os }}-vite-${{ hashFiles('**/*.{ts,tsx,js,jsx,css,json}') }}
+          key: ${{ runner.os }}-vite-internal-${{ hashFiles('**/*.{ts,tsx,js,jsx,css,json}') }}
           restore-keys: |
-            ${{ runner.os }}-vite-
+            ${{ runner.os }}-vite-internal-
 
       - name: 🔍 TypeScript Check
         id: typescript-check
@@ -146,10 +153,11 @@ jobs:
       (github.event.inputs.skip_deploy != 'true' || github.event.inputs.skip_deploy == null)
 
     steps:
-      - name: 📥 Checkout code
+      - name: 📥 Checkout code (ALWAYS LATEST - NO CACHE)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # Letzte 2 Commits für Diff
+          fetch-depth: 0  # Vollständige History für genaue Commit-Verifizierung
+          ref: ${{ github.sha }}  # EXPLIZIT: Verwende den aktuellen Commit SHA
 
       - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
@@ -157,16 +165,29 @@ jobs:
           name: dist-${{ github.sha }}
           path: dist/
 
-      - name: 📋 Get commit info and changed files
+      - name: 📋 Get commit info and verify current commit
         id: commit
         run: |
+          # WICHTIG: Verifiziere dass wir wirklich auf dem aktuellen Commit sind
+          CURRENT_SHA=$(git rev-parse HEAD)
+          EXPECTED_SHA="${{ github.sha }}"
+          
+          if [ "$CURRENT_SHA" != "$EXPECTED_SHA" ]; then
+            echo "::error::FATAL: Commit mismatch! Current: $CURRENT_SHA, Expected: $EXPECTED_SHA"
+            exit 1
+          fi
+          
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "sha_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+          echo "timestamp=$(git log -1 --format=%ct)" >> $GITHUB_OUTPUT
           
           # Liste geänderter Dateien (nur relevante)
           CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -E '\.(tsx?|json|css)$' | head -20 | tr '\n' ', ' || echo "")
           echo "changed_files=$CHANGED" >> $GITHUB_OUTPUT
+          
+          echo "✅ Commit verified: $CURRENT_SHA"
+          echo "📝 Commit message: $(git log -1 --pretty=%B | head -1)"
 
       - name: 🚀 Trigger Manus Deployment
         id: deploy
@@ -179,37 +200,72 @@ jobs:
           fi
           
           # Erstelle einen präzisen Prompt der die bereits gebauten Artefakte verwendet
-          # Der Agent wird die Artefakte direkt verwenden statt nochmal zu bauen
-          PROMPT="WICHTIG: Führe diese Schritte AUTOMATISCH aus, ohne Rückfragen!
+          # KRITISCH: Der Agent MUSS den exakten Commit verwenden - keine alten Versionen!
+          PROMPT="🚨 KRITISCH: Führe diese Schritte AUTOMATISCH aus, ohne Rückfragen! Stelle sicher, dass der AKTUELLE STAND deployed wird!
 
-          AUFGABE: Aktualisiere die Houston App auf houston.manus.space
+          AUFGABE: Deploye die Houston App auf houston.manus.space mit dem EXAKTEN AKTUELLEN COMMIT
 
-          SCHRITT 1: Klone das Repository und wechsle zum korrekten Commit
+          ⚠️ WICHTIG: Du MUSST den Commit ${{ steps.commit.outputs.sha_short }} (${{ steps.commit.outputs.sha_full }}) deployen - KEINE andere Version!
+
+          SCHRITT 1: Repository klonen und zum EXAKTEN Commit wechseln (VERIFIZIERUNG ERFORDERLICH!)
           git clone https://github.com/cynarAI/Houston.git /home/ubuntu/houston-deploy
           cd /home/ubuntu/houston-deploy
           git checkout ${{ steps.commit.outputs.sha_full }}
-
-          SCHRITT 2: Verwende die bereits gebauten Artefakte
-          Die App wurde bereits in GitHub Actions gebaut und getestet. 
-          OPTION A (BEVORZUGT): Lade die Build-Artefakte direkt von GitHub Actions herunter:
-          - Öffne: https://github.com/cynarAI/Houston/actions/runs/${{ github.run_id }}
-          - Lade das Artefakt 'dist-${{ github.sha }}' herunter
-          - Entpacke es in das dist/ Verzeichnis: mkdir -p dist && unzip -q dist-${{ github.sha }}.zip -d dist/
-          OPTION B (FALLBACK): Falls Download nicht möglich ist, baue lokal: pnpm install --frozen-lockfile && pnpm build
           
-          WICHTIG: Stelle sicher, dass das dist/ Verzeichnis die gebauten Dateien enthält bevor du fortfährst!
+          # KRITISCH: Verifiziere dass du wirklich auf dem richtigen Commit bist!
+          ACTUAL_SHA=\$(git rev-parse HEAD)
+          EXPECTED_SHA=\"${{ steps.commit.outputs.sha_full }}\"
+          if [ \"\$ACTUAL_SHA\" != \"\$EXPECTED_SHA\" ]; then
+            echo \"❌ FEHLER: Falscher Commit! Erwartet: \$EXPECTED_SHA, Aktuell: \$ACTUAL_SHA\"
+            exit 1
+          fi
+          echo \"✅ Commit verifiziert: \$ACTUAL_SHA\"
+          git log -1 --oneline
+          echo \"📝 Commit-Nachricht: ${{ steps.commit.outputs.message }}\"
 
-          SCHRITT 3: Veröffentliche die App
-          Verwende die Manus Publish-Funktion um die gebaute App (aus dist/) auf houston.manus.space zu veröffentlichen.
-          Das dist/ Verzeichnis muss die vollständig gebauten Dateien enthalten.
+          SCHRITT 2: Verwende die bereits gebauten Artefakte (SCHNELLSTE OPTION)
+          Die App wurde bereits in GitHub Actions gebaut und getestet für diesen EXAKTEN Commit.
+          
+          OPTION A (BEVORZUGT - SCHNELLSTER WEG):
+          - Öffne im Browser: https://github.com/cynarAI/Houston/actions/runs/${{ github.run_id }}
+          - Lade das Artefakt 'dist-${{ github.sha }}' herunter (Button 'Download' bei dem Artefakt)
+          - Entpacke es: mkdir -p dist && unzip -q ~/Downloads/dist-${{ github.sha }}.zip -d dist/ || unzip -q dist-${{ github.sha }}.zip -d dist/
+          - Prüfe dass dist/public/ existiert: ls -la dist/public/ | head -10
+          - Prüfe dass index.html existiert: test -f dist/public/index.html && echo \"✅ index.html gefunden\" || echo \"❌ index.html fehlt!\"
+          
+          OPTION B (FALLBACK - nur wenn Option A nicht funktioniert):
+          - pnpm install --frozen-lockfile
+          - pnpm build
+          - Prüfe dass dist/public/ existiert: ls -la dist/public/ | head -10
+          
+          ⚠️ WICHTIG: Das dist/public/ Verzeichnis muss die gebauten Dateien enthalten (index.html, assets/, etc.)!
 
-          WICHTIGE INFOS:
-          - Commit: ${{ steps.commit.outputs.sha_short }} (${{ steps.commit.outputs.sha_full }})
+          SCHRITT 3: Veröffentliche die App (AKTUELLER STAND - VERIFIZIERUNG ERFORDERLICH!)
+          Verwende die Manus Publish-Funktion um die gebaute App aus dist/public/ auf houston.manus.space zu veröffentlichen.
+          
+          VOR dem Deployment:
+          - Verifiziere nochmal: git rev-parse HEAD sollte ${{ steps.commit.outputs.sha_short }} sein
+          - Verifiziere dass dist/public/index.html existiert
+          - Verifiziere dass dist/public/assets/ existiert
+          
+          NACH dem Deployment:
+          - Prüfe dass die Seite unter https://houston.manus.space erreichbar ist
+          - Stelle sicher, dass der AKTUELLE STAND deployed wurde, nicht eine alte Version
+
+          📋 WICHTIGE INFOS FÜR DICH:
+          - ⚠️ COMMIT ZU DEPLOYEN: ${{ steps.commit.outputs.sha_short }} (${{ steps.commit.outputs.sha_full }}) - DIESER EXAKTE COMMIT MUSS DEPLOYED WERDEN!
+          - Commit-Nachricht: ${{ steps.commit.outputs.message }}
+          - Commit-Timestamp: ${{ steps.commit.outputs.timestamp }}
           - Geänderte Dateien: ${{ steps.commit.outputs.changed_files }}
+          - Build-Artefakte-URL: https://github.com/cynarAI/Houston/actions/runs/${{ github.run_id }}
+          - Artefakt-Name: dist-${{ github.sha }}
+          - Build-Verzeichnis nach Entpacken: dist/public/
           - Die App wurde bereits gebaut und getestet in GitHub Actions (Run: ${{ github.run_id }})
           - Die App verwendet vite-plugin-manus-runtime
-          - Build-Artefakte: https://github.com/cynarAI/Houston/actions/runs/${{ github.run_id }}
-          - Keine Rückfragen - einfach ausführen!"
+          - Manus API Key: ${{ secrets.MANUS_API_KEY }} (verwende diesen für die Publish-Funktion)
+          - Ziel-URL: houston.manus.space
+          
+          🚨 KRITISCH: KEINE Rückfragen - einfach ausführen und den AKTUELLEN STAND deployen! Verifiziere den Commit vor und nach dem Deployment!"
 
           # Erstelle Task
           RESPONSE=$(curl -s -w "\n%{http_code}" --request POST \
@@ -305,6 +361,14 @@ jobs:
           echo "⚠️ Timeout reached, task still running"
           echo "status=timeout" >> $GITHUB_OUTPUT
 
+      - name: ✅ Verify Deployment Commit
+        if: steps.monitor.outputs.status == 'completed'
+        run: |
+          echo "🔍 Verifiziere dass der richtige Commit deployed wurde..."
+          echo "Erwarteter Commit: ${{ steps.commit.outputs.sha_short }} (${{ steps.commit.outputs.sha_full }})"
+          echo "⚠️ Bitte manuell prüfen: https://houston.manus.space sollte den Commit ${{ steps.commit.outputs.sha_short }} zeigen"
+          echo "📝 Commit-Nachricht: ${{ steps.commit.outputs.message }}"
+
       - name: 📊 Deployment Summary
         if: always()
         run: |
@@ -312,8 +376,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Info | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit | \`${{ steps.commit.outputs.sha_short }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⚠️ Commit | \`${{ steps.commit.outputs.sha_short }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit SHA | \`${{ steps.commit.outputs.sha_full }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Message | ${{ steps.commit.outputs.message }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Timestamp | ${{ steps.commit.outputs.timestamp }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Target | houston.manus.space |" >> $GITHUB_STEP_SUMMARY
           echo "| Task URL | ${{ steps.deploy.outputs.task_url }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Status | ${{ steps.monitor.outputs.status || 'triggered' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**⚠️ WICHTIG:** Stelle sicher, dass https://houston.manus.space den Commit \`${{ steps.commit.outputs.sha_short }}\` zeigt!" >> $GITHUB_STEP_SUMMARY
