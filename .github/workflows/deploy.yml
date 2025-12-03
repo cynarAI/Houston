@@ -1,9 +1,10 @@
 name: Deploy to Manus
 
+# DEAKTIVIERT: Wird durch optimized-ci.yml ersetzt
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:  # Ermöglicht manuelles Triggern
+  workflow_dispatch:  # Nur noch manuell auslösbar
+  # push:
+  #   branches: [ main ]
 
 jobs:
   deploy:
