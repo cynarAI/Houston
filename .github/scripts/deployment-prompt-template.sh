@@ -170,16 +170,32 @@ elif [ -d "/var/www/html" ]; then
   echo "✅ Gefunden: $DEPLOY_DIR (default)"
 fi
 
-# Methode 2: Suche nach laufenden Node-Prozessen
+# Methode 2: Suche nach laufenden Node-Prozessen (KRITISCH für Full-Stack App!)
 if [ -z "$DEPLOY_DIR" ]; then
   echo "🔍 Suche nach laufenden Node-Prozessen..."
-  NODE_PID=$(ps aux | grep -i "node" | grep -v grep | head -1 | awk '{print $2}')
+  NODE_PID=$(ps aux | grep -i "node.*dist/index.js\|node.*houston\|node.*server" | grep -v grep | head -1 | awk '{print $2}')
   if [ ! -z "$NODE_PID" ]; then
     echo "✅ Node Prozess gefunden (PID: $NODE_PID)"
-    PROC_DIR=$(lsof -p $NODE_PID 2>/dev/null | grep -i houston | head -1 | awk '{print $NF}')
-    if [ ! -z "$PROC_DIR" ]; then
-      DEPLOY_DIR=$(dirname "$PROC_DIR")
-      echo "✅ Deployment-Verzeichnis aus Prozess: $DEPLOY_DIR"
+    
+    # Finde das Arbeitsverzeichnis des Prozesses
+    PROC_CWD=$(pwdx $NODE_PID 2>/dev/null | awk '{print $2}' || lsof -p $NODE_PID 2>/dev/null | grep cwd | awk '{print $NF}' | head -1)
+    
+    if [ ! -z "$PROC_CWD" ] && [ -d "$PROC_CWD/dist/public" ]; then
+      DEPLOY_DIR="$PROC_CWD/dist/public"
+      echo "✅ Deployment-Verzeichnis aus Node-Prozess gefunden: $DEPLOY_DIR"
+    elif [ ! -z "$PROC_CWD" ]; then
+      # Versuche dist/public relativ zum Arbeitsverzeichnis zu finden
+      if [ -d "$PROC_CWD/dist/public" ]; then
+        DEPLOY_DIR="$PROC_CWD/dist/public"
+        echo "✅ Deployment-Verzeichnis relativ zum Prozess-CWD: $DEPLOY_DIR"
+      fi
+    fi
+    
+    # Alternative: Finde dist/public durch lsof
+    DIST_PUBLIC=$(lsof -p $NODE_PID 2>/dev/null | grep "dist/public/index.html" | awk '{print $NF}' | head -1)
+    if [ ! -z "$DIST_PUBLIC" ] && [ -f "$DIST_PUBLIC" ]; then
+      DEPLOY_DIR=$(dirname "$DIST_PUBLIC")
+      echo "✅ Deployment-Verzeichnis durch lsof gefunden: $DEPLOY_DIR"
     fi
   fi
 fi
@@ -356,8 +372,26 @@ else
   sudo systemctl reload apache2 2>/dev/null && echo "✅ Apache reloaded" || true
 fi
 
-# Versuche Node.js Prozess zu neustarten (falls vorhanden)
-sudo systemctl restart houston 2>/dev/null && echo "✅ Houston Service restarted" || true
+# KRITISCH: Versuche Node.js Prozess zu neustarten (falls vorhanden)
+echo "🔄 Versuche Node.js Server neu zu starten..."
+
+# Methode 1: Systemd Service
+if sudo systemctl restart houston 2>/dev/null; then
+  echo "✅ Houston Service restarted via systemctl"
+elif sudo systemctl restart houston-app 2>/dev/null; then
+  echo "✅ Houston App Service restarted via systemctl"
+else
+  # Methode 2: Finde laufenden Node-Prozess und starte neu
+  NODE_PID=$(ps aux | grep -i "node.*dist/index.js\|node.*houston" | grep -v grep | head -1 | awk '{print $2}')
+  if [ ! -z "$NODE_PID" ]; then
+    echo "⚠️  Node-Prozess gefunden (PID: $NODE_PID), aber kein systemd Service"
+    echo "   Der Server muss manuell neu gestartet werden, um die neuen Dateien zu laden"
+    echo "   Befehl zum Neustart: kill -HUP $NODE_PID oder kill $NODE_PID && [START_COMMAND]"
+  else
+    echo "⚠️  Kein laufender Node.js-Prozess gefunden"
+    echo "   Die App läuft möglicherweise als statische Website oder über einen anderen Webserver"
+  fi
+fi
 
 sleep 2
 echo "✅ Webserver-Reload abgeschlossen"
