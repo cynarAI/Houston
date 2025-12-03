@@ -1,10 +1,12 @@
 name: CI
 
+# DEAKTIVIERT: Wird durch optimized-ci.yml ersetzt
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+  workflow_dispatch:  # Nur noch manuell auslösbar
+  # push:
+  #   branches: [ main, develop ]
+  # pull_request:
+  #   branches: [ main, develop ]
 
 jobs:
   test:
