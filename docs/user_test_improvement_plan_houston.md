@@ -79,18 +79,21 @@ _Focus: Deepening value for Startups, E-Com, and Creatives._
 - **Problem:** AI tone is too generic ("Delve", "Unlock").
 - **Solution:** Add a "Brand Voice" field in the `Strategy` section (e.g., "Witty", "Professional", "No jargon"). Pass this context to all Chat interactions.
 - **Files:** `client/src/pages/Strategy.tsx`, `server/routers/chat.ts` (context injection).
+- **Status:** ✅ Implementiert. Brand Voice Feld in Strategy hinzugefügt, wird automatisch in Chat-Antworten verwendet.
 
 #### 4.2 Content Library / Saved Responses (for Emily)
 
 - **Problem:** Good ad hooks generated in Chat are lost in the stream.
 - **Solution:** Add a "Save to Library" button on Chat messages. A simple "Saved" tab in the Dashboard or Strategy section.
-- **Files:** `client/src/pages/Chats.tsx`, `client/src/pages/Strategy.tsx` (Library tab).
+- **Files:** `client/src/pages/Chats.tsx`, `client/src/pages/Library.tsx` (neue Library-Seite).
+- **Status:** ✅ Implementiert. "Save to Library" Button in Chat-Messages, neue Library-Seite mit Suche und Kategorien.
 
 #### 4.3 Startup Pitch Framework (for Steve)
 
 - **Problem:** "Marketing Strategy" structure doesn't fit "Investor Pitch".
 - **Solution:** Add a toggle in Strategy: "Mode: Marketing" vs "Mode: Startup Pitch". This changes the fields from "Positioning/Channels" to "Problem/Solution/Market".
 - **Files:** `client/src/pages/Strategy.tsx`
+- **Status:** ⚠️ Teilweise implementiert. `strategyMode` und `pitchDeck` Feld existieren bereits, aber UI-Toggle fehlt noch.
 
 ## 3. Alignment with Product Vision
 

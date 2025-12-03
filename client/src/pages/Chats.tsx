@@ -7,9 +7,31 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { Brain, Send, Loader2, Plus, MessageSquare, Sparkles, ThumbsUp, ThumbsDown, Copy, RotateCcw, Check, Download, BookOpen, Rocket, Bookmark } from "lucide-react";
+import {
+  Brain,
+  Send,
+  Loader2,
+  Plus,
+  MessageSquare,
+  Sparkles,
+  ThumbsUp,
+  ThumbsDown,
+  Copy,
+  RotateCcw,
+  Check,
+  Download,
+  BookOpen,
+  Rocket,
+  Bookmark,
+} from "lucide-react";
 import { Streamdown } from "streamdown";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { toast } from "sonner";
@@ -31,20 +53,36 @@ export default function Chats() {
   const [promptProcessed, setPromptProcessed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
-  const { data: sessions, isLoading: sessionsLoading, isError: sessionsError, refetch: refetchSessions } = trpc.chat.listSessions.useQuery(
+  const {
+    data: workspaces,
+    isLoading: workspacesLoading,
+    isError: workspacesError,
+    refetch: refetchWorkspaces,
+  } = trpc.workspaces.list.useQuery();
+  const {
+    data: sessions,
+    isLoading: sessionsLoading,
+    isError: sessionsError,
+    refetch: refetchSessions,
+  } = trpc.chat.listSessions.useQuery(
     { workspaceId: workspaces?.[0]?.id || 0 },
-    { enabled: !!workspaces?.[0]?.id }
+    { enabled: !!workspaces?.[0]?.id },
   );
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
 
-  const { data: sessionData, isLoading: messagesLoading, isError: messagesError, refetch: refetchMessages } = trpc.chat.getSession.useQuery(
+  const {
+    data: sessionData,
+    isLoading: messagesLoading,
+    isError: messagesError,
+    refetch: refetchMessages,
+  } = trpc.chat.getSession.useQuery(
     { sessionId: activeSessionId || 0 },
-    { enabled: !!activeSessionId }
+    { enabled: !!activeSessionId },
   );
-  
+
   // Combined states
-  const isInitialLoading = workspacesLoading || (workspaces?.[0]?.id && sessionsLoading);
+  const isInitialLoading =
+    workspacesLoading || (workspaces?.[0]?.id && sessionsLoading);
   const hasError = workspacesError || sessionsError;
 
   const messages = sessionData?.messages || [];
@@ -56,7 +94,6 @@ export default function Chats() {
   const exportPDFMutation = trpc.export.exportChatPDF.useMutation();
   const saveToLibraryMutation = trpc.contentLibrary.create.useMutation();
 
-
   useEffect(() => {
     if (sessions && sessions.length > 0 && !activeSessionId) {
       setActiveSessionId(sessions[0].id);
@@ -67,10 +104,10 @@ export default function Chats() {
   const processUrlPrompt = useCallback(async () => {
     const params = new URLSearchParams(searchString);
     const prompt = params.get("prompt");
-    
+
     if (prompt && !promptProcessed && workspaces?.[0]?.id) {
       setPromptProcessed(true);
-      
+
       // Create a new chat session if none exists
       let sessionId = activeSessionId;
       if (!sessionId) {
@@ -87,17 +124,25 @@ export default function Chats() {
           return;
         }
       }
-      
+
       // Set the message and trigger send
       setMessage(prompt);
-      
+
       // Clear the URL parameter
       setLocation("/app/chats", { replace: true });
 
       // Send the message immediately
       setTimeout(() => handleSend(prompt), 0);
     }
-  }, [searchString, promptProcessed, workspaces, activeSessionId, createSessionMutation, refetchSessions, setLocation]);
+  }, [
+    searchString,
+    promptProcessed,
+    workspaces,
+    activeSessionId,
+    createSessionMutation,
+    refetchSessions,
+    setLocation,
+  ]);
 
   useEffect(() => {
     processUrlPrompt();
@@ -115,11 +160,11 @@ export default function Chats() {
         workspaceId: workspaces?.[0]?.id || 0,
         title: `Neuer Chat ${new Date().toLocaleDateString("de-DE")}`,
       });
-      
+
       // Track chat creation
       const isFirstChat = !sessions || sessions.length === 0;
       trackEvent(AnalyticsEvents.CHAT_STARTED, { is_first_chat: isFirstChat });
-      
+
       setActiveSessionId(newSession.id);
       await refetchSessions();
       toast.success("Neuer Chat erstellt");
@@ -139,8 +184,11 @@ export default function Chats() {
 
     try {
       // Track message sent
-      trackEvent(AnalyticsEvents.MESSAGE_SENT, { message_length: userMessage.length, session_id: activeSessionId });
-      
+      trackEvent(AnalyticsEvents.MESSAGE_SENT, {
+        message_length: userMessage.length,
+        session_id: activeSessionId,
+      });
+
       // sendMessage already generates and saves the coach response
       const result = await sendMessageMutation.mutateAsync({
         sessionId: activeSessionId,
@@ -149,20 +197,22 @@ export default function Chats() {
 
       // Simulate typing effect with the response
       if (result.content) {
-        const words = result.content.split(' ');
-        let accumulated = '';
+        const words = result.content.split(" ");
+        let accumulated = "";
         for (let i = 0; i < words.length; i++) {
-          accumulated += (i === 0 ? '' : ' ') + words[i];
+          accumulated += (i === 0 ? "" : " ") + words[i];
           setStreamingMessage(accumulated);
           // Small delay for typing effect (faster for longer responses)
-          await new Promise(resolve => setTimeout(resolve, Math.min(30, 500 / words.length)));
+          await new Promise((resolve) =>
+            setTimeout(resolve, Math.min(30, 500 / words.length)),
+          );
         }
       }
 
       // Refresh messages to show the saved response
       await refetchMessages();
       setStreamingMessage("");
-      
+
       // Celebrate first chat if this was the first message
       if (isFirstMessage) {
         celebrations.firstChat();
@@ -175,13 +225,19 @@ export default function Chats() {
     }
   };
 
-  const handleFeedback = async (messageId: number, feedback: "positive" | "negative") => {
+  const handleFeedback = async (
+    messageId: number,
+    feedback: "positive" | "negative",
+  ) => {
     try {
       await sendFeedbackMutation.mutateAsync({ messageId, feedback });
-      
+
       // Track feedback
-      trackEvent(AnalyticsEvents.MESSAGE_FEEDBACK, { feedback_type: feedback, message_id: messageId });
-      
+      trackEvent(AnalyticsEvents.MESSAGE_FEEDBACK, {
+        feedback_type: feedback,
+        message_id: messageId,
+      });
+
       toast.success("Feedback gesendet");
     } catch (error) {
       toast.error("Feedback konnte nicht gesendet werden");
@@ -192,21 +248,22 @@ export default function Chats() {
     navigator.clipboard.writeText(content);
     setCopiedMessageId(messageId);
     setTimeout(() => setCopiedMessageId(null), 2000);
-    
+
     // Track copy action
     trackEvent(AnalyticsEvents.MESSAGE_COPIED, { message_id: messageId });
-    
+
     toast.success("In Zwischenablage kopiert");
   };
 
   const handleSaveToLibrary = async (content: string, messageId: number) => {
     if (!workspaces?.[0]?.id) return;
-    
+
     try {
       // Extract a title from the first line or use a default
-      const firstLine = content.split('\n')[0].substring(0, 50);
-      const title = firstLine.length < content.length ? firstLine + '...' : firstLine;
-      
+      const firstLine = content.split("\n")[0].substring(0, 50);
+      const title =
+        firstLine.length < content.length ? firstLine + "..." : firstLine;
+
       await saveToLibraryMutation.mutateAsync({
         workspaceId: workspaces[0].id,
         title: title || "Gespeicherte Antwort",
@@ -214,9 +271,12 @@ export default function Chats() {
         category: "other",
         sourceChatId: messageId,
       });
-      
+
       toast.success("In Bibliothek gespeichert");
-      trackEvent(AnalyticsEvents.MESSAGE_SAVED_TO_LIBRARY, { message_id: messageId });
+      trackEvent(AnalyticsEvents.FEATURE_USED, {
+        feature: "content_library_save",
+        context: `message_${messageId}`,
+      });
     } catch (error) {
       toast.error("Konnte nicht speichern");
     }
@@ -226,11 +286,16 @@ export default function Chats() {
     try {
       setIsStreaming(true);
       if (!activeSessionId) return;
-      await regenerateResponseMutation.mutateAsync({ sessionId: activeSessionId, messageId });
-      
+      await regenerateResponseMutation.mutateAsync({
+        sessionId: activeSessionId,
+        messageId,
+      });
+
       // Track regeneration
-      trackEvent(AnalyticsEvents.MESSAGE_REGENERATED, { message_id: messageId });
-      
+      trackEvent(AnalyticsEvents.MESSAGE_REGENERATED, {
+        message_id: messageId,
+      });
+
       await refetchMessages();
       toast.success("Antwort neu generiert");
     } catch (error) {
@@ -244,17 +309,19 @@ export default function Chats() {
     if (!activeSessionId) return;
     try {
       const result = await exportPDFMutation.mutateAsync({ limit: 50 });
-      const blob = new Blob([Buffer.from(result.data, "base64")], { type: "application/pdf" });
+      const blob = new Blob([Buffer.from(result.data, "base64")], {
+        type: "application/pdf",
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `chat-${activeSessionId}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      
+
       // Track PDF export
       trackEvent(AnalyticsEvents.PDF_EXPORTED, { type: "chat" });
-      
+
       toast.success("PDF exportiert");
     } catch (error) {
       handleMutationError(error, ErrorMessages.pdfExport);
@@ -272,36 +339,47 @@ export default function Chats() {
 
   // Daily-use quick actions (shown in empty state as cards) - focused on 4 key actions
   const quickActions = [
-    { 
-      icon: Sparkles, 
-      label: timeContext.period === "morning" ? "Mein Tag starten" : "Was steht an?", 
-      prompt: timeContext.period === "morning" 
-        ? "Guten Morgen Houston! Was sollte ich heute als erstes angehen? Gib mir 3 konkrete Aufgaben basierend auf meinen Zielen."
-        : "Hey Houston, was sollte ich als nächstes angehen? Zeig mir meine wichtigsten offenen Punkte."
+    {
+      icon: Sparkles,
+      label:
+        timeContext.period === "morning" ? "Mein Tag starten" : "Was steht an?",
+      prompt:
+        timeContext.period === "morning"
+          ? "Guten Morgen Houston! Was sollte ich heute als erstes angehen? Gib mir 3 konkrete Aufgaben basierend auf meinen Zielen."
+          : "Hey Houston, was sollte ich als nächstes angehen? Zeig mir meine wichtigsten offenen Punkte.",
     },
-    { 
-      icon: MessageSquare, 
-      label: "Content-Ideen", 
-      prompt: "Ich brauche Content-Ideen! Gib mir 3 konkrete Vorschläge, die zu meiner Zielgruppe passen – mit kurzer Begründung warum."
+    {
+      icon: MessageSquare,
+      label: "Content-Ideen",
+      prompt:
+        "Ich brauche Content-Ideen! Gib mir 3 konkrete Vorschläge, die zu meiner Zielgruppe passen – mit kurzer Begründung warum.",
     },
-    { 
-      icon: Brain, 
-      label: "Strategie besprechen", 
-      prompt: "Lass uns über meine Marketing-Strategie sprechen. Was läuft gut? Wo siehst du Verbesserungspotential?"
+    {
+      icon: Brain,
+      label: "Strategie besprechen",
+      prompt:
+        "Lass uns über meine Marketing-Strategie sprechen. Was läuft gut? Wo siehst du Verbesserungspotential?",
     },
-    { 
-      icon: Rocket, 
-      label: "Neues Projekt", 
-      prompt: "Ich möchte etwas Neues starten! Welche Marketing-Projekte würdest du mir empfehlen – und warum?"
+    {
+      icon: Rocket,
+      label: "Neues Projekt",
+      prompt:
+        "Ich möchte etwas Neues starten! Welche Marketing-Projekte würdest du mir empfehlen – und warum?",
     },
   ];
 
   // Quick chips (shown below input when there are messages) - conversational continuations
   const quickChips = [
     { label: "Mehr Details", prompt: "Kannst du das genauer erklären?" },
-    { label: "Konkrete Schritte", prompt: "Was sind die konkreten nächsten Schritte dafür?" },
+    {
+      label: "Konkrete Schritte",
+      prompt: "Was sind die konkreten nächsten Schritte dafür?",
+    },
     { label: "Alternative?", prompt: "Gibt es noch andere Möglichkeiten?" },
-    { label: "Beispiel zeigen", prompt: "Kannst du mir ein konkretes Beispiel geben?" },
+    {
+      label: "Beispiel zeigen",
+      prompt: "Kannst du mir ein konkretes Beispiel geben?",
+    },
   ];
 
   // Show loading state
@@ -347,28 +425,34 @@ export default function Chats() {
                 KI Marketing-Assistent
               </Badge>
             </div>
-            
+
             <div className="chat-header-actions flex items-center gap-2 flex-shrink-0">
               {sessions && sessions.length > 0 && (
-                <Select value={activeSessionId?.toString()} onValueChange={(val) => setActiveSessionId(parseInt(val))}>
+                <Select
+                  value={activeSessionId?.toString()}
+                  onValueChange={(val) => setActiveSessionId(parseInt(val))}
+                >
                   <SelectTrigger className="w-[200px] hidden md:flex">
                     <SelectValue placeholder="Chat auswählen" />
                   </SelectTrigger>
                   <SelectContent>
                     {sessions.map((session) => (
-                      <SelectItem key={session.id} value={session.id.toString()}>
+                      <SelectItem
+                        key={session.id}
+                        value={session.id.toString()}
+                      >
                         {session.title}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
-              
+
               <Button variant="outline" size="sm" onClick={handleNewChat}>
                 <Plus className="h-4 w-4 md:mr-2" />
                 <span className="hidden md:inline">Neuer Chat</span>
               </Button>
-              
+
               {messages.length > 0 && (
                 <Button variant="ghost" size="sm" onClick={handleExportPDF}>
                   <Download className="h-4 w-4" />
@@ -387,14 +471,22 @@ export default function Chats() {
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] mb-4 shadow-lg shadow-[#FF6B9D]/20 animate-in zoom-in duration-300">
                     <Brain className="w-10 h-10 text-white" />
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: "100ms" }}>
+                  <h2
+                    className="text-2xl md:text-3xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-300"
+                    style={{ animationDelay: "100ms" }}
+                  >
                     Hey! 👋 Womit kann ich helfen?
                   </h2>
-                  <p className="text-muted-foreground max-w-md animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: "200ms" }}>
-                    Ich bin Houston, dein KI Marketing-Coach. Frag mich nach Strategien, Content-Ideen oder lass uns deine nächste Kampagne planen.
+                  <p
+                    className="text-muted-foreground max-w-md animate-in fade-in slide-in-from-bottom-2 duration-300"
+                    style={{ animationDelay: "200ms" }}
+                  >
+                    Ich bin Houston, dein KI Marketing-Coach. Frag mich nach
+                    Strategien, Content-Ideen oder lass uns deine nächste
+                    Kampagne planen.
                   </p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
                   {quickActions.map((action, idx) => (
                     <button
@@ -404,7 +496,9 @@ export default function Chats() {
                       style={{ animationDelay: `${idx * 75}ms` }}
                     >
                       <action.icon className="w-5 h-5 text-[var(--color-gradient-pink)] shrink-0" />
-                      <span className="text-sm font-medium">{action.label}</span>
+                      <span className="text-sm font-medium">
+                        {action.label}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -414,36 +508,45 @@ export default function Chats() {
             {messages.length > 0 && (
               <div className="space-y-6">
                 {messages.map((msg: any, index: number) => (
-                  <div 
-                    key={msg.id} 
+                  <div
+                    key={msg.id}
                     className="flex gap-3 items-start animate-in fade-in slide-in-from-bottom-2 duration-300"
                     style={{ animationDelay: `${Math.min(index * 50, 200)}ms` }}
                   >
                     {/* Avatar - Always show */}
                     <Avatar className="w-9 h-9 shrink-0 ring-2 ring-background shadow-md">
-                      <AvatarFallback className={msg.role === "user" 
-                        ? "bg-gradient-to-br from-pink-500 to-purple-600 text-white text-sm font-medium" 
-                        : "bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white"
-                      }>
-                        {msg.role === "user" ? user?.name?.charAt(0).toUpperCase() : <Brain className="w-4 h-4" />}
+                      <AvatarFallback
+                        className={
+                          msg.role === "user"
+                            ? "bg-gradient-to-br from-pink-500 to-purple-600 text-white text-sm font-medium"
+                            : "bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white"
+                        }
+                      >
+                        {msg.role === "user" ? (
+                          user?.name?.charAt(0).toUpperCase()
+                        ) : (
+                          <Brain className="w-4 h-4" />
+                        )}
                       </AvatarFallback>
                     </Avatar>
-                    
+
                     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                       <div className="text-xs font-medium text-muted-foreground">
                         {msg.role === "user" ? "Du" : "Houston"}
                       </div>
-                      
-                      <Card className={`p-4 transition-all duration-200 hover:shadow-md ${
-                        msg.role === "user" 
-                          ? "bg-primary/10 border-primary/20 text-foreground" 
-                          : "bg-card border-border hover:border-border/80"
-                      }`}>
+
+                      <Card
+                        className={`p-4 transition-all duration-200 hover:shadow-md ${
+                          msg.role === "user"
+                            ? "bg-primary/10 border-primary/20 text-foreground"
+                            : "bg-card border-border hover:border-border/80"
+                        }`}
+                      >
                         <div className="prose prose-sm dark:prose-invert max-w-none">
                           <Streamdown>{msg.content}</Streamdown>
                         </div>
                       </Card>
-                      
+
                       {msg.role === "coach" && (
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity">
                           <Button
@@ -468,7 +571,11 @@ export default function Chats() {
                             className="h-7 px-2"
                             onClick={() => handleCopy(msg.content, msg.id)}
                           >
-                            {copiedMessageId === msg.id ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                            {copiedMessageId === msg.id ? (
+                              <Check className="h-3 w-3 text-green-500" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
                           </Button>
                           <Button
                             variant="ghost"
@@ -482,7 +589,9 @@ export default function Chats() {
                             variant="ghost"
                             size="sm"
                             className="h-7 px-2 hover:bg-blue-500/10 hover:text-blue-500"
-                            onClick={() => handleSaveToLibrary(msg.content, msg.id)}
+                            onClick={() =>
+                              handleSaveToLibrary(msg.content, msg.id)
+                            }
                             title="In Bibliothek speichern"
                           >
                             <Bookmark className="h-3 w-3" />
@@ -501,7 +610,9 @@ export default function Chats() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                      <div className="text-xs font-medium text-muted-foreground">Houston</div>
+                      <div className="text-xs font-medium text-muted-foreground">
+                        Houston
+                      </div>
                       <TypingIndicator />
                     </div>
                   </div>
@@ -514,9 +625,11 @@ export default function Chats() {
                         <Brain className="w-4 h-4" />
                       </AvatarFallback>
                     </Avatar>
-                    
+
                     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                      <div className="text-xs font-medium text-muted-foreground">Houston</div>
+                      <div className="text-xs font-medium text-muted-foreground">
+                        Houston
+                      </div>
                       <Card className="p-4 bg-card border-border">
                         <div className="prose prose-sm dark:prose-invert max-w-none">
                           <Streamdown>{streamingMessage}</Streamdown>
@@ -525,7 +638,6 @@ export default function Chats() {
                     </div>
                   </div>
                 )}
-
               </div>
             )}
           </div>
@@ -548,7 +660,7 @@ export default function Chats() {
                 ))}
               </div>
             )}
-            
+
             <div className="flex gap-2">
               <Input
                 value={message}
@@ -563,8 +675,15 @@ export default function Chats() {
                 disabled={isStreaming || !activeSessionId}
                 className="flex-1"
               />
-              <Button onClick={() => handleSend()} disabled={isStreaming || !message.trim() || !activeSessionId}>
-                {isStreaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              <Button
+                onClick={() => handleSend()}
+                disabled={isStreaming || !message.trim() || !activeSessionId}
+              >
+                {isStreaming ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>

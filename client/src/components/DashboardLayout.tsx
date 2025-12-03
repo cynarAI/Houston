@@ -8,38 +8,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getLoginUrl } from "@/const";
-import { 
-  LayoutDashboard, 
-  LogOut, 
-  MessageSquare, 
-  Target, 
-  CheckSquare, 
-  Settings, 
-  Globe, 
-  Moon, 
-  Sun, 
+import {
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  Target,
+  CheckSquare,
+  Settings,
+  Globe,
+  Moon,
+  Sun,
   HelpCircle,
   Sparkles,
   Menu,
   X,
-  ChevronDown
+  ChevronDown,
+  BookOpen,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Button } from "./ui/button";
-import { useTranslation } from 'react-i18next';
-import { OnboardingWizard } from './OnboardingWizard';
-import { trpc } from '@/lib/trpc';
-import { CreditIndicator } from './CreditIndicator';
-import { NotificationCenter } from './NotificationCenter';
+import { useTranslation } from "react-i18next";
+import { OnboardingWizard } from "./OnboardingWizard";
+import { trpc } from "@/lib/trpc";
+import { CreditIndicator } from "./CreditIndicator";
+import { NotificationCenter } from "./NotificationCenter";
 
 // ===========================================
 // SPACE BACKGROUND COMPONENT
 // ===========================================
 function SpaceBackground() {
   const { theme } = useTheme();
-  const [shootingStars, setShootingStars] = useState<Array<{ id: number; x: number; y: number; angle: number }>>([]);
+  const [shootingStars, setShootingStars] = useState<
+    Array<{ id: number; x: number; y: number; angle: number }>
+  >([]);
 
   // Generate static stars (memoized) - fewer stars for cleaner look
   const stars = useMemo(() => {
@@ -56,7 +59,7 @@ function SpaceBackground() {
 
   // Shooting stars effect (dark mode only) - rarer and more subtle
   useEffect(() => {
-    if (theme === 'light') return;
+    if (theme === "light") return;
 
     const createShootingStar = () => {
       const newStar = {
@@ -65,11 +68,11 @@ function SpaceBackground() {
         y: Math.random() * 25,
         angle: Math.random() * 25 + 15,
       };
-      
-      setShootingStars(prev => [...prev, newStar]);
-      
+
+      setShootingStars((prev) => [...prev, newStar]);
+
       setTimeout(() => {
-        setShootingStars(prev => prev.filter(s => s.id !== newStar.id));
+        setShootingStars((prev) => prev.filter((s) => s.id !== newStar.id));
       }, 2000);
     };
 
@@ -87,9 +90,12 @@ function SpaceBackground() {
   }, [theme]);
 
   // Light theme - Ultra subtle, clean
-  if (theme === 'light') {
+  if (theme === "light") {
     return (
-      <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div
+        className="fixed inset-0 -z-10 pointer-events-none"
+        aria-hidden="true"
+      >
         <div className="absolute inset-0 bg-slate-50/80" />
         {/* Very subtle gradients */}
         <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-[#FF6B9D]/[0.02] to-transparent" />
@@ -100,13 +106,16 @@ function SpaceBackground() {
 
   // Dark theme with stars
   return (
-    <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div
+      className="fixed inset-0 -z-10 pointer-events-none overflow-hidden"
+      aria-hidden="true"
+    >
       <div className="absolute inset-0 bg-gradient-to-b from-[#050510] via-[#0a0a18] to-[#050510]" />
-      
+
       {/* Nebula accents - Reduced opacity */}
       <div className="absolute top-0 right-0 w-2/3 h-2/3 bg-gradient-to-bl from-[#FF6B9D]/5 via-[#C44FE2]/3 to-transparent blur-3xl" />
       <div className="absolute bottom-0 left-0 w-2/3 h-2/3 bg-gradient-to-tr from-[#00D4FF]/4 via-[#C44FE2]/2 to-transparent blur-3xl" />
-      
+
       {/* Stars */}
       <svg className="absolute inset-0 w-full h-full">
         <defs>
@@ -118,7 +127,7 @@ function SpaceBackground() {
             </feMerge>
           </filter>
         </defs>
-        
+
         {stars.map((star) => (
           <circle
             key={star.id}
@@ -159,10 +168,32 @@ function SpaceBackground() {
 // NAVIGATION ITEMS - Only 4 essential items
 // ===========================================
 const navItems = [
-  { icon: MessageSquare, label: "Houston", labelDe: "Houston", path: "/app/chats", primary: true },
-  { icon: LayoutDashboard, label: "Dashboard", labelDe: "Dashboard", path: "/app/dashboard" },
-  { icon: CheckSquare, label: "Tasks", labelDe: "Aufgaben", path: "/app/todos" },
+  {
+    icon: MessageSquare,
+    label: "Houston",
+    labelDe: "Houston",
+    path: "/app/chats",
+    primary: true,
+  },
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    labelDe: "Dashboard",
+    path: "/app/dashboard",
+  },
+  {
+    icon: CheckSquare,
+    label: "Tasks",
+    labelDe: "Aufgaben",
+    path: "/app/todos",
+  },
   { icon: Target, label: "Goals", labelDe: "Ziele", path: "/app/goals" },
+  {
+    icon: BookOpen,
+    label: "Library",
+    labelDe: "Bibliothek",
+    path: "/app/library",
+  },
 ];
 
 // ===========================================
@@ -175,17 +206,17 @@ export default function DashboardLayout({
 }) {
   const { loading, user, logout } = useAuth();
   const { i18n } = useTranslation();
-  const currentLanguage = i18n.language || 'de';
+  const currentLanguage = i18n.language || "de";
   const { theme, toggleTheme, switchable } = useTheme();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location, setLocation] = useLocation();
-  
+
   // Check onboarding status
-  const { data: onboardingStatus } = trpc.onboarding.getUserOnboardingStatus.useQuery(
-    undefined,
-    { enabled: !!user }
-  );
+  const { data: onboardingStatus } =
+    trpc.onboarding.getUserOnboardingStatus.useQuery(undefined, {
+      enabled: !!user,
+    });
 
   useEffect(() => {
     if (user && onboardingStatus && !onboardingStatus.completed) {
@@ -197,19 +228,19 @@ export default function DashboardLayout({
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
-  
+
   const toggleLanguage = () => {
-    const newLang = currentLanguage === 'de' ? 'en' : 'de';
+    const newLang = currentLanguage === "de" ? "en" : "de";
     i18n.changeLanguage(newLang);
   };
 
   const handleLogout = async () => {
     try {
       await logout();
-      window.location.href = '/';
+      window.location.href = "/";
     } catch (error) {
-      console.error('Logout failed:', error);
-      window.location.href = '/';
+      console.error("Logout failed:", error);
+      window.location.href = "/";
     }
   };
 
@@ -225,7 +256,9 @@ export default function DashboardLayout({
               <Sparkles className="h-8 w-8 text-[#FF6B9D] animate-pulse" />
             </div>
           </div>
-          <p className="text-sm text-muted-foreground animate-pulse">Houston startet...</p>
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Houston startet...
+          </p>
         </div>
       </div>
     );
@@ -240,24 +273,28 @@ export default function DashboardLayout({
           <div className="flex flex-col items-center gap-6">
             <div className="flex items-center gap-2">
               <Sparkles className="w-8 h-8 text-[#FF6B9D]" />
-              <span className="text-2xl font-bold gradient-text-aistronaut">Houston</span>
+              <span className="text-2xl font-bold gradient-text-aistronaut">
+                Houston
+              </span>
             </div>
             <h1 className="text-xl font-semibold text-center">
-              {currentLanguage === 'de' ? 'Anmeldung erforderlich' : 'Login required'}
+              {currentLanguage === "de"
+                ? "Anmeldung erforderlich"
+                : "Login required"}
             </h1>
             <p className="text-sm text-muted-foreground text-center">
-              {currentLanguage === 'de' 
-                ? 'Für den Zugriff auf Houston ist eine Anmeldung erforderlich.' 
-                : 'Login is required to access Houston.'}
+              {currentLanguage === "de"
+                ? "Für den Zugriff auf Houston ist eine Anmeldung erforderlich."
+                : "Login is required to access Houston."}
             </p>
           </div>
           <Button
-            onClick={() => window.location.href = getLoginUrl()}
+            onClick={() => (window.location.href = getLoginUrl())}
             size="lg"
             variant="gradient"
             className="w-full"
           >
-            {currentLanguage === 'de' ? 'Anmelden' : 'Login'}
+            {currentLanguage === "de" ? "Anmelden" : "Login"}
           </Button>
         </div>
       </div>
@@ -268,38 +305,43 @@ export default function DashboardLayout({
     <div className="min-h-screen flex flex-col">
       {/* Space Background */}
       <SpaceBackground />
-      
+
       {/* ========== TOP NAVIGATION BAR ========== */}
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center gap-4 px-4 md:px-6 max-w-screen-2xl mx-auto">
-          
           {/* Logo */}
-          <button 
-            onClick={() => setLocation('/app/dashboard')}
+          <button
+            onClick={() => setLocation("/app/dashboard")}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
           >
             <Sparkles className="w-5 h-5 text-[#FF6B9D]" />
-            <span className="font-semibold gradient-text-aistronaut hidden sm:inline">Houston</span>
+            <span className="font-semibold gradient-text-aistronaut hidden sm:inline">
+              Houston
+            </span>
           </button>
 
           {/* Desktop Navigation - Center */}
           <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
             {navItems.map((item) => {
-              const isActive = location === item.path || 
-                (item.path === '/app/chats' && location.startsWith('/app/chats'));
-              const displayLabel = currentLanguage === 'de' ? item.labelDe : item.label;
-              
+              const isActive =
+                location === item.path ||
+                (item.path === "/app/chats" &&
+                  location.startsWith("/app/chats"));
+              const displayLabel =
+                currentLanguage === "de" ? item.labelDe : item.label;
+
               return (
                 <button
                   key={item.path}
                   onClick={() => setLocation(item.path)}
                   className={`
                     flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                    ${isActive 
-                      ? item.primary
-                        ? 'bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] text-white shadow-lg shadow-[#FF6B9D]/20'
-                        : 'bg-accent text-accent-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                    ${
+                      isActive
+                        ? item.primary
+                          ? "bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] text-white shadow-lg shadow-[#FF6B9D]/20"
+                          : "bg-accent text-accent-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                     }
                   `}
                 >
@@ -314,9 +356,13 @@ export default function DashboardLayout({
           <button
             className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? 'Menü schließen' : 'Menü öffnen'}
+            aria-label={mobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
           >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
 
           {/* Spacer for mobile */}
@@ -328,20 +374,26 @@ export default function DashboardLayout({
             <div className="hidden sm:block">
               <CreditIndicator />
             </div>
-            
+
             {/* Notifications */}
             <NotificationCenter />
-            
+
             {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
               className="hidden sm:flex items-center gap-1 px-2 py-1.5 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
-              aria-label={currentLanguage === 'de' ? 'Sprache wechseln' : 'Switch language'}
+              aria-label={
+                currentLanguage === "de"
+                  ? "Sprache wechseln"
+                  : "Switch language"
+              }
             >
               <Globe className="w-4 h-4" />
-              <span className="text-xs font-medium">{currentLanguage.toUpperCase()}</span>
+              <span className="text-xs font-medium">
+                {currentLanguage.toUpperCase()}
+              </span>
             </button>
-            
+
             {/* Theme Toggle */}
             {switchable && toggleTheme && (
               <button
@@ -349,7 +401,11 @@ export default function DashboardLayout({
                 className="p-2 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
                 aria-label={theme === "light" ? "Dark mode" : "Light mode"}
               >
-                {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                {theme === "light" ? (
+                  <Moon className="h-4 w-4" />
+                ) : (
+                  <Sun className="h-4 w-4" />
+                )}
               </button>
             )}
 
@@ -359,7 +415,7 @@ export default function DashboardLayout({
                 <button className="flex items-center gap-2 rounded-full hover:bg-accent/50 transition-colors p-1 pr-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ml-2">
                   <Avatar className="h-8 w-8 border border-white/20">
                     <AvatarFallback className="text-xs font-medium bg-gradient-to-br from-[#FF6B9D] to-[#C44FE2] text-white">
-                      {user?.name?.charAt(0).toUpperCase() || 'U'}
+                      {user?.name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <ChevronDown className="h-3 w-3 text-muted-foreground hidden sm:block" />
@@ -367,30 +423,43 @@ export default function DashboardLayout({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-3 py-2">
-                  <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  <p className="text-sm font-medium">{user?.name || "User"}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email}
+                  </p>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => setLocation('/app/settings')}
+                  onClick={() => setLocation("/app/settings")}
                   className="cursor-pointer"
                 >
                   <Settings className="mr-2 h-4 w-4" />
-                  <span>{currentLanguage === 'de' ? 'Einstellungen' : 'Settings'}</span>
+                  <span>
+                    {currentLanguage === "de" ? "Einstellungen" : "Settings"}
+                  </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => setLocation('/app/credits')}
+                  onClick={() => setLocation("/app/credits")}
                   className="cursor-pointer"
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
                   <span>Credits</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => window.open('mailto:support@aistronaut.io?subject=Houston%20Support', '_blank')}
+                  onClick={() =>
+                    window.open(
+                      "mailto:support@aistronaut.io?subject=Houston%20Support",
+                      "_blank",
+                    )
+                  }
                   className="cursor-pointer"
                 >
                   <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>{currentLanguage === 'de' ? 'Hilfe & Support' : 'Help & Support'}</span>
+                  <span>
+                    {currentLanguage === "de"
+                      ? "Hilfe & Support"
+                      : "Help & Support"}
+                  </span>
                 </DropdownMenuItem>
                 {/* Mobile-only language toggle */}
                 <DropdownMenuItem
@@ -398,7 +467,9 @@ export default function DashboardLayout({
                   className="cursor-pointer sm:hidden"
                 >
                   <Globe className="mr-2 h-4 w-4" />
-                  <span>{currentLanguage === 'de' ? 'English' : 'Deutsch'}</span>
+                  <span>
+                    {currentLanguage === "de" ? "English" : "Deutsch"}
+                  </span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -406,7 +477,9 @@ export default function DashboardLayout({
                   className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>{currentLanguage === 'de' ? 'Abmelden' : 'Sign out'}</span>
+                  <span>
+                    {currentLanguage === "de" ? "Abmelden" : "Sign out"}
+                  </span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -419,19 +492,21 @@ export default function DashboardLayout({
             <nav className="flex flex-col p-3 gap-1">
               {navItems.map((item) => {
                 const isActive = location === item.path;
-                const displayLabel = currentLanguage === 'de' ? item.labelDe : item.label;
-                
+                const displayLabel =
+                  currentLanguage === "de" ? item.labelDe : item.label;
+
                 return (
                   <button
                     key={item.path}
                     onClick={() => setLocation(item.path)}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left
-                      ${isActive 
-                        ? item.primary
-                          ? 'bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] text-white'
-                          : 'bg-accent text-accent-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                      ${
+                        isActive
+                          ? item.primary
+                            ? "bg-gradient-to-r from-[#FF6B9D] to-[#C44FE2] text-white"
+                            : "bg-accent text-accent-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                       }
                     `}
                   >
@@ -440,7 +515,7 @@ export default function DashboardLayout({
                   </button>
                 );
               })}
-              
+
               {/* Mobile Credits */}
               <div className="px-4 py-3 border-t border-white/10 mt-2">
                 <CreditIndicator />
@@ -452,15 +527,13 @@ export default function DashboardLayout({
 
       {/* ========== MAIN CONTENT ========== */}
       <main className="flex-1 relative z-10">
-        <div className="mx-auto p-4 md:p-6 lg:p-8 max-w-6xl">
-          {children}
-        </div>
+        <div className="mx-auto p-4 md:p-6 lg:p-8 max-w-6xl">{children}</div>
       </main>
 
       {/* Onboarding Wizard */}
-      <OnboardingWizard 
-        open={showOnboarding} 
-        onClose={() => setShowOnboarding(false)} 
+      <OnboardingWizard
+        open={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
       />
     </div>
   );

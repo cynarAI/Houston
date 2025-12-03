@@ -189,10 +189,10 @@ export default function Settings() {
                     <Button
                       onClick={handleCreateWorkspace}
                       disabled={
-                        !newWorkspaceName || createWorkspaceMutation.isLoading
+                        !newWorkspaceName || createWorkspaceMutation.isPending
                       }
                     >
-                      {createWorkspaceMutation.isLoading
+                      {createWorkspaceMutation.isPending
                         ? "Erstelle..."
                         : "Erstellen"}
                     </Button>

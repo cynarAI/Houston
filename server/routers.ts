@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { workspacesRouter } from "./routers/workspaces";
+import { workspaceRouter } from "./routers/workspaces";
 import { goalsRouter } from "./routers/goals";
 import { todosRouter } from "./routers/todos";
 import { strategyRouter } from "./routers/strategy";
@@ -58,7 +58,7 @@ export const appRouter = router({
     }),
   }),
 
-  workspaces: workspacesRouter,
+  workspaces: workspaceRouter,
   goals: goalsRouter,
   todos: todosRouter,
   strategy: strategyRouter,

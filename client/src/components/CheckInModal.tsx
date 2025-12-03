@@ -47,7 +47,6 @@ export function CheckInModal({
 
       trackEvent(AnalyticsEvents.GOAL_UPDATED, {
         goal_id: goalId,
-        new_progress: progress,
       });
       toast.success("Fortschritt gespeichert! 🚀");
 

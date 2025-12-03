@@ -150,15 +150,17 @@ export const chatRouter = router({
         input.language === "de"
           ? `\n\n**MARKETING-STRATEGIE (Positionierung):**
 ${strategy?.positioning ? `"${strategy.positioning}"` : "Noch keine Positionierung definiert."}
-${strategy?.targetAudience ? `- Zielgruppe: ${strategy.targetAudience}` : ""}
+${workspace?.targetAudience ? `- Zielgruppe: ${workspace.targetAudience}` : ""}
 ${strategy?.personas ? `- Personas: ${strategy.personas}` : ""}
 ${strategy?.coreMessages ? `- Kernbotschaften: ${strategy.coreMessages}` : ""}
+${strategy?.brandVoice ? `- Brand Voice: ${strategy.brandVoice}` : ""}
 NUTZE DIESE STRATEGIE FÜR ALLE ANTWORTEN. Deine Ratschläge müssen zur Positionierung passen.`
           : `\n\n**MARKETING STRATEGY (Positioning):**
 ${strategy?.positioning ? `"${strategy.positioning}"` : "No positioning defined yet."}
-${strategy?.targetAudience ? `- Target Audience: ${strategy.targetAudience}` : ""}
+${workspace?.targetAudience ? `- Target Audience: ${workspace.targetAudience}` : ""}
 ${strategy?.personas ? `- Personas: ${strategy.personas}` : ""}
 ${strategy?.coreMessages ? `- Core Messages: ${strategy.coreMessages}` : ""}
+${strategy?.brandVoice ? `- Brand Voice: ${strategy.brandVoice}` : ""}
 USE THIS STRATEGY FOR ALL ANSWERS. Your advice must align with the positioning.`;
 
       // Playbook knowledge for proactive suggestions

@@ -449,6 +449,26 @@ export default function Strategy() {
                     </CardContent>
                   </Card>
                 )}
+
+                {strategy.brandVoice && (
+                  <Card className="border-purple-500/20 bg-purple-500/5">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Mic className="h-5 w-5 text-purple-400" />
+                        Brand Voice
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        {strategy.brandVoice}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        💡 Dieser Stil wird automatisch in allen Chat-Antworten
+                        verwendet.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </>
             )}
           </div>

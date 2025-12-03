@@ -1,32 +1,20 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
-import {
-  workspaces,
-  users,
-  planLimits,
-  userSubscriptions,
-} from "../../drizzle/schema";
-import { eq, and, count } from "drizzle-orm";
+import * as db from "../db";
 import { TRPCError } from "@trpc/server";
+import { verifyWorkspaceOwnership } from "../_core/ownership";
 
 export const workspaceRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db
-      .select()
-      .from(workspaces)
-      .where(eq(workspaces.userId, ctx.user.id));
+    return await db.getWorkspacesByUserId(ctx.user.id);
   }),
 
   getById: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
-      const [workspace] = await ctx.db
-        .select()
-        .from(workspaces)
-        .where(
-          and(eq(workspaces.id, input.id), eq(workspaces.userId, ctx.user.id)),
-        )
-        .limit(1);
+      // Verify ownership
+      await verifyWorkspaceOwnership(input.id, ctx.user.id);
+      const workspace = await db.getWorkspaceById(input.id);
 
       if (!workspace) {
         throw new TRPCError({
@@ -48,36 +36,27 @@ export const workspaceRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Check plan limits
-      const [limits] = await ctx.db
-        .select()
-        .from(planLimits)
-        .where(eq(planLimits.userId, ctx.user.id))
-        .limit(1);
-
-      // Default limits if no record found (fallback to free tier)
+      const limits = await db.getPlanLimitByUserId(ctx.user.id);
       const maxWorkspaces = limits?.maxWorkspaces ?? 1;
 
       // Count existing workspaces
-      const [workspaceCount] = await ctx.db
-        .select({ count: count() })
-        .from(workspaces)
-        .where(eq(workspaces.userId, ctx.user.id));
+      const workspaceCount = await db.countWorkspacesByUserId(ctx.user.id);
 
-      if (workspaceCount.count >= maxWorkspaces) {
+      if (workspaceCount >= maxWorkspaces) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: `Workspace limit reached! You have ${maxWorkspaces} workspaces available on your plan. Upgrade to Houston Pro for more.`,
         });
       }
 
-      const [result] = await ctx.db.insert(workspaces).values({
+      const id = await db.createWorkspace({
         userId: ctx.user.id,
         name: input.name,
-        industry: input.industry,
-        companySize: input.companySize,
+        industry: input.industry ?? null,
+        companySize: input.companySize ?? null,
       });
 
-      return { id: result.insertId };
+      return { id };
     }),
 
   update: protectedProcedure
@@ -92,32 +71,21 @@ export const workspaceRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const [workspace] = await ctx.db
-        .select()
-        .from(workspaces)
-        .where(
-          and(eq(workspaces.id, input.id), eq(workspaces.userId, ctx.user.id)),
-        )
-        .limit(1);
+      // Verify ownership
+      await verifyWorkspaceOwnership(input.id, ctx.user.id);
 
-      if (!workspace) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Workspace not found",
-        });
-      }
+      const updateData: Parameters<typeof db.updateWorkspace>[1] = {};
+      if (input.name !== undefined) updateData.name = input.name;
+      if (input.industry !== undefined)
+        updateData.industry = input.industry ?? null;
+      if (input.companySize !== undefined)
+        updateData.companySize = input.companySize ?? null;
+      if (input.logoUrl !== undefined)
+        updateData.logoUrl = input.logoUrl || null;
+      if (input.onboardingCompleted !== undefined)
+        updateData.onboardingCompleted = input.onboardingCompleted;
 
-      await ctx.db
-        .update(workspaces)
-        .set({
-          name: input.name,
-          industry: input.industry,
-          companySize: input.companySize,
-          logoUrl: input.logoUrl,
-          onboardingCompleted: input.onboardingCompleted,
-          updatedAt: new Date(),
-        })
-        .where(eq(workspaces.id, input.id));
+      await db.updateWorkspace(input.id, updateData);
 
       return { success: true };
     }),
@@ -125,22 +93,10 @@ export const workspaceRouter = router({
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const [workspace] = await ctx.db
-        .select()
-        .from(workspaces)
-        .where(
-          and(eq(workspaces.id, input.id), eq(workspaces.userId, ctx.user.id)),
-        )
-        .limit(1);
+      // Verify ownership
+      await verifyWorkspaceOwnership(input.id, ctx.user.id);
 
-      if (!workspace) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Workspace not found",
-        });
-      }
-
-      await ctx.db.delete(workspaces).where(eq(workspaces.id, input.id));
+      await db.deleteWorkspace(input.id);
 
       return { success: true };
     }),
@@ -148,22 +104,14 @@ export const workspaceRouter = router({
   // Add a procedure to get usage stats for the dashboard
   getUsageStats: protectedProcedure.query(async ({ ctx }) => {
     // Get limits
-    const [limits] = await ctx.db
-      .select()
-      .from(planLimits)
-      .where(eq(planLimits.userId, ctx.user.id))
-      .limit(1);
-
+    const limits = await db.getPlanLimitByUserId(ctx.user.id);
     const maxWorkspaces = limits?.maxWorkspaces ?? 1;
 
     // Count used
-    const [workspaceCount] = await ctx.db
-      .select({ count: count() })
-      .from(workspaces)
-      .where(eq(workspaces.userId, ctx.user.id));
+    const workspaceCount = await db.countWorkspacesByUserId(ctx.user.id);
 
     return {
-      workspacesUsed: workspaceCount.count,
+      workspacesUsed: workspaceCount,
       workspacesLimit: maxWorkspaces,
     };
   }),

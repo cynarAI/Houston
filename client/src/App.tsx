@@ -22,6 +22,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Credits = lazy(() => import("./pages/Credits"));
 const Referrals = lazy(() => import("./pages/Referrals"));
 const Playbooks = lazy(() => import("./pages/Playbooks"));
+const Library = lazy(() => import("./pages/Library"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Loading fallback component - Houston branded
@@ -35,7 +36,9 @@ function PageLoader() {
           <Loader2 className="h-8 w-8 animate-spin text-[#FF6B9D]" />
         </div>
       </div>
-      <p className="text-sm text-muted-foreground animate-pulse">Houston startet...</p>
+      <p className="text-sm text-muted-foreground animate-pulse">
+        Houston startet...
+      </p>
     </div>
   );
 }
@@ -55,6 +58,7 @@ function Router() {
       <Route path="/app/credits" component={Credits} />
       <Route path="/app/referrals" component={Referrals} />
       <Route path="/app/playbooks" component={Playbooks} />
+      <Route path="/app/library" component={Library} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -76,17 +80,14 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        switchable
-      >
+      <ThemeProvider defaultTheme="light" switchable>
         <TooltipProvider>
           <Toaster />
           <OfflineIndicator />
           <InstallPrompt />
-          <KeyboardShortcutsModal 
-            open={showShortcutsModal} 
-            onOpenChange={setShowShortcutsModal} 
+          <KeyboardShortcutsModal
+            open={showShortcutsModal}
+            onOpenChange={setShowShortcutsModal}
           />
           <Suspense fallback={<PageLoader />}>
             <Router />
