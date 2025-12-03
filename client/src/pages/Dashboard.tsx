@@ -4,12 +4,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { Sparkles, Target, CheckSquare, MessageSquare, TrendingUp, ArrowRight, Brain, RefreshCw } from "lucide-react";
+import { Sparkles, Target, CheckSquare, MessageSquare, TrendingUp, ArrowRight, Brain, RefreshCw, BookOpen, Rocket } from "lucide-react";
 import { CircularProgress } from "@/components/CircularProgress";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "wouter";
-import Onboarding from "@/components/Onboarding";
+// Onboarding is handled by DashboardLayout's OnboardingWizard
 import type { Goal, Todo } from "@shared/types";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { CreditBanner } from "@/components/CreditBanner";
+import { ActivationChecklist } from "@/components/ActivationChecklist";
+import { ReturnReminder } from "@/components/ReturnReminder";
+import { checkActivationMilestone } from "@/lib/celebrations";
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
+import { handleMutationError, ErrorMessages } from "@/lib/errorHandling";
+import { PlaybookCard } from "@/components/PlaybookCard";
+import { PlaybookDetailModal } from "@/components/PlaybookDetailModal";
+import { getSuggestedPlaybooks, type Playbook } from "@/data/playbooks";
+import { useLocation } from "wouter";
 
 // Type for AI Insights recommendations
 interface InsightRecommendation {
@@ -27,22 +39,50 @@ interface InsightsResult {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { data: workspaces } = trpc.workspaces.list.useQuery();
-  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [, navigate] = useLocation();
+  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
+  
+  // Playbook state
+  const [selectedPlaybook, setSelectedPlaybook] = useState<Playbook | null>(null);
+  const [isPlaybookModalOpen, setIsPlaybookModalOpen] = useState(false);
   
   const currentWorkspace = workspaces?.[0];
-  const { data: goals } = trpc.goals.listByWorkspace.useQuery(
+  const { data: goals, isLoading: goalsLoading, isError: goalsError } = trpc.goals.listByWorkspace.useQuery(
     { workspaceId: currentWorkspace?.id || 0 },
     { enabled: !!currentWorkspace?.id }
   );
-  const { data: todos } = trpc.todos.listByWorkspace.useQuery(
+  const { data: todos, isLoading: todosLoading, isError: todosError } = trpc.todos.listByWorkspace.useQuery(
     { workspaceId: currentWorkspace?.id || 0 },
     { enabled: !!currentWorkspace?.id }
   );
-  const { data: chatSessions } = trpc.chat.listSessions.useQuery(
+  const { data: chatSessions, isLoading: chatsLoading, isError: chatsError } = trpc.chat.listSessions.useQuery(
     { workspaceId: currentWorkspace?.id || 0 },
     { enabled: !!currentWorkspace?.id }
   );
+  const { data: strategy } = trpc.strategy.getByWorkspace.useQuery(
+    { workspaceId: currentWorkspace?.id || 0 },
+    { enabled: !!currentWorkspace?.id }
+  );
+  
+  // Combined loading/error states
+  const isLoading = workspacesLoading || (currentWorkspace && (goalsLoading || todosLoading || chatsLoading));
+  const hasError = workspacesError || goalsError || todosError || chatsError;
+  
+  // Activation status for checklist
+  const activationStatus = useMemo(() => ({
+    hasFirstChat: (chatSessions?.length || 0) > 0,
+    hasFirstGoal: (goals?.length || 0) > 0,
+    hasStrategy: !!strategy?.positioning,
+    hasFirstTodo: (todos?.length || 0) > 0,
+    hasCompletedTodo: todos?.some((t: Todo) => t.status === "done") || false,
+  }), [chatSessions, goals, strategy, todos]);
+  
+  // Check for activation milestone celebrations
+  useEffect(() => {
+    if (!isLoading && goals !== undefined && todos !== undefined) {
+      checkActivationMilestone(activationStatus);
+    }
+  }, [activationStatus, isLoading, goals, todos]);
   
   const activeGoals = goals?.filter((g: Goal) => g.status === "active").length || 0;
   const openTodos = todos?.filter((t: Todo) => t.status !== "done").length || 0;
@@ -52,6 +92,18 @@ export default function Dashboard() {
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [insights, setInsights] = useState<InsightsResult | null>(null);
   const generateInsightsMutation = trpc.insights.generateRecommendations.useMutation();
+  const createGoalMutation = trpc.goals.create.useMutation();
+  const createTodoMutation = trpc.todos.create.useMutation();
+  
+  // Get suggested playbooks based on user state
+  const suggestedPlaybooks = useMemo(() => {
+    return getSuggestedPlaybooks({
+      hasGoals: activeGoals > 0,
+      hasStrategy: !!strategy?.positioning,
+      hasTodos: (todos?.length || 0) > 0,
+      hasEmailList: false, // We don't track this yet
+    });
+  }, [activeGoals, strategy, todos]);
   
   const loadInsights = async () => {
     if (!currentWorkspace?.id) return;
@@ -61,8 +113,11 @@ export default function Dashboard() {
         workspaceId: currentWorkspace.id,
       });
       setInsights(result);
+      
+      // Track insights generation
+      trackEvent(AnalyticsEvents.INSIGHTS_GENERATED, { workspace_id: currentWorkspace.id });
     } catch (error) {
-      console.error('Failed to load insights:', error);
+      handleMutationError(error, ErrorMessages.insightsGenerate);
     } finally {
       setInsightsLoading(false);
     }
@@ -71,27 +126,103 @@ export default function Dashboard() {
   // Removed automatic insights loading to prevent unwanted credit deductions
   // User must click "Generate Insights" button manually
   
-  // Check if user needs onboarding
-  useEffect(() => {
-    if (goals !== undefined && todos !== undefined) {
-      const hasCompletedOnboarding = localStorage.getItem('onboarding-completed');
-      if (!hasCompletedOnboarding && goals.length === 0 && todos.length === 0) {
-        setOnboardingOpen(true);
-      }
-    }
-  }, [goals, todos]);
-  
-  const handleOnboardingComplete = () => {
-    localStorage.setItem('onboarding-completed', 'true');
-    setOnboardingOpen(false);
-    // Refresh data
-    window.location.reload();
+  // Note: Onboarding is now handled by DashboardLayout's OnboardingWizard component
+  // which uses server-side onboarding status instead of localStorage
+
+  // Playbook handlers
+  const handleSelectPlaybook = (playbook: Playbook) => {
+    setSelectedPlaybook(playbook);
+    setIsPlaybookModalOpen(true);
   };
+
+  const handleStartMission = async (playbook: Playbook) => {
+    const workspaceId = currentWorkspace?.id;
+    if (!workspaceId) return;
+
+    try {
+      // Create goal from playbook
+      if (playbook.goals.length > 0) {
+        const goal = playbook.goals[0];
+        await createGoalMutation.mutateAsync({
+          workspaceId,
+          title: goal.title,
+          description: goal.description,
+          specific: goal.specific,
+          measurable: goal.measurable,
+          achievable: goal.achievable,
+          relevant: goal.relevant,
+          timeBound: goal.timeBound,
+        });
+      }
+
+      // Create todos from playbook steps
+      for (const step of playbook.steps) {
+        if (step.todoTemplate) {
+          await createTodoMutation.mutateAsync({
+            workspaceId,
+            title: step.todoTemplate.title,
+            description: step.todoTemplate.description,
+            priority: "medium",
+          });
+        }
+      }
+
+      // Track the event
+      trackEvent(AnalyticsEvents.GOAL_CREATED, { 
+        is_first_goal: activeGoals === 0
+      });
+
+      setIsPlaybookModalOpen(false);
+      navigate("/app/todos");
+    } catch (error) {
+      handleMutationError(error, ErrorMessages.goalCreate);
+    }
+  };
+
+  const handleAskHouston = (prompt: string) => {
+    navigate(`/app/chats?prompt=${encodeURIComponent(prompt)}`);
+    setIsPlaybookModalOpen(false);
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <LoadingState message="Lade dein Dashboard..." fullPage />
+      </DashboardLayout>
+    );
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <DashboardLayout>
+        <div className="container py-8">
+          <ErrorState
+            title="Dashboard konnte nicht geladen werden"
+            message="Es gab ein Problem beim Laden deiner Daten. Bitte versuche es erneut."
+            onRetry={() => refetchWorkspaces()}
+            fullPage
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
 
       <div className="container py-8 space-y-8">
+        {/* Credit Banner - Shows when credits are low */}
+        <CreditBanner threshold={20} />
+        
+        {/* Return Reminder - Contextual nudge to continue working */}
+        <ReturnReminder
+          openTodosCount={openTodos}
+          activeGoalsCount={activeGoals}
+          lastChatDate={chatSessions?.[0]?.createdAt ? new Date(chatSessions[0].createdAt) : null}
+        />
+        
         {/* Welcome Section */}
         <div>
           <h1 className="text-3xl font-bold mb-2">
@@ -101,8 +232,15 @@ export default function Dashboard() {
             Hier ist dein Houston Dashboard-Überblick.
           </p>
         </div>
-
-
+        
+        {/* Activation Checklist - Shows until all steps are complete */}
+        <ActivationChecklist
+          hasFirstChat={activationStatus.hasFirstChat}
+          hasFirstGoal={activationStatus.hasFirstGoal}
+          hasStrategy={activationStatus.hasStrategy}
+          hasFirstTodo={activationStatus.hasFirstTodo}
+          hasCompletedTodo={activationStatus.hasCompletedTodo}
+        />
 
         {/* Mission Control Stats */}
         <Card className="glass border-white/10 backdrop-blur-xl">
@@ -213,7 +351,7 @@ export default function Dashboard() {
                                 : 'border-green-500/50 text-green-400'
                             }`}
                           >
-                            {rec.priority}
+                            {rec.priority === 'high' ? 'Hoch' : rec.priority === 'medium' ? 'Mittel' : 'Niedrig'}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{rec.description}</p>
@@ -283,6 +421,43 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Recommended Playbooks */}
+        {suggestedPlaybooks.length > 0 && (
+          <Card className="glass border-white/10 backdrop-blur-xl">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)]">
+                    <BookOpen className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle>Empfohlene Playbooks</CardTitle>
+                    <CardDescription>Bewährte Marketing-Strategien für deinen nächsten Schritt</CardDescription>
+                  </div>
+                </div>
+                <Link href="/app/playbooks">
+                  <Button variant="ghost" size="sm" className="gap-1">
+                    Alle Playbooks
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {suggestedPlaybooks.map((playbook) => (
+                  <PlaybookCard
+                    key={playbook.id}
+                    playbook={playbook}
+                    onSelect={handleSelectPlaybook}
+                    compact
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main Content Grid */}
         <div className="grid gap-6 md:grid-cols-2">
@@ -457,9 +632,16 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
+      {/* Note: Onboarding is handled by DashboardLayout's OnboardingWizard */}
       
-      {/* Onboarding Dialog */}
-      <Onboarding open={onboardingOpen} onComplete={handleOnboardingComplete} />
+      {/* Playbook Detail Modal */}
+      <PlaybookDetailModal
+        playbook={selectedPlaybook}
+        open={isPlaybookModalOpen}
+        onOpenChange={setIsPlaybookModalOpen}
+        onStartMission={handleStartMission}
+        onAskHouston={handleAskHouston}
+      />
     </DashboardLayout>
   );
 }

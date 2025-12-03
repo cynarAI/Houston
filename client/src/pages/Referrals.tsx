@@ -7,14 +7,20 @@ import { trpc } from "@/lib/trpc";
 import { Copy, Check, Users, Gift, TrendingUp, Share2, Twitter, Facebook, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 export default function Referrals() {
   const { user } = useAuth();
-  const { data: referralData, isLoading: codeLoading } = trpc.referrals.getMyReferralCode.useQuery();
-  const { data: stats, isLoading: statsLoading } = trpc.referrals.getMyStats.useQuery();
-  const { data: referralList, isLoading: listLoading } = trpc.referrals.getMyReferrals.useQuery();
+  const { data: referralData, isLoading: codeLoading, isError: codeError, refetch: refetchCode } = trpc.referrals.getMyReferralCode.useQuery();
+  const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = trpc.referrals.getMyStats.useQuery();
+  const { data: referralList, isLoading: listLoading, isError: listError, refetch: refetchList } = trpc.referrals.getMyReferrals.useQuery();
   
   const [copied, setCopied] = useState(false);
+  
+  // Combined loading/error states
+  const isLoading = codeLoading || statsLoading;
+  const hasError = codeError || statsError;
   
   const referralCode = referralData?.code || "";
   const referralLink = `${window.location.origin}/?ref=${referralCode}`;
@@ -56,6 +62,35 @@ export default function Referrals() {
       year: "numeric",
     });
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <LoadingState message="Lade Empfehlungsprogramm..." fullPage />
+      </DashboardLayout>
+    );
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <DashboardLayout>
+        <div className="container py-8">
+          <ErrorState
+            title="Empfehlungsprogramm konnte nicht geladen werden"
+            message="Es gab ein Problem beim Laden deiner Empfehlungsdaten. Bitte versuche es erneut."
+            onRetry={() => {
+              refetchCode();
+              refetchStats();
+              refetchList();
+            }}
+            fullPage
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

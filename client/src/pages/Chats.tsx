@@ -9,10 +9,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { Brain, Send, Loader2, Plus, MessageSquare, Sparkles, ThumbsUp, ThumbsDown, Copy, RotateCcw, Check, Download } from "lucide-react";
+import { Brain, Send, Loader2, Plus, MessageSquare, Sparkles, ThumbsUp, ThumbsDown, Copy, RotateCcw, Check, Download, BookOpen, Rocket } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { toast } from "sonner";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { handleMutationError, ErrorMessages } from "@/lib/errorHandling";
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
+import { celebrations } from "@/lib/celebrations";
 
 export default function Chats() {
   const { user } = useAuth();
@@ -22,17 +27,21 @@ export default function Chats() {
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { data: workspaces } = trpc.workspaces.list.useQuery();
-  const { data: sessions, refetch: refetchSessions } = trpc.chat.listSessions.useQuery(
+  const { data: workspaces, isLoading: workspacesLoading, isError: workspacesError, refetch: refetchWorkspaces } = trpc.workspaces.list.useQuery();
+  const { data: sessions, isLoading: sessionsLoading, isError: sessionsError, refetch: refetchSessions } = trpc.chat.listSessions.useQuery(
     { workspaceId: workspaces?.[0]?.id || 0 },
     { enabled: !!workspaces?.[0]?.id }
   );
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
 
-  const { data: sessionData, refetch: refetchMessages } = trpc.chat.getSession.useQuery(
+  const { data: sessionData, isLoading: messagesLoading, isError: messagesError, refetch: refetchMessages } = trpc.chat.getSession.useQuery(
     { sessionId: activeSessionId || 0 },
     { enabled: !!activeSessionId }
   );
+  
+  // Combined states
+  const isInitialLoading = workspacesLoading || (workspaces?.[0]?.id && sessionsLoading);
+  const hasError = workspacesError || sessionsError;
 
   const messages = sessionData?.messages || [];
 
@@ -59,13 +68,18 @@ export default function Chats() {
     try {
       const newSession = await createSessionMutation.mutateAsync({
         workspaceId: workspaces?.[0]?.id || 0,
-        title: `New Chat ${new Date().toLocaleDateString("en-US")}`,
+        title: `Neuer Chat ${new Date().toLocaleDateString("de-DE")}`,
       });
+      
+      // Track chat creation
+      const isFirstChat = !sessions || sessions.length === 0;
+      trackEvent(AnalyticsEvents.CHAT_STARTED, { is_first_chat: isFirstChat });
+      
       setActiveSessionId(newSession.id);
       await refetchSessions();
       toast.success("Neuer Chat erstellt");
     } catch (error) {
-      toast.error("Chat konnte nicht erstellt werden");
+      handleMutationError(error, ErrorMessages.chatCreate);
     }
   };
 
@@ -73,11 +87,15 @@ export default function Chats() {
     if (!message.trim() || isStreaming || !activeSessionId) return;
 
     const userMessage = message;
+    const isFirstMessage = messages.length === 0;
     setMessage("");
     setIsStreaming(true);
     setStreamingMessage("");
 
     try {
+      // Track message sent
+      trackEvent(AnalyticsEvents.MESSAGE_SENT, { message_length: userMessage.length, session_id: activeSessionId });
+      
       // sendMessage already generates and saves the coach response
       const result = await sendMessageMutation.mutateAsync({
         sessionId: activeSessionId,
@@ -99,9 +117,13 @@ export default function Chats() {
       // Refresh messages to show the saved response
       await refetchMessages();
       setStreamingMessage("");
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Nachricht konnte nicht gesendet werden";
-      toast.error(errorMessage);
+      
+      // Celebrate first chat if this was the first message
+      if (isFirstMessage) {
+        celebrations.firstChat();
+      }
+    } catch (error) {
+      handleMutationError(error, ErrorMessages.chatSend);
       setStreamingMessage("");
     } finally {
       setIsStreaming(false);
@@ -111,6 +133,10 @@ export default function Chats() {
   const handleFeedback = async (messageId: number, feedback: "positive" | "negative") => {
     try {
       await sendFeedbackMutation.mutateAsync({ messageId, feedback });
+      
+      // Track feedback
+      trackEvent(AnalyticsEvents.MESSAGE_FEEDBACK, { feedback_type: feedback, message_id: messageId });
+      
       toast.success("Feedback gesendet");
     } catch (error) {
       toast.error("Feedback konnte nicht gesendet werden");
@@ -121,6 +147,10 @@ export default function Chats() {
     navigator.clipboard.writeText(content);
     setCopiedMessageId(messageId);
     setTimeout(() => setCopiedMessageId(null), 2000);
+    
+    // Track copy action
+    trackEvent(AnalyticsEvents.MESSAGE_COPIED, { message_id: messageId });
+    
     toast.success("In Zwischenablage kopiert");
   };
 
@@ -129,10 +159,14 @@ export default function Chats() {
       setIsStreaming(true);
       if (!activeSessionId) return;
       await regenerateResponseMutation.mutateAsync({ sessionId: activeSessionId, messageId });
+      
+      // Track regeneration
+      trackEvent(AnalyticsEvents.MESSAGE_REGENERATED, { message_id: messageId });
+      
       await refetchMessages();
       toast.success("Antwort neu generiert");
     } catch (error) {
-      toast.error("Antwort konnte nicht neu generiert werden");
+      handleMutationError(error, ErrorMessages.chatRegenerate);
     } finally {
       setIsStreaming(false);
     }
@@ -149,18 +183,52 @@ export default function Chats() {
       a.download = `chat-${activeSessionId}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+      
+      // Track PDF export
+      trackEvent(AnalyticsEvents.PDF_EXPORTED, { type: "chat" });
+      
       toast.success("PDF exportiert");
     } catch (error) {
-      toast.error("PDF-Export fehlgeschlagen");
+      handleMutationError(error, ErrorMessages.pdfExport);
     }
   };
 
   const quickActions = [
-    { icon: MessageSquare, label: "Marketing-Strategie entwickeln", prompt: "Hilf mir, eine Marketing-Strategie zu entwickeln" },
-    { icon: Sparkles, label: "Content-Ideen generieren", prompt: "Gib mir Content-Ideen für Social Media" },
-    { icon: Brain, label: "Zielgruppen-Analyse", prompt: "Analysiere meine Zielgruppe und erstelle Personas" },
-    { icon: Send, label: "Kampagne planen", prompt: "Hilf mir bei der Planung einer Marketing-Kampagne" },
+    { icon: BookOpen, label: "Welches Playbook passt zu mir?", prompt: "Welches Marketing-Playbook würdest du mir empfehlen? Analysiere meine Situation und schlage das passendste vor." },
+    { icon: Rocket, label: "Lead-Magnet erstellen", prompt: "Hilf mir, einen Lead-Magneten zu erstellen. Welche Ideen hast du für meine Branche?" },
+    { icon: MessageSquare, label: "Newsletter-Strategie", prompt: "Ich möchte eine E-Mail-Newsletter-Serie aufbauen. Wie sollte ich vorgehen?" },
+    { icon: Sparkles, label: "Content-Ideen generieren", prompt: "Gib mir 10 Content-Ideen für Social Media basierend auf meinem Business" },
+    { icon: Brain, label: "Zielgruppen-Analyse", prompt: "Analysiere meine Zielgruppe und erstelle detaillierte Personas mit Pain Points und Bedürfnissen" },
+    { icon: Send, label: "Launch-Kampagne planen", prompt: "Ich plane einen Produkt-Launch. Welche Schritte empfiehlst du für eine erfolgreiche Launch-Kampagne?" },
   ];
+
+  // Show loading state
+  if (isInitialLoading) {
+    return (
+      <DashboardLayout>
+        <LoadingState message="Lade deine Chats..." fullPage />
+      </DashboardLayout>
+    );
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <DashboardLayout>
+        <div className="container py-8">
+          <ErrorState
+            title="Chats konnten nicht geladen werden"
+            message="Es gab ein Problem beim Laden deiner Chat-Sessions. Bitte versuche es erneut."
+            onRetry={() => {
+              refetchWorkspaces();
+              refetchSessions();
+            }}
+            fullPage
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -214,7 +282,7 @@ export default function Chats() {
             {messages.length === 0 && !streamingMessage && (
               <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
                 <div className="text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] mb-4">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] mb-4">
                     <Brain className="w-8 h-8 text-white" />
                   </div>
                   <h2 className="text-2xl font-semibold">Womit kann ich dir helfen?</h2>
@@ -230,7 +298,7 @@ export default function Chats() {
                       onClick={() => setMessage(action.prompt)}
                       className="flex items-center gap-3 p-4 rounded-lg border border-white/10 hover:border-white/20 hover:bg-accent/50 transition-all text-left group"
                     >
-                      <action.icon className="w-5 h-5 text-[var(--accent-primary)] shrink-0" />
+                      <action.icon className="w-5 h-5 text-[var(--color-gradient-pink)] shrink-0" />
                       <span className="text-sm font-medium">{action.label}</span>
                     </button>
                   ))}
