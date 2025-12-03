@@ -7,7 +7,7 @@ AI-powered marketing coach for SMBs with credit-based billing.
 
 **Live:** [https://houston.manus.space](https://houston.manus.space)
 
-> **Note:** Automatic deployments are enabled. Every push to `main` triggers an automated deployment via GitHub Actions.
+> **Hosting:** Manus Platform – einfaches Deployment mit einem Befehl.
 
 ---
 
@@ -115,70 +115,33 @@ Copy `env.example` to `.env` and configure:
 
 ## Deployment
 
-Das Deployment-System ist darauf ausgelegt, Deployments schneller, ressourcenschonender und flexibler zu gestalten. Der rechenintensive Build-Prozess findet in GitHub Actions oder lokal statt, nicht mehr auf dem Manus-Agenten.
+Houston wird auf **Manus** gehostet – einer All-in-One Plattform für Full-Stack Webapplikationen.
 
-### Automatisches Deployment (GitHub Actions)
+### Deployment durchführen
 
-Jeder Push auf den `main`-Branch löst automatisch einen Build- und Deployment-Prozess über GitHub Actions aus.
+1. Öffne [manus.im](https://manus.im)
+2. Navigiere zum Houston-Projekt
+3. Sage zu Manus:
 
-**Funktionsweise:**
-
-1. **Build-Job**: Dependencies werden aus dem Cache geladen, die App wird gebaut
-2. **Deploy-Job**: Die gebauten Artefakte werden an die Manus-Plattform gesendet
-
-**Setup:**
-
-1. Gehen Sie zu Ihrem GitHub-Repository
-2. Navigieren Sie zu `Settings` > `Secrets and variables` > `Actions`
-3. Erstellen Sie ein neues Secret: `MANUS_API_KEY`
-4. Fügen Sie Ihren Manus API-Schlüssel als Wert ein
-
-Der Workflow wird durch `.github/workflows/optimized-ci.yml` gesteuert.
-
-### Manuelles Deployment (Lokal)
-
-Für schnelle Deployments direkt aus Ihrer Entwicklungsumgebung können Sie das `deploy.sh`-Skript verwenden.
-
-**Setup:**
-
-1. **API-Schlüssel als Umgebungsvariable setzen:**
-
-   Temporär (für die aktuelle Terminalsitzung):
-
-   ```bash
-   export MANUS_API_KEY='ihr-api-schluessel'
-   ```
-
-   Permanent (empfohlen):
-
-   ```bash
-   echo 'export MANUS_API_KEY="ihr-api-schluessel"' >> ~/.zshrc
-   source ~/.zshrc
-   ```
-
-2. **Skript ausführbar machen:**
-   ```bash
-   chmod +x deploy.sh
-   ```
-
-**Verwendung:**
-
-```bash
-./deploy.sh
+```
+Publish this website and make it live.
 ```
 
-Das Skript führt automatisch aus:
+**Das war's!** Manus übernimmt automatisch:
 
-- Installation der Dependencies (`pnpm install`)
-- Build der Anwendung (`pnpm build`)
-- Start eines Deployment-Tasks über die Manus API
+- ✅ Cloud-Infrastruktur
+- ✅ Build und Optimierung
+- ✅ Deployment
+- ✅ SSL/HTTPS
 
-### Manual Build (ohne Deployment)
+### Lokaler Build
 
 ```bash
 pnpm build    # Creates dist/
 pnpm start    # Runs production server
 ```
+
+Siehe [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) für detaillierte Anleitungen.
 
 ---
 

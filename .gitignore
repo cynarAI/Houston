@@ -40,3 +40,5 @@ coverage/
 .cache/
 .turbo/
 .playwright-mcp/
+.vercel
+.env*.local
