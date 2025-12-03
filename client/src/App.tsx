@@ -22,13 +22,23 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Credits = lazy(() => import("./pages/Credits"));
 const Referrals = lazy(() => import("./pages/Referrals"));
 const Playbooks = lazy(() => import("./pages/Playbooks"));
+const Library = lazy(() => import("./pages/Library"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Loading fallback component
+// Loading fallback component - Houston branded
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background animate-in fade-in duration-300">
+      {/* Houston Logo Pulse */}
+      <div className="relative mb-6">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B9D] to-[#C44FE2] rounded-full blur-2xl opacity-30 animate-pulse" />
+        <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B9D]/20 to-[#C44FE2]/20 border border-[#FF6B9D]/30">
+          <Loader2 className="h-8 w-8 animate-spin text-[#FF6B9D]" />
+        </div>
+      </div>
+      <p className="text-sm text-muted-foreground animate-pulse">
+        Houston startet...
+      </p>
     </div>
   );
 }
@@ -48,6 +58,7 @@ function Router() {
       <Route path="/app/credits" component={Credits} />
       <Route path="/app/referrals" component={Referrals} />
       <Route path="/app/playbooks" component={Playbooks} />
+      <Route path="/app/library" component={Library} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -69,17 +80,14 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        switchable
-      >
+      <ThemeProvider defaultTheme="light" switchable>
         <TooltipProvider>
           <Toaster />
           <OfflineIndicator />
           <InstallPrompt />
-          <KeyboardShortcutsModal 
-            open={showShortcutsModal} 
-            onOpenChange={setShowShortcutsModal} 
+          <KeyboardShortcutsModal
+            open={showShortcutsModal}
+            onOpenChange={setShowShortcutsModal}
           />
           <Suspense fallback={<PageLoader />}>
             <Router />

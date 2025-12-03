@@ -93,11 +93,21 @@ export default function Credits() {
   return (
     <DashboardLayout>
       <div className="container py-8 space-y-8">
-        {/* Header */}
-        <PageHeader
-          title="Credits & Pläne"
-          description="Verwalte deine Credits und dein Abonnement"
-        />
+        {/* Header with Clear Explanation */}
+        <div className="space-y-4">
+          <PageHeader
+            title="Credits & Pläne"
+            description="Verwalte deine Credits und dein Abonnement"
+          />
+          
+          {/* Quick Credit Explanation */}
+          <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-foreground">So funktionieren Credits:</strong> Chat-Nachrichten sind kostenlos. 
+              Für tiefere Analysen und KI-Empfehlungen nutzt du Credits. Du siehst immer VOR einer Aktion, was sie kostet.
+            </p>
+          </div>
+        </div>
 
         {/* Current Balance Card */}
         <GlassCard variant="elevated">
@@ -394,53 +404,74 @@ export default function Credits() {
           </TabsContent>
         </Tabs>
 
-        {/* Credit Costs Reference */}
+        {/* Credit Costs Reference - Grouped by Free/Paid */}
         {costs && (
           <GlassCard variant="elevated">
             <GlassCardHeader>
-              <GlassCardTitle>So nutzt du deine Credits</GlassCardTitle>
-              <GlassCardDescription>Transparente Übersicht aller Feature-Kosten - keine versteckten Gebühren</GlassCardDescription>
+              <GlassCardTitle>Was kostet wie viel?</GlassCardTitle>
+              <GlassCardDescription>Transparente Übersicht - keine versteckten Gebühren</GlassCardDescription>
             </GlassCardHeader>
-            <GlassCardContent>
-              <div className="grid gap-3 md:grid-cols-2">
-                {Object.entries(costs).map(([key, cost]) => {
-                  // German-friendly feature names
-                  const featureNames: Record<string, string> = {
-                    CHAT_BASIC: "Chat-Nachrichten",
-                    VIEW_CONTENT: "Inhalte ansehen",
-                    CHAT_DEEP_ANALYSIS: "Tiefenanalyse im Chat",
-                    PDF_EXPORT: "PDF-Export",
-                    AI_INSIGHTS: "KI-Empfehlungen",
-                    GOALS_GENERATION: "Ziele generieren",
-                    STRATEGY_ANALYSIS: "Strategie-Analyse",
-                    CAMPAIGN_BLUEPRINT: "Kampagnen-Plan",
-                    MARKETING_AUDIT: "Marketing-Audit",
-                    COMPETITOR_ANALYSIS: "Wettbewerbs-Analyse",
-                    CONTENT_CALENDAR: "Content-Kalender",
-                  };
-                  
-                  const displayName = featureNames[key] || key
-                    .split('_')
-                    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
-                    .join(' ');
-                  
-                  const isFree = cost === 0;
-                  
-                  return (
-                    <div key={key} className={`flex items-center justify-between p-3 rounded-lg ${isFree ? 'bg-green-500/10 border border-green-500/20' : 'bg-white/5'}`}>
-                      <span className="text-sm">{displayName}</span>
-                      <Badge 
-                        variant="outline" 
-                        className={isFree 
-                          ? "border-green-500/50 text-green-400 bg-green-500/10" 
-                          : "border-[#ffb606]/30 text-[#ffb606]"
-                        }
-                      >
-                        {isFree ? '✓ Kostenlos' : `${cost} Credits`}
-                      </Badge>
-                    </div>
-                  );
-                })}
+            <GlassCardContent className="space-y-6">
+              {/* Free Features */}
+              <div>
+                <h4 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2">
+                  <Check className="w-4 h-4" />
+                  Immer kostenlos
+                </h4>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {Object.entries(costs)
+                    .filter(([, cost]) => cost === 0)
+                    .map(([key]) => {
+                      const featureNames: Record<string, string> = {
+                        CHAT_BASIC: "Chat-Nachrichten mit Houston",
+                        VIEW_CONTENT: "Inhalte und Ziele ansehen",
+                      };
+                      const displayName = featureNames[key] || key.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+                      
+                      return (
+                        <div key={key} className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                          <Check className="w-4 h-4 text-green-400 shrink-0" />
+                          <span className="text-sm">{displayName}</span>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+              
+              {/* Paid Features */}
+              <div>
+                <h4 className="text-sm font-semibold text-[#ffb606] mb-3 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  Premium-Features (kosten Credits)
+                </h4>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {Object.entries(costs)
+                    .filter(([, cost]) => cost > 0)
+                    .sort((a, b) => a[1] - b[1]) // Sort by cost ascending
+                    .map(([key, cost]) => {
+                      const featureNames: Record<string, string> = {
+                        CHAT_DEEP_ANALYSIS: "Tiefenanalyse im Chat",
+                        PDF_EXPORT: "PDF-Export",
+                        AI_INSIGHTS: "KI-Empfehlungen generieren",
+                        GOALS_GENERATION: "SMART-Ziele generieren",
+                        STRATEGY_ANALYSIS: "Strategie-Analyse",
+                        CAMPAIGN_BLUEPRINT: "Kampagnen-Plan erstellen",
+                        MARKETING_AUDIT: "Marketing-Audit",
+                        COMPETITOR_ANALYSIS: "Wettbewerbs-Analyse",
+                        CONTENT_CALENDAR: "Content-Kalender erstellen",
+                      };
+                      const displayName = featureNames[key] || key.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+                      
+                      return (
+                        <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                          <span className="text-sm">{displayName}</span>
+                          <Badge variant="outline" className="border-[#ffb606]/30 text-[#ffb606]">
+                            {cost} Credits
+                          </Badge>
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
             </GlassCardContent>
           </GlassCard>

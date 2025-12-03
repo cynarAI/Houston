@@ -526,3 +526,347 @@ h3 {
 .typing-dot:nth-child(3) {
   animation-delay: 0.4s;
 }
+
+/* ===========================================
+   REDUCED MOTION: Accessibility
+   =========================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-glow,
+  .animate-shimmer,
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-bounce-subtle,
+  .animate-pulse-subtle,
+  .typing-dot {
+    animation: none !important;
+  }
+  
+  .card-hover:hover,
+  .hover-glow:hover,
+  .btn-aistronaut:hover {
+    transform: none !important;
+  }
+}
+
+/* ===========================================
+   DESIGN SYSTEM: Spacing Scale (8pt Grid)
+   =========================================== */
+/*
+  Houston uses an 8pt spacing grid:
+  
+  --space-1: 0.5rem   (8px)
+  --space-2: 1rem     (16px)
+  --space-3: 1.5rem   (24px)
+  --space-4: 2rem     (32px)
+  --space-5: 2.5rem   (40px)
+  --space-6: 3rem     (48px)
+  --space-8: 4rem     (64px)
+  --space-10: 5rem    (80px)
+  
+  Use Tailwind classes: p-2 (8px), p-4 (16px), p-6 (24px), p-8 (32px)
+*/
+
+/* ===========================================
+   DESIGN SYSTEM: Transition Presets
+   =========================================== */
+.transition-fast {
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-base {
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-slow {
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===========================================
+   MICRO-INTERACTIONS: Apple-Level Polish
+   =========================================== */
+
+/* Button Press Effect */
+button:not(:disabled):active,
+[role="button"]:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* Focus Ring - Visible & Accessible */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Card Lift on Hover */
+.card-interactive {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+/* Smooth Scale Hover */
+.hover-scale {
+  transition: transform 150ms ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Link Underline Animation */
+.link-animated {
+  position: relative;
+}
+
+.link-animated::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #FF6B9D, #C44FE2);
+  transition: width 200ms ease;
+}
+
+.link-animated:hover::after {
+  width: 100%;
+}
+
+/* Icon Spin on Hover */
+.icon-spin-hover:hover svg {
+  animation: icon-spin 400ms ease;
+}
+
+@keyframes icon-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Gradient Border Animation */
+.gradient-border-animated {
+  position: relative;
+  background: linear-gradient(var(--background), var(--background)) padding-box,
+              linear-gradient(135deg, #FF6B9D, #C44FE2, #00D4FF) border-box;
+  border: 2px solid transparent;
+}
+
+/* Subtle Glow on Focus */
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.15);
+}
+
+/* Navigation Item Active Indicator */
+.nav-item-active {
+  position: relative;
+}
+
+.nav-item-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: linear-gradient(180deg, #FF6B9D, #C44FE2);
+  border-radius: 0 4px 4px 0;
+}
+
+/* Toast Slide Animation */
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toast-enter {
+  animation: toast-slide-in 300ms ease-out;
+}
+
+/* Skeleton Loading Shimmer */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--accent)) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+/* ===========================================
+   PAGE TRANSITIONS: Smooth Navigation
+   =========================================== */
+
+/* Main content fade-in on page load */
+main {
+  animation: page-fade-in 300ms ease-out;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered content reveal for lists */
+.stagger-children > * {
+  animation: stagger-reveal 400ms ease-out both;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(n+7) { animation-delay: 300ms; }
+
+@keyframes stagger-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Page section fade-up */
+.section-appear {
+  animation: section-fade-up 500ms ease-out;
+}
+
+@keyframes section-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero entrance - more dramatic */
+.hero-entrance {
+  animation: hero-fade-in 600ms ease-out;
+}
+
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  main,
+  .stagger-children > *,
+  .section-appear,
+  .hero-entrance,
+  .animate-twinkle,
+  .animate-shooting-star {
+    animation: none !important;
+  }
+}
+
+/* ===========================================
+   SPACE BACKGROUND ANIMATIONS
+   =========================================== */
+
+/* Star twinkle effect */
+.animate-twinkle {
+  animation: twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: var(--star-opacity, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Shooting star animation */
+.animate-shooting-star {
+  animation: shoot 1.5s ease-out forwards;
+}
+
+@keyframes shoot {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(0) rotate(var(--angle, 20deg));
+  }
+  10% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(300px) translateY(150px) rotate(var(--angle, 20deg));
+  }
+}
+
+/* Subtle floating animation for cards */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}

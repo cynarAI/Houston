@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, Target, CheckSquare, Rocket } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Link } from "wouter";
 
 interface TableViewProps {
   items: any[];
@@ -85,8 +86,24 @@ export default function TableView({ items, type, onEdit, onDelete }: TableViewPr
           <TableBody>
             {sortedItems.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  Keine Ziele gefunden
+                <TableCell colSpan={6} className="py-12">
+                  <div className="flex flex-col items-center justify-center text-center space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6B9D]/10 to-[#C44FE2]/10 flex items-center justify-center">
+                      <Target className="h-6 w-6 text-[#FF6B9D]" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Noch keine Ziele definiert</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Erstelle dein erstes Ziel oder besprich mit Houston, was du erreichen möchtest.
+                      </p>
+                    </div>
+                    <Link href="/app/chats?prompt=Hilf mir, mein erstes Marketing-Ziel zu definieren">
+                      <Button variant="outline" size="sm" className="mt-2 gap-2">
+                        <Rocket className="h-4 w-4" />
+                        Mit Houston planen
+                      </Button>
+                    </Link>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -157,8 +174,24 @@ export default function TableView({ items, type, onEdit, onDelete }: TableViewPr
         <TableBody>
           {sortedItems.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
-                Keine Aufgaben gefunden
+              <TableCell colSpan={6} className="py-12">
+                <div className="flex flex-col items-center justify-center text-center space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6B9D]/10 to-[#C44FE2]/10 flex items-center justify-center">
+                    <CheckSquare className="h-6 w-6 text-[#FF6B9D]" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Alles erledigt! 🎉</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Keine offenen Aufgaben. Frag Houston nach neuen Ideen!
+                    </p>
+                  </div>
+                  <Link href="/app/chats?prompt=Was sollte ich als nächstes für mein Marketing tun?">
+                    <Button variant="outline" size="sm" className="mt-2 gap-2">
+                      <Rocket className="h-4 w-4" />
+                      Houston fragen
+                    </Button>
+                  </Link>
+                </div>
               </TableCell>
             </TableRow>
           ) : (

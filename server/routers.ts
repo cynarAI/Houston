@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { workspacesRouter } from "./routers/workspaces";
+import { workspaceRouter } from "./routers/workspaces";
 import { goalsRouter } from "./routers/goals";
 import { todosRouter } from "./routers/todos";
 import { strategyRouter } from "./routers/strategy";
@@ -17,26 +17,34 @@ import { referralsRouter } from "./routers/referrals";
 import { notificationsRouter } from "./routers/notifications";
 import { accountRouter } from "./routers/account";
 import { playbooksRouter } from "./routers/playbooks";
+import { contentLibraryRouter } from "./routers/contentLibrary";
 
 // Mock user for DEV_MOCK_AUTH mode
-const DEV_MOCK_USER = process.env.DEV_MOCK_AUTH === 'true' ? {
-  id: 1,
-  name: "Test User",
-  email: "test@example.com",
-  openId: "dev-mock-user",
-  role: "user" as const,
-  avatarUrl: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-} : null;
+const DEV_MOCK_USER =
+  process.env.DEV_MOCK_AUTH === "true"
+    ? {
+        id: 1,
+        name: "Test User",
+        email: "test@example.com",
+        openId: "dev-mock-user",
+        role: "user" as const,
+        avatarUrl: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    : null;
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
+  // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(opts => {
+    me: publicProcedure.query((opts) => {
       // DEV MODE: Return mock user for visual QA testing
-      if (process.env.NODE_ENV === 'development' && DEV_MOCK_USER && !opts.ctx.user) {
+      if (
+        process.env.NODE_ENV === "development" &&
+        DEV_MOCK_USER &&
+        !opts.ctx.user
+      ) {
         return DEV_MOCK_USER;
       }
       return opts.ctx.user;
@@ -50,7 +58,7 @@ export const appRouter = router({
     }),
   }),
 
-  workspaces: workspacesRouter,
+  workspaces: workspaceRouter,
   goals: goalsRouter,
   todos: todosRouter,
   strategy: strategyRouter,
@@ -65,6 +73,7 @@ export const appRouter = router({
   notifications: notificationsRouter,
   account: accountRouter,
   playbooks: playbooksRouter,
+  contentLibrary: contentLibraryRouter,
 });
 
 export type AppRouter = typeof appRouter;

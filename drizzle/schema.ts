@@ -1,4 +1,11 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -37,7 +44,9 @@ export type InsertUser = typeof users.$inferInsert;
  */
 export const workspaces = mysqlTable("workspaces", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   industry: varchar("industry", { length: 100 }),
@@ -47,6 +56,7 @@ export const workspaces = mysqlTable("workspaces", {
   marketingChannels: text("marketingChannels"),
   monthlyBudget: varchar("monthlyBudget", { length: 50 }),
   challenges: text("challenges"),
+  logoUrl: text("logoUrl"), // URL to workspace logo (for reports)
   onboardingCompleted: int("onboardingCompleted").default(0).notNull(), // 0 = false, 1 = true
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -60,7 +70,9 @@ export type InsertWorkspace = typeof workspaces.$inferInsert;
  */
 export const goals = mysqlTable("goals", {
   id: int("id").autoincrement().primaryKey(),
-  workspaceId: int("workspaceId").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  workspaceId: int("workspaceId")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   specific: text("specific"),
@@ -69,8 +81,12 @@ export const goals = mysqlTable("goals", {
   relevant: text("relevant"),
   timeBound: text("timeBound"),
   progress: int("progress").default(0).notNull(), // 0-100
-  priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium").notNull(),
-  status: mysqlEnum("status", ["active", "completed", "archived"]).default("active").notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high"])
+    .default("medium")
+    .notNull(),
+  status: mysqlEnum("status", ["active", "completed", "archived"])
+    .default("active")
+    .notNull(),
   deadline: timestamp("deadline"), // Optional deadline for goal completion
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -84,12 +100,16 @@ export type InsertGoal = typeof goals.$inferInsert;
  */
 export const strategies = mysqlTable("strategies", {
   id: int("id").autoincrement().primaryKey(),
-  workspaceId: int("workspaceId").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  workspaceId: int("workspaceId")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
   positioning: text("positioning"),
   personas: text("personas"), // JSON array
   coreMessages: text("coreMessages"), // JSON array
   channels: text("channels"), // JSON array
   contentPillars: text("contentPillars"), // JSON array
+  brandVoice: text("brandVoice"), // Brand voice description (e.g., "Witty", "Professional", "No jargon")
+  pitchDeck: text("pitchDeck"), // Startup pitch narrative (Problem/Solution/Market)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -102,12 +122,18 @@ export type InsertStrategy = typeof strategies.$inferInsert;
  */
 export const todos = mysqlTable("todos", {
   id: int("id").autoincrement().primaryKey(),
-  workspaceId: int("workspaceId").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  workspaceId: int("workspaceId")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
   goalId: int("goalId").references(() => goals.id, { onDelete: "set null" }),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  status: mysqlEnum("status", ["todo", "in_progress", "done"]).default("todo").notNull(),
-  priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium").notNull(),
+  status: mysqlEnum("status", ["todo", "in_progress", "done"])
+    .default("todo")
+    .notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high"])
+    .default("medium")
+    .notNull(),
   dueDate: timestamp("dueDate"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -121,7 +147,9 @@ export type InsertTodo = typeof todos.$inferInsert;
  */
 export const chatSessions = mysqlTable("chatSessions", {
   id: int("id").autoincrement().primaryKey(),
-  workspaceId: int("workspaceId").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  workspaceId: int("workspaceId")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
   title: varchar("title", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -135,7 +163,9 @@ export type InsertChatSession = typeof chatSessions.$inferInsert;
  */
 export const chatMessages = mysqlTable("chatMessages", {
   id: int("id").autoincrement().primaryKey(),
-  sessionId: int("sessionId").notNull().references(() => chatSessions.id, { onDelete: "cascade" }),
+  sessionId: int("sessionId")
+    .notNull()
+    .references(() => chatSessions.id, { onDelete: "cascade" }),
   role: mysqlEnum("role", ["user", "coach"]).notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -149,8 +179,12 @@ export type InsertChatMessage = typeof chatMessages.$inferInsert;
  */
 export const planLimits = mysqlTable("planLimits", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  plan: mysqlEnum("plan", ["satellite", "rocket"]).default("satellite").notNull(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  plan: mysqlEnum("plan", ["satellite", "rocket"])
+    .default("satellite")
+    .notNull(),
   maxWorkspaces: int("maxWorkspaces").default(1).notNull(),
   maxChatsPerMonth: int("maxChatsPerMonth").default(20).notNull(),
   chatsUsedThisMonth: int("chatsUsedThisMonth").default(0).notNull(),
@@ -170,16 +204,37 @@ export type InsertPlanLimit = typeof planLimits.$inferInsert;
  */
 export const onboardingData = mysqlTable("onboardingData", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  userId: int("userId")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
   // Step 1: Company Info
   companyName: varchar("companyName", { length: 255 }),
   industry: varchar("industry", { length: 100 }),
-  companySize: mysqlEnum("companySize", ["1-10", "11-50", "51-200", "201-1000", "1000+"]),
+  companySize: mysqlEnum("companySize", [
+    "1-10",
+    "11-50",
+    "51-200",
+    "201-1000",
+    "1000+",
+  ]),
   website: varchar("website", { length: 500 }),
   // Step 2: Marketing Goals
-  primaryGoal: mysqlEnum("primaryGoal", ["brand_awareness", "lead_generation", "sales_conversion", "customer_retention", "market_expansion"]),
+  primaryGoal: mysqlEnum("primaryGoal", [
+    "brand_awareness",
+    "lead_generation",
+    "sales_conversion",
+    "customer_retention",
+    "market_expansion",
+  ]),
   secondaryGoals: text("secondaryGoals"), // JSON array
-  monthlyBudget: mysqlEnum("monthlyBudget", ["<1000", "1000-5000", "5000-10000", "10000-50000", "50000+"]),
+  monthlyBudget: mysqlEnum("monthlyBudget", [
+    "<1000",
+    "1000-5000",
+    "5000-10000",
+    "10000-50000",
+    "50000+",
+  ]),
   // Step 3: Target Audience
   targetAudience: text("targetAudience"), // JSON: { demographics, painPoints, channels }
   currentChallenges: text("currentChallenges"), // JSON array
@@ -194,16 +249,46 @@ export type OnboardingData = typeof onboardingData.$inferSelect;
 export type InsertOnboardingData = typeof onboardingData.$inferInsert;
 
 /**
+ * Content Library table - saved responses, hooks, and reusable content
+ */
+export const contentLibrary = mysqlTable("contentLibrary", {
+  id: int("id").autoincrement().primaryKey(),
+  workspaceId: int("workspaceId")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  category: mysqlEnum("category", ["hook", "post", "email", "ad", "other"])
+    .default("other")
+    .notNull(),
+  tags: text("tags"), // JSON array of tags
+  sourceChatId: int("sourceChatId").references(() => chatMessages.id, {
+    onDelete: "set null",
+  }), // Optional: link to original chat message
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContentLibraryItem = typeof contentLibrary.$inferSelect;
+export type InsertContentLibraryItem = typeof contentLibrary.$inferInsert;
+
+/**
  * Credit transactions table - logs all credit changes for audit and analytics
  */
 export const creditTransactions = mysqlTable("creditTransactions", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   featureKey: varchar("featureKey", { length: 100 }).notNull(), // e.g., "chat_deep_analysis", "goals_generation"
   creditsSpent: int("creditsSpent").notNull(), // Negative for deductions, positive for grants
   balanceBefore: int("balanceBefore").notNull(),
   balanceAfter: int("balanceAfter").notNull(),
   metadata: text("metadata"), // JSON: optional context (sessionId, goalId, etc.)
+  // AI Cost Monitoring fields
+  promptTokens: int("promptTokens"),
+  completionTokens: int("completionTokens"),
+  model: varchar("model", { length: 100 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -252,9 +337,15 @@ export type InsertCreditTopup = typeof creditTopups.$inferInsert;
  */
 export const userSubscriptions = mysqlTable("userSubscriptions", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  planId: int("planId").notNull().references(() => creditPlans.id, { onDelete: "restrict" }),
-  status: mysqlEnum("status", ["active", "canceled", "expired"]).default("active").notNull(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  planId: int("planId")
+    .notNull()
+    .references(() => creditPlans.id, { onDelete: "restrict" }),
+  status: mysqlEnum("status", ["active", "canceled", "expired"])
+    .default("active")
+    .notNull(),
   currentPeriodStart: timestamp("currentPeriodStart").notNull(),
   currentPeriodEnd: timestamp("currentPeriodEnd").notNull(),
   cancelAtPeriodEnd: int("cancelAtPeriodEnd").default(0).notNull(), // 0 = false, 1 = true
@@ -271,15 +362,21 @@ export type InsertUserSubscription = typeof userSubscriptions.$inferInsert;
  */
 export const stripePayments = mysqlTable("stripePayments", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  stripeSessionId: varchar("stripeSessionId", { length: 255 }).notNull().unique(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  stripeSessionId: varchar("stripeSessionId", { length: 255 })
+    .notNull()
+    .unique(),
   stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
   amount: int("amount").notNull(), // Amount in cents (e.g., 999 for €9.99)
   currency: varchar("currency", { length: 3 }).default("eur").notNull(),
   credits: int("credits").notNull(), // Credits purchased
   productType: mysqlEnum("productType", ["plan", "topup"]).notNull(),
   productKey: varchar("productKey", { length: 50 }).notNull(), // e.g., "orbit_pack", "mini_booster"
-  status: mysqlEnum("status", ["pending", "completed", "failed"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "completed", "failed"])
+    .default("pending")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   completedAt: timestamp("completedAt"),
 });
@@ -292,10 +389,16 @@ export type InsertStripePayment = typeof stripePayments.$inferInsert;
  */
 export const referrals = mysqlTable("referrals", {
   id: int("id").autoincrement().primaryKey(),
-  referrerId: int("referrerId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  refereeId: int("refereeId").references(() => users.id, { onDelete: "set null" }), // null if not signed up yet
+  referrerId: int("referrerId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  refereeId: int("refereeId").references(() => users.id, {
+    onDelete: "set null",
+  }), // null if not signed up yet
   referralCode: varchar("referralCode", { length: 20 }).notNull(), // e.g., "HOUSTON-ABC123"
-  status: mysqlEnum("status", ["pending", "completed", "rewarded"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "completed", "rewarded"])
+    .default("pending")
+    .notNull(),
   bonusCredits: int("bonusCredits").default(25).notNull(),
   rewardedAt: timestamp("rewardedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -309,13 +412,15 @@ export type InsertReferral = typeof referrals.$inferInsert;
  */
 export const notifications = mysqlTable("notifications", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   type: mysqlEnum("type", [
     "credit_warning",
-    "purchase_success", 
+    "purchase_success",
     "referral_reward",
     "goal_reminder",
-    "system_message"
+    "system_message",
   ]).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),

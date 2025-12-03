@@ -7,7 +7,7 @@
     "getStarted": "Kostenlos starten",
     "dashboard": "Dashboard",
     "chats": "Chats",
-    "playbooks": "Playbooks",
+    "playbooks": "Playbooks (Anleitungen)",
     "goals": "Ziele",
     "todos": "To-dos",
     "strategy": "Strategie",
@@ -188,7 +188,7 @@
     "noStrategy": "Noch keine Strategie definiert"
   },
   "playbooks": {
-    "title": "Marketing-Playbooks",
+    "title": "Marketing-Playbooks (Anleitungen)",
     "subtitle": "Bewährte Strategien und Schritt-für-Schritt-Anleitungen für dein Marketing. Wähle ein Playbook und starte deine Mission.",
     "searchPlaceholder": "Playbooks durchsuchen...",
     "allCategories": "Alle Kategorien",
@@ -414,21 +414,21 @@
       "testimonials": "Referenzen"
     },
     "hero": {
-      "badge": "Dein KI-Marketing-Copilot",
+      "badge": "KI-Marketing-Coach",
       "title": {
-        "part1": "Dein",
-        "highlight": "KI-Marketing-Copilot",
-        "part2": "für den Alltag"
+        "part1": "Marketing",
+        "highlight": "das nicht liegen bleibt",
+        "part2": ""
       },
-      "subtitle": "Houston plant Strategien, erstellt To-dos und begleitet dich täglich – damit dein Marketing nicht liegen bleibt.",
+      "subtitle": "Houston ist dein KI-Marketing-Coach. Er versteht dein Business (oder das deiner Kunden), plant Strategien und sagt dir jeden Tag, was zu tun ist.",
       "cta": {
-        "start": "Kostenlos starten mit 50 Credits",
-        "learn": "So funktioniert's",
+        "start": "Kostenlos starten",
+        "learn": "Wie es funktioniert",
         "dashboard": "Zum Dashboard"
       },
       "trustBadges": {
-        "noCard": "Keine Kreditkarte nötig",
-        "freeCredits": "50 Credits geschenkt",
+        "noCard": "Keine Kreditkarte",
+        "freeCredits": "50 Credits gratis",
         "cancelAnytime": "Jederzeit kündbar"
       }
     },
@@ -485,8 +485,8 @@
         "description": "Du hast viele Ideen, aber keine Zeit für Marketingplanung. Houston hilft dir, fokussiert zu bleiben."
       },
       "persona2": {
-        "title": "Kleine Agentur",
-        "description": "Mehrere Kunden, wenig Zeit. Houston hilft dir, Projekte strukturiert zu betreuen."
+        "title": "Agentur & Freelancer",
+        "description": "Verwalte mehrere Kunden-Workspaces an einem Ort. Houston hilft dir, Strategien schneller zu skalieren."
       },
       "persona3": {
         "title": "Lokales Business",
@@ -638,6 +638,10 @@
       "technical": {
         "question": "Brauche ich technisches Wissen, um Houston zu nutzen?",
         "answer": "Überhaupt nicht! Houston ist für Marketer entwickelt, nicht für Entwickler. Die Oberfläche ist intuitiv und konversationell – chatte einfach mit Houston wie mit einem menschlichen Marketing-Berater. Kein Programmieren, keine komplexe Einrichtung, kein Fachjargon."
+      },
+      "vsChatGPT": {
+        "question": "Was unterscheidet Houston von ChatGPT?",
+        "answer": "ChatGPT ist ein universeller Chatbot – Houston ist ein spezialisierter Marketing-Coach. Der Unterschied: Houston kennt dein Business (Branche, Zielgruppe, Ziele), speichert deinen Fortschritt, gibt dir strukturierte Playbooks und sagt dir jeden Tag, was als nächstes zu tun ist. Statt allgemeiner Tipps bekommst du einen personalisierten Aktionsplan. Außerdem ist Houston in deinen Marketing-Workflow integriert: Ziele, Aufgaben, Strategie – alles an einem Ort."
       }
     },
     "testimonials": {

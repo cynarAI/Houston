@@ -8,13 +8,60 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trpc } from "@/lib/trpc";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, ArrowLeft, Check, Rocket, Target, Users, Building2 } from "lucide-react";
+import { 
+  ArrowRight, 
+  ArrowLeft, 
+  Check, 
+  Rocket, 
+  Target, 
+  Users, 
+  Building2, 
+  Store, 
+  ShoppingBag, 
+  GraduationCap, 
+  Laptop, 
+  Briefcase, 
+  Video,
+  Megaphone,
+  DollarSign,
+  BarChart3,
+  HeartHandshake,
+  Globe2,
+  Sparkles
+} from "lucide-react";
 import { useLocation } from "wouter";
+import { cn } from "@/lib/utils";
 
 interface OnboardingWizardProps {
   open: boolean;
   onClose: () => void;
 }
+
+interface SelectionCardProps {
+  selected: boolean;
+  onClick: () => void;
+  icon: any;
+  title: string;
+  description?: string;
+}
+
+const SelectionCard = ({ selected, onClick, icon: Icon, title, description }: SelectionCardProps) => (
+  <div
+    onClick={onClick}
+    className={cn(
+      "cursor-pointer p-4 rounded-xl border-2 transition-all duration-200 flex items-start gap-3 h-full",
+      selected
+        ? "border-[var(--color-gradient-pink)] bg-[var(--color-gradient-pink)]/10"
+        : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10"
+    )}
+  >
+    <Icon className={cn("w-5 h-5 mt-0.5 shrink-0", selected ? "text-[var(--color-gradient-pink)]" : "text-muted-foreground")} />
+    <div>
+      <div className={cn("font-semibold text-sm", selected ? "text-foreground" : "text-foreground/90")}>{title}</div>
+      {description && <div className="text-xs text-muted-foreground mt-1">{description}</div>}
+    </div>
+  </div>
+);
 
 export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
   const { i18n } = useTranslation();
@@ -25,6 +72,7 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
   // Form state
   const [companyName, setCompanyName] = useState("");
   const [industry, setIndustry] = useState("");
+  const [customIndustry, setCustomIndustry] = useState("");
   const [companySize, setCompanySize] = useState<"1-10" | "11-50" | "51-200" | "201-1000" | "1000+" | "">("");
   const [website, setWebsite] = useState("");
 
@@ -39,12 +87,45 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
 
   const saveDataMutation = trpc.onboarding.saveUserOnboardingData.useMutation();
   const skipMutation = trpc.onboarding.skipUserOnboarding.useMutation();
+  const scanWebsiteMutation = trpc.onboarding.scanWebsite.useMutation();
   const utils = trpc.useUtils();
 
   const lang = i18n.language === "de" ? "de" : "en";
 
   const totalSteps = 3;
   const progress = (step / totalSteps) * 100;
+
+  const handleAnalyzeWebsite = async () => {
+    if (!website) return;
+    
+    setIsLoading(true);
+    try {
+      const result = await scanWebsiteMutation.mutateAsync({
+        url: website,
+        language: lang,
+      });
+
+      if (result.companyName) setCompanyName(result.companyName);
+      if (result.companySize) setCompanySize(result.companySize as any);
+      if (result.industry) {
+        if (["Coaching", "Local Business", "E-Commerce", "Agency", "SaaS", "Creator"].includes(result.industry)) {
+          setIndustry(result.industry);
+        } else {
+          setIndustry("Other");
+          setCustomIndustry(result.customIndustry || result.industry);
+        }
+      }
+      if (result.targetAudience) {
+        if (result.targetAudience.demographics) setDemographics(result.targetAudience.demographics);
+        if (result.targetAudience.painPoints) setPainPoints(result.targetAudience.painPoints);
+      }
+    } catch (error) {
+      console.error("Failed to analyze website:", error);
+      // We could show a toast here, but for now just fail silently/log
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleNext = async () => {
     if (step < totalSteps) {
@@ -79,10 +160,11 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
 
   const saveCurrentStep = async () => {
     const data: any = {};
+    const finalIndustry = industry === "Other" ? customIndustry : industry;
 
     if (step === 1) {
       data.companyName = companyName;
-      data.industry = industry;
+      data.industry = finalIndustry;
       data.companySize = companySize;
       data.website = website;
     } else if (step === 2) {
@@ -115,7 +197,11 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
       });
       await utils.onboarding.getUserOnboardingStatus.invalidate();
       onClose();
-      setLocation("/app/dashboard");
+      // Navigate directly to chat with a personalized welcome prompt
+      // Houston will greet them and suggest first steps based on their profile
+      const finalIndustry = industry === "Other" ? customIndustry : industry;
+      const welcomePrompt = `Hey Houston! Ich bin ${companyName ? `von ${companyName}` : 'neu hier'} (${finalIndustry}) und hab gerade mein Profil ausgefüllt. Was ist der beste erste Schritt für mein Marketing?`;
+      setLocation(`/app/chats?prompt=${encodeURIComponent(welcomePrompt)}`);
     } catch (error) {
       console.error("Complete onboarding error:", error);
     } finally {
@@ -147,9 +233,18 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
     }
   };
 
+  const industries = [
+    { id: "Coaching", icon: GraduationCap, label_de: "Coach / Berater", label_en: "Coach / Consultant" },
+    { id: "Local Business", icon: Store, label_de: "Lokales Geschäft", label_en: "Local Business" },
+    { id: "E-Commerce", icon: ShoppingBag, label_de: "Online Shop", label_en: "E-Commerce" },
+    { id: "Agency", icon: Briefcase, label_de: "Agentur", label_en: "Agency" },
+    { id: "SaaS", icon: Laptop, label_de: "Software / SaaS", label_en: "Software / SaaS" },
+    { id: "Creator", icon: Video, label_de: "Content Creator", label_en: "Content Creator" },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] glass border-white/20 backdrop-blur-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] glass border-white/20 backdrop-blur-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Rocket className="h-6 w-6 text-[var(--color-gradient-pink)]" />
@@ -192,53 +287,57 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
+                <div>
+                  <Label className="mb-3 block">
+                    {lang === "de" ? "In welcher Branche bist du tätig?" : "What is your industry?"}
+                  </Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {industries.map((ind) => (
+                      <SelectionCard
+                        key={ind.id}
+                        selected={industry === ind.id}
+                        onClick={() => setIndustry(ind.id)}
+                        icon={ind.icon}
+                        title={lang === "de" ? ind.label_de : ind.label_en}
+                      />
+                    ))}
+                    <SelectionCard
+                      selected={industry === "Other"}
+                      onClick={() => setIndustry("Other")}
+                      icon={Target}
+                      title={lang === "de" ? "Andere" : "Other"}
+                    />
+                  </div>
+                  {industry === "Other" && (
+                    <div className="mt-3 animate-in fade-in slide-in-from-top-2">
+                      <Input
+                        value={customIndustry}
+                        onChange={(e) => setCustomIndustry(e.target.value)}
+                        placeholder={lang === "de" ? "Bitte spezifizieren..." : "Please specify..."}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="companyName">
                     {lang === "de" ? "Unternehmensname" : "Company Name"}
                   </Label>
                   <Input
                     id="companyName"
+                      className="mt-1.5"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder={lang === "de" ? "z.B. Acme GmbH" : "e.g. Acme Inc."}
                   />
                 </div>
-
-                <div>
-                  <Label htmlFor="industry">
-                    {lang === "de" ? "Branche" : "Industry"}
-                  </Label>
-                  <Input
-                    id="industry"
-                    value={industry}
-                    onChange={(e) => setIndustry(e.target.value)}
-                    placeholder={lang === "de" ? "z.B. E-Commerce, SaaS, Beratung" : "e.g. E-Commerce, SaaS, Consulting"}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="companySize">
-                    {lang === "de" ? "Unternehmensgröße" : "Company Size"}
-                  </Label>
-                  <Select value={companySize} onValueChange={(v: any) => setCompanySize(v)}>
-                    <SelectTrigger id="companySize">
-                      <SelectValue placeholder={lang === "de" ? "Wähle eine Größe" : "Select a size"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1-10">1-10 {lang === "de" ? "Mitarbeiter" : "employees"}</SelectItem>
-                      <SelectItem value="11-50">11-50 {lang === "de" ? "Mitarbeiter" : "employees"}</SelectItem>
-                      <SelectItem value="51-200">51-200 {lang === "de" ? "Mitarbeiter" : "employees"}</SelectItem>
-                      <SelectItem value="201-1000">201-1000 {lang === "de" ? "Mitarbeiter" : "employees"}</SelectItem>
-                      <SelectItem value="1000+">1000+ {lang === "de" ? "Mitarbeiter" : "employees"}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <div>
                   <Label htmlFor="website">
                     {lang === "de" ? "Website (optional)" : "Website (optional)"}
                   </Label>
+                    <div className="flex gap-2 mt-1.5">
                   <Input
                     id="website"
                     type="url"
@@ -246,6 +345,48 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="https://example.com"
                   />
+                      {website && (
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="secondary"
+                          onClick={handleAnalyzeWebsite}
+                          disabled={isLoading}
+                          className="shrink-0 bg-[var(--color-gradient-purple)]/10 text-[var(--color-gradient-purple)] hover:bg-[var(--color-gradient-purple)]/20 border border-[var(--color-gradient-purple)]/20"
+                          title={lang === "de" ? "Automatisch ausfüllen" : "Auto-fill from website"}
+                        >
+                          {isLoading ? (
+                            <Rocket className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="mb-2 block">
+                    {lang === "de" ? "Unternehmensgröße" : "Company Size"}
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {["1-10", "11-50", "51-200", "201-1000", "1000+"].map((size) => (
+                      <Button
+                        key={size}
+                        type="button"
+                        variant={companySize === size ? "default" : "outline"}
+                        onClick={() => setCompanySize(size as any)}
+                        className={cn(
+                          companySize === size 
+                            ? "bg-[var(--color-gradient-orange)] hover:bg-[var(--color-gradient-orange)]/90" 
+                            : "border-white/10 hover:bg-white/5"
+                        )}
+                      >
+                        {size}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -265,77 +406,65 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <Label htmlFor="primaryGoal">
-                    {lang === "de" ? "Hauptziel" : "Primary Goal"}
+                  <Label className="mb-3 block">
+                    {lang === "de" ? "Was ist dein Hauptziel?" : "What is your primary goal?"}
                   </Label>
-                  <Select value={primaryGoal} onValueChange={(v: any) => setPrimaryGoal(v)}>
-                    <SelectTrigger id="primaryGoal">
-                      <SelectValue placeholder={lang === "de" ? "Wähle dein Hauptziel" : "Select your primary goal"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="brand_awareness">
-                        {lang === "de" ? "Markenbekanntheit steigern" : "Increase Brand Awareness"}
-                      </SelectItem>
-                      <SelectItem value="lead_generation">
-                        {lang === "de" ? "Leads generieren" : "Generate Leads"}
-                      </SelectItem>
-                      <SelectItem value="sales_conversion">
-                        {lang === "de" ? "Verkäufe steigern" : "Increase Sales"}
-                      </SelectItem>
-                      <SelectItem value="customer_retention">
-                        {lang === "de" ? "Kunden binden" : "Retain Customers"}
-                      </SelectItem>
-                      <SelectItem value="market_expansion">
-                        {lang === "de" ? "Markt erweitern" : "Expand Market"}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>
-                    {lang === "de" ? "Weitere Ziele (optional)" : "Additional Goals (optional)"}
-                  </Label>
-                  <div className="space-y-2 mt-2">
-                    {["brand_awareness", "lead_generation", "sales_conversion", "customer_retention", "market_expansion"]
-                      .filter(g => g !== primaryGoal)
-                      .map((goal) => (
-                        <div key={goal} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={goal}
-                            checked={secondaryGoals.includes(goal)}
-                            onCheckedChange={() => toggleSecondaryGoal(goal)}
-                          />
-                          <label htmlFor={goal} className="text-sm cursor-pointer">
-                            {goal === "brand_awareness" && (lang === "de" ? "Markenbekanntheit" : "Brand Awareness")}
-                            {goal === "lead_generation" && (lang === "de" ? "Lead-Generierung" : "Lead Generation")}
-                            {goal === "sales_conversion" && (lang === "de" ? "Verkaufsabschlüsse" : "Sales Conversion")}
-                            {goal === "customer_retention" && (lang === "de" ? "Kundenbindung" : "Customer Retention")}
-                            {goal === "market_expansion" && (lang === "de" ? "Markterweiterung" : "Market Expansion")}
-                          </label>
-                        </div>
-                      ))}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <SelectionCard
+                      selected={primaryGoal === "brand_awareness"}
+                      onClick={() => setPrimaryGoal("brand_awareness")}
+                      icon={Megaphone}
+                      title={lang === "de" ? "Bekanntheit steigern" : "Increase Brand Awareness"}
+                      description={lang === "de" ? "Mehr Sichtbarkeit für deine Marke" : "More visibility for your brand"}
+                    />
+                    <SelectionCard
+                      selected={primaryGoal === "lead_generation"}
+                      onClick={() => setPrimaryGoal("lead_generation")}
+                      icon={Users}
+                      title={lang === "de" ? "Leads generieren" : "Generate Leads"}
+                      description={lang === "de" ? "Mehr potenzielle Kunden gewinnen" : "Get more potential customers"}
+                    />
+                    <SelectionCard
+                      selected={primaryGoal === "sales_conversion"}
+                      onClick={() => setPrimaryGoal("sales_conversion")}
+                      icon={DollarSign}
+                      title={lang === "de" ? "Umsatz steigern" : "Increase Sales"}
+                      description={lang === "de" ? "Mehr Verkäufe & Abschlüsse" : "More sales & deals"}
+                    />
+                    <SelectionCard
+                      selected={primaryGoal === "customer_retention"}
+                      onClick={() => setPrimaryGoal("customer_retention")}
+                      icon={HeartHandshake}
+                      title={lang === "de" ? "Kunden binden" : "Retain Customers"}
+                      description={lang === "de" ? "Bestandskunden glücklich machen" : "Make existing customers happy"}
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="monthlyBudget">
+                  <Label className="mb-3 block">
                     {lang === "de" ? "Monatliches Marketing-Budget" : "Monthly Marketing Budget"}
                   </Label>
-                  <Select value={monthlyBudget} onValueChange={(v: any) => setMonthlyBudget(v)}>
-                    <SelectTrigger id="monthlyBudget">
-                      <SelectValue placeholder={lang === "de" ? "Wähle dein Budget" : "Select your budget"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="<1000">&lt; €1,000</SelectItem>
-                      <SelectItem value="1000-5000">€1,000 - €5,000</SelectItem>
-                      <SelectItem value="5000-10000">€5,000 - €10,000</SelectItem>
-                      <SelectItem value="10000-50000">€10,000 - €50,000</SelectItem>
-                      <SelectItem value="50000+">€50,000+</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                    {["<1000", "1000-5000", "5000-10000", "10000-50000", "50000+"].map((budget) => (
+                      <Button
+                        key={budget}
+                        type="button"
+                        variant={monthlyBudget === budget ? "default" : "outline"}
+                        onClick={() => setMonthlyBudget(budget as any)}
+                        className={cn(
+                          "w-full",
+                          monthlyBudget === budget 
+                            ? "bg-[var(--color-gradient-purple)] hover:bg-[var(--color-gradient-purple)]/90" 
+                            : "border-white/10 hover:bg-white/5"
+                        )}
+                      >
+                        {budget === "<1000" ? "< €1k" : budget === "50000+" ? "> €50k" : `€${budget.replace('-', 'k-')}k`}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -355,7 +484,7 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
                   <Label htmlFor="demographics">
                     {lang === "de" ? "Demografie & Zielgruppe" : "Demographics & Target Audience"}
@@ -368,6 +497,7 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
                       ? "z.B. B2B Entscheider, 35-55 Jahre, DACH-Region" 
                       : "e.g. B2B decision makers, 35-55 years, DACH region"}
                     rows={3}
+                    className="bg-white/5 border-white/10 mt-1.5"
                   />
                 </div>
 
@@ -383,51 +513,60 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
                       ? "z.B. Zeitdruck, hohe Kosten, fehlende Expertise" 
                       : "e.g. Time pressure, high costs, lack of expertise"}
                     rows={3}
+                    className="bg-white/5 border-white/10 mt-1.5"
                   />
                 </div>
 
                 <div>
-                  <Label>
+                  <Label className="mb-2 block">
                     {lang === "de" ? "Bevorzugte Marketing-Kanäle" : "Preferred Marketing Channels"}
                   </Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {["LinkedIn", "Facebook", "Instagram", "Google Ads", "Email", "SEO", "Content Marketing", "Events"].map((channel) => (
-                      <div key={channel} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`channel-${channel}`}
-                          checked={channels.includes(channel)}
-                          onCheckedChange={() => toggleChannel(channel)}
-                        />
-                        <label htmlFor={`channel-${channel}`} className="text-sm cursor-pointer">
+                  <div className="flex flex-wrap gap-2">
+                    {["LinkedIn", "Facebook", "Instagram", "TikTok", "Google Ads", "Email", "SEO", "Content", "Events"].map((channel) => (
+                      <Button
+                        key={channel}
+                        type="button"
+                        size="sm"
+                        variant={channels.includes(channel) ? "secondary" : "outline"}
+                        onClick={() => toggleChannel(channel)}
+                        className={cn(
+                          channels.includes(channel)
+                            ? "bg-[var(--color-gradient-blue)] text-white hover:bg-[var(--color-gradient-blue)]/80 border-transparent"
+                            : "border-white/10 hover:bg-white/5 text-muted-foreground"
+                        )}
+                      >
                           {channel}
-                        </label>
-                      </div>
+                      </Button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <Label>
+                  <Label className="mb-2 block">
                     {lang === "de" ? "Aktuelle Herausforderungen" : "Current Challenges"}
                   </Label>
-                  <div className="space-y-2 mt-2">
+                  <div className="flex flex-wrap gap-2">
                     {[
                       lang === "de" ? "Budget-Limitierungen" : "Budget limitations",
                       lang === "de" ? "Fehlende Ressourcen" : "Lack of resources",
                       lang === "de" ? "Unklare Strategie" : "Unclear strategy",
-                      lang === "de" ? "Geringe Conversion-Rate" : "Low conversion rate",
-                      lang === "de" ? "Schwache Online-Präsenz" : "Weak online presence",
+                      lang === "de" ? "Geringe Conversion" : "Low conversion",
+                      lang === "de" ? "Wenig Sichtbarkeit" : "Low visibility",
                     ].map((challenge) => (
-                      <div key={challenge} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`challenge-${challenge}`}
-                          checked={currentChallenges.includes(challenge)}
-                          onCheckedChange={() => toggleChallenge(challenge)}
-                        />
-                        <label htmlFor={`challenge-${challenge}`} className="text-sm cursor-pointer">
+                      <Button
+                        key={challenge}
+                        type="button"
+                        size="sm"
+                        variant={currentChallenges.includes(challenge) ? "secondary" : "outline"}
+                        onClick={() => toggleChallenge(challenge)}
+                        className={cn(
+                          currentChallenges.includes(challenge)
+                            ? "bg-red-500/20 text-white border-red-500/50 hover:bg-red-500/30"
+                            : "border-white/10 hover:bg-white/5 text-muted-foreground"
+                        )}
+                      >
                           {challenge}
-                        </label>
-                      </div>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -437,7 +576,7 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between items-center pt-4 border-t">
+        <div className="flex justify-between items-center pt-4 border-t border-white/10">
           <Button
             variant="ghost"
             onClick={handleSkip}
@@ -459,8 +598,8 @@ export function OnboardingWizard({ open, onClose }: OnboardingWizardProps) {
             )}
             <Button
               onClick={handleNext}
-              disabled={isLoading}
-              className="bg-gradient-to-r from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] hover:opacity-90"
+              disabled={isLoading || (step === 1 && !industry) || (step === 2 && !primaryGoal)}
+              className="bg-gradient-to-r from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] hover:opacity-90 text-white border-0"
             >
               {step === totalSteps ? (
                 <>

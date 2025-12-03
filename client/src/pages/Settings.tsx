@@ -17,20 +17,56 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { User, Bell, CreditCard, Shield, Sparkles, Download, Trash2, Loader2 } from "lucide-react";
+import {
+  User,
+  Bell,
+  CreditCard,
+  Shield,
+  Sparkles,
+  Download,
+  Trash2,
+  Loader2,
+  Building,
+  Plus,
+} from "lucide-react";
 import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function Settings() {
   const { user, logout } = useAuth();
   const { data: creditBalance } = trpc.credits.getBalance.useQuery();
+  const { data: workspaces } = trpc.workspaces.list.useQuery();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+  const [showNewWorkspaceDialog, setShowNewWorkspaceDialog] = useState(false);
+  const [newWorkspaceName, setNewWorkspaceName] = useState("");
+  const createWorkspaceMutation = trpc.workspaces.create.useMutation();
+
   // Notification settings state
   const [emailNotifications, setEmailNotifications] = useState(false);
   const [marketingTips, setMarketingTips] = useState(false);
+
+  const handleCreateWorkspace = async () => {
+    try {
+      await createWorkspaceMutation.mutateAsync({ name: newWorkspaceName });
+      setShowNewWorkspaceDialog(false);
+      setNewWorkspaceName("");
+      // Refetch logic handled by trpc invalidation usually, or manually:
+      // refetchWorkspaces();
+    } catch (error) {
+      console.error("Failed to create workspace", error);
+    }
+  };
 
   const exportDataMutation = trpc.account.exportAllData.useMutation();
   const deleteAccountMutation = trpc.account.deleteAccount.useMutation();
@@ -82,6 +118,115 @@ export default function Settings() {
           </p>
         </div>
 
+        {/* Workspaces Section (New Phase 3 Feature) */}
+        <Card className="p-6 bg-card/50 backdrop-blur-sm border-white/10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-orange-500/10">
+              <Building className="w-5 h-5 text-orange-400" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold">Workspaces</h2>
+              <p className="text-sm text-muted-foreground">
+                Verwalte deine Projekte und Kunden
+              </p>
+            </div>
+          </div>
+          <Separator className="my-4 bg-white/10" />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Deine Workspaces</p>
+                <p className="text-sm text-muted-foreground">
+                  Du nutzt den {(user as any)?.plan || "Free"} Plan.
+                </p>
+                {(user as any)?.plan === "Team" ||
+                (user as any)?.plan === "team" ? (
+                  <p className="text-xs text-green-400 mt-1">
+                    ✓ Unbegrenzte Workspaces im Team Plan enthalten
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Upgrade auf Team Plan für unbegrenzte Workspaces
+                  </p>
+                )}
+              </div>
+              <Dialog
+                open={showNewWorkspaceDialog}
+                onOpenChange={setShowNewWorkspaceDialog}
+              >
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Neu erstellen
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Neuen Workspace erstellen</DialogTitle>
+                    <DialogDescription>
+                      Erstelle einen separaten Bereich für ein neues Projekt
+                      oder einen Kunden.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="workspace-name">Name</Label>
+                      <Input
+                        id="workspace-name"
+                        value={newWorkspaceName}
+                        onChange={(e) => setNewWorkspaceName(e.target.value)}
+                        placeholder="z.B. Kunde XY oder Projekt Alpha"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowNewWorkspaceDialog(false)}
+                    >
+                      Abbrechen
+                    </Button>
+                    <Button
+                      onClick={handleCreateWorkspace}
+                      disabled={
+                        !newWorkspaceName || createWorkspaceMutation.isPending
+                      }
+                    >
+                      {createWorkspaceMutation.isPending
+                        ? "Erstelle..."
+                        : "Erstellen"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="space-y-2">
+              {workspaces?.map((ws: any) => (
+                <div
+                  key={ws.id}
+                  className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-white/5 hover:border-white/10 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
+                      {ws.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <span className="font-medium">{ws.name}</span>
+                    {ws.isDefault && (
+                      <Badge variant="secondary" className="text-[10px]">
+                        Standard
+                      </Badge>
+                    )}
+                  </div>
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    Verwalten
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+
         {/* Account Section */}
         <Card className="p-6 bg-card/50 backdrop-blur-sm border-white/10">
           <div className="flex items-center gap-3 mb-4">
@@ -90,7 +235,9 @@ export default function Settings() {
             </div>
             <div>
               <h2 className="text-xl font-semibold">Account</h2>
-              <p className="text-sm text-muted-foreground">Deine persönlichen Informationen</p>
+              <p className="text-sm text-muted-foreground">
+                Deine persönlichen Informationen
+              </p>
             </div>
           </div>
           <Separator className="my-4 bg-white/10" />
@@ -128,7 +275,9 @@ export default function Settings() {
             </div>
             <div>
               <h2 className="text-xl font-semibold">Benachrichtigungen</h2>
-              <p className="text-sm text-muted-foreground">Verwalte deine Benachrichtigungseinstellungen</p>
+              <p className="text-sm text-muted-foreground">
+                Verwalte deine Benachrichtigungseinstellungen
+              </p>
             </div>
           </div>
           <Separator className="my-4 bg-white/10" />
@@ -136,13 +285,17 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">E-Mail-Benachrichtigungen</p>
-                <p className="text-sm text-muted-foreground">Erhalte Updates zu deinen Goals und Todos</p>
+                <p className="text-sm text-muted-foreground">
+                  Erhalte Updates zu deinen Goals und Todos
+                </p>
               </div>
-              <Button 
-                variant={emailNotifications ? "default" : "outline"} 
+              <Button
+                variant={emailNotifications ? "default" : "outline"}
                 size="sm"
                 onClick={() => setEmailNotifications(!emailNotifications)}
-                className={emailNotifications ? "bg-green-600 hover:bg-green-700" : ""}
+                className={
+                  emailNotifications ? "bg-green-600 hover:bg-green-700" : ""
+                }
               >
                 {emailNotifications ? "Aktiviert ✓" : "Aktivieren"}
               </Button>
@@ -150,13 +303,17 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Marketing-Tipps</p>
-                <p className="text-sm text-muted-foreground">Wöchentliche Marketing-Insights von Houston</p>
+                <p className="text-sm text-muted-foreground">
+                  Wöchentliche Marketing-Insights von Houston
+                </p>
               </div>
-              <Button 
-                variant={marketingTips ? "default" : "outline"} 
+              <Button
+                variant={marketingTips ? "default" : "outline"}
                 size="sm"
                 onClick={() => setMarketingTips(!marketingTips)}
-                className={marketingTips ? "bg-green-600 hover:bg-green-700" : ""}
+                className={
+                  marketingTips ? "bg-green-600 hover:bg-green-700" : ""
+                }
               >
                 {marketingTips ? "Aktiviert ✓" : "Aktivieren"}
               </Button>
@@ -172,7 +329,9 @@ export default function Settings() {
             </div>
             <div>
               <h2 className="text-xl font-semibold">Credits & Abonnement</h2>
-              <p className="text-sm text-muted-foreground">Verwalte deine Houston Credits</p>
+              <p className="text-sm text-muted-foreground">
+                Verwalte deine Houston Credits
+              </p>
             </div>
           </div>
           <Separator className="my-4 bg-white/10" />
@@ -193,23 +352,24 @@ export default function Settings() {
                 </div>
               </div>
               <Link href="/app/credits">
-                <Button
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                >
+                <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                   Credits kaufen
                 </Button>
               </Link>
             </div>
             <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
               <p className="text-sm text-blue-200">
-                💡 Kaufe Credit Packs (Orbit Pack, Galaxy Pack) oder Mission Boosters für mehr Flexibilität.
+                💡 Kaufe Credit Packs (Orbit Pack, Galaxy Pack) oder Mission
+                Boosters für mehr Flexibilität.
               </p>
             </div>
             <Separator className="my-2 bg-white/10" />
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Lifetime Credits verwendet</p>
-                <p className="text-sm text-muted-foreground">{(user as any)?.lifetimeCreditsUsed || 0} Credits</p>
+                <p className="text-sm text-muted-foreground">
+                  {(user as any)?.lifetimeCreditsUsed || 0} Credits
+                </p>
               </div>
               <Link href="/app/credits">
                 <Button variant="ghost" size="sm">
@@ -227,8 +387,12 @@ export default function Settings() {
               <Shield className="w-5 h-5 text-pink-400" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold">Datenschutz & Sicherheit</h2>
-              <p className="text-sm text-muted-foreground">Verwalte deine Datenschutzeinstellungen (DSGVO Art. 17 & 20)</p>
+              <h2 className="text-xl font-semibold">
+                Datenschutz & Sicherheit
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Verwalte deine Datenschutzeinstellungen (DSGVO Art. 17 & 20)
+              </p>
             </div>
           </div>
           <Separator className="my-4 bg-white/10" />
@@ -236,10 +400,12 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Daten exportieren</p>
-                <p className="text-sm text-muted-foreground">Lade alle deine Houston-Daten als JSON herunter</p>
+                <p className="text-sm text-muted-foreground">
+                  Lade alle deine Houston-Daten als JSON herunter
+                </p>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleExportData}
                 disabled={isExporting}
@@ -260,11 +426,13 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Account löschen</p>
-                <p className="text-sm text-muted-foreground">Lösche deinen Account und alle Daten permanent</p>
+                <p className="text-sm text-muted-foreground">
+                  Lösche deinen Account und alle Daten permanent
+                </p>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="text-red-400 border-red-400/50 hover:bg-red-500/10"
                 onClick={() => setShowDeleteDialog(true)}
               >
@@ -280,9 +448,14 @@ export default function Settings() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-red-400">Account wirklich löschen?</AlertDialogTitle>
+            <AlertDialogTitle className="text-red-400">
+              Account wirklich löschen?
+            </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
-              <p>Diese Aktion kann nicht rückgängig gemacht werden. Es werden permanent gelöscht:</p>
+              <p>
+                Diese Aktion kann nicht rückgängig gemacht werden. Es werden
+                permanent gelöscht:
+              </p>
               <ul className="list-disc list-inside text-sm space-y-1 mt-2">
                 <li>Dein Profil (Name, E-Mail)</li>
                 <li>Alle Workspaces und deren Daten</li>
@@ -290,11 +463,15 @@ export default function Settings() {
                 <li>Dein gesamter Chat-Verlauf</li>
                 <li>Alle Credit-Transaktionen</li>
               </ul>
-              <p className="mt-4 font-medium">Empfehlung: Exportiere zuerst deine Daten!</p>
+              <p className="mt-4 font-medium">
+                Empfehlung: Exportiere zuerst deine Daten!
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>
+              Abbrechen
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
               disabled={isDeleting}

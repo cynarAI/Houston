@@ -45,7 +45,7 @@ jobs:
           SCHRITT 1: Klone das Repository
           git clone https://github.com/cynarAI/Houston.git /home/ubuntu/houston-deploy
           cd /home/ubuntu/houston-deploy
-          git checkout main
+          git checkout ${{ steps.commit.outputs.sha_full }}
 
           SCHRITT 2: Installiere Dependencies und baue die App
           pnpm install

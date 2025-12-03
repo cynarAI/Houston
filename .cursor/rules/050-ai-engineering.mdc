@@ -1,0 +1,45 @@
+---
+description: AI Engineering & Agent Best Practices für Houston
+globs: **/*.ts, **/*.tsx, **/*.md
+alwaysApply: false
+---
+
+# AI Engineering & Agent Best Practices
+
+Diese Regeln gelten für die Entwicklung von AI-Features und den Einsatz von AI-Agenten (Composer, externe LLMs) in der Houston-Architektur.
+
+## 1. Kernprinzipien
+
+### Einfachheit vor Komplexität
+- **Keine Agenten-Magie:** Starte immer mit einem einfachen LLM-Aufruf, bevor du komplexe Agenten-Loops baust.
+- **Deterministische Chains:** Bevorzuge feste Abfolgen (Chains) gegenüber autonomen Agenten.
+- **Divide and Conquer:** Zerlege komplexe Aufgaben in kleine, isolierbare Schritte.
+
+### Human in the Loop
+- **Review & Commit:** Committe funktionierende Zwischenschritte sofort.
+- **Iterative Prompts:** Nutze "Reprompting" (z.B. "Guter Stand, jetzt mache X"), um den Agenten auf Kurs zu halten.
+- **Transparenz:** Wenn der Agent plant, fordere zuerst einen Pseudocode oder eine Planungsübersicht an.
+
+## 2. Technische Robustheit (Manus 1.5 Integration)
+
+### Resilienz
+- **Timeouts:** Alle LLM-Calls müssen ein Timeout haben (Standard: 60s).
+- **Retries:** Implementiere Exponential Backoff (max 3 Retries) für Netzwerkfehler.
+- **Fail Gracefully:** AI-Fehler dürfen niemals die gesamte App crashen. Zeige dem User eine freundliche Fehlermeldung.
+
+### Tooling & Interfaces
+- **AI-Ready APIs:** Schreibe Tools so, als wären sie für einen "talentierten, aber ablenkbaren Junior-Dev".
+- **Dokumentation:** Jedes Tool muss klar dokumentierte Inputs/Outputs haben (via Zod Schema oder JSDoc).
+- **Idempotenz:** Tools sollten sicher mehrfach ausführbar sein, ohne Schaden anzurichten.
+
+## 3. Monitoring & Kosten
+
+- **Token Tracking:** Jeder LLM-Call muss Token-Verbrauch und Kosten tracken (via `CreditService`).
+- **Telemetry:** Logge ungewöhnliche Agenten-Aktivitäten (z.B. Loops > 10 Schritte).
+- **Billing:** Respektiere User-Credits. Kein Call ohne vorherigen Credit-Check.
+
+## 4. Testing
+
+- **Nicht-Funktionale Tests:** Prüfe nicht nur "funktioniert es", sondern auch "wie teuer war es" und "wie lange hat es gedauert".
+- **Edge Cases:** Teste explizit auf Halluzinationen und API-Ausfälle.
+- **Security:** Stelle sicher, dass der Agent keine Prompt-Injections zulässt.

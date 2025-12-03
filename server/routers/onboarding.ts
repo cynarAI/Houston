@@ -4,6 +4,93 @@ import * as db from "../db";
 import { invokeLLM } from "../_core/llm";
 
 export const onboardingRouter = router({
+  // Scan website for business info
+  scanWebsite: protectedProcedure
+    .input(
+      z.object({
+        url: z.string().url(),
+        language: z.enum(["de", "en"]).default("de"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        // 1. Fetch website content
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        
+        const response = await fetch(input.url, { 
+          signal: controller.signal,
+          headers: {
+            "User-Agent": "Mozilla/5.0 (compatible; HoustonBot/1.0; +https://houston.aistronaut.io)"
+          }
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch website: ${response.statusText}`);
+        }
+
+        const html = await response.text();
+
+        // 2. Simple cleanup (remove scripts, styles, comments) to save tokens
+        const cleanText = html
+          .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+          .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "")
+          .replace(/<!--[\s\S]*?-->/g, "")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 15000); // Limit to ~15k chars to fit in context
+
+        // 3. Analyze with LLM
+        const systemPrompt = input.language === "de"
+          ? `Du bist ein KI-Marketing-Analyst. Analysiere den folgenden Website-Text und extrahiere Business-Informationen.
+             
+             Antworte NUR mit einem JSON-Objekt:
+             {
+               "companyName": "Name des Unternehmens",
+               "industry": "Eine der Kategorien: Coaching, Local Business, E-Commerce, Agency, SaaS, Creator (oder 'Other')",
+               "customIndustry": "Falls 'Other', eine kurze Beschreibung (max 3 Wörter)",
+               "companySize": "Geschätzt: 1-10, 11-50, 51-200, 201-1000, 1000+",
+               "targetAudience": {
+                 "demographics": "Kurze Beschreibung der Zielgruppe",
+                 "painPoints": "Vermutete Pain Points"
+               }
+             }`
+          : `You are an AI Marketing Analyst. Analyze the following website text and extract business information.
+             
+             Respond ONLY with a JSON object:
+             {
+               "companyName": "Name of the company",
+               "industry": "One of: Coaching, Local Business, E-Commerce, Agency, SaaS, Creator (or 'Other')",
+               "customIndustry": "If 'Other', a short description (max 3 words)",
+               "companySize": "Estimated: 1-10, 11-50, 51-200, 201-1000, 1000+",
+               "targetAudience": {
+                 "demographics": "Short description of target audience",
+                 "painPoints": "Suspected pain points"
+               }
+             }`;
+
+        const llmResponse = await invokeLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Website URL: ${input.url}\n\nContent:\n${cleanText}` },
+          ],
+          response_format: { type: "json_object" }
+        });
+
+        const content = typeof llmResponse.choices[0]?.message?.content === "string"
+          ? llmResponse.choices[0]?.message?.content
+          : "{}";
+
+        return JSON.parse(content);
+
+      } catch (error) {
+        console.error("Website scan failed:", error);
+        throw new Error("Could not analyze website. Please enter data manually.");
+      }
+    }),
+
   // Generate summary from onboarding answers
   generateSummary: protectedProcedure
     .input(
