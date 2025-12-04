@@ -2,9 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -432,24 +430,26 @@ export default function Chats() {
       <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Header with Session Selector */}
         <div className="border-b border-border/50 dark:border-white/10 bg-background/95 dark:bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:backdrop-blur-xl">
-          <div className="chat-header container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-            <div className="chat-header-title flex items-center gap-3 flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <Brain className="w-5 h-5 text-[var(--accent-tertiary)]" />
-                <h1 className="text-lg font-semibold">Houston</h1>
-              </div>
-              <Badge variant="secondary" className="text-xs">
-                Dein Marketing-Genius
-              </Badge>
+          <div className="chat-header container max-w-4xl mx-auto px-4 py-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex-1 min-w-0 space-y-1">
+              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
+                Konversation
+              </p>
+              <h1 className="text-2xl font-semibold leading-tight">
+                Frag Houston
+              </h1>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                Strategie, Content-Ideen und To-dos in einem fokussierten Chat.
+              </p>
             </div>
 
-            <div className="chat-header-actions flex items-center gap-2 flex-shrink-0">
+            <div className="chat-header-actions flex flex-col gap-2 w-full md:w-auto md:flex-row md:items-center md:justify-end">
               {sessions && sessions.length > 0 && (
                 <Select
                   value={activeSessionId?.toString()}
                   onValueChange={(val) => setActiveSessionId(parseInt(val))}
                 >
-                  <SelectTrigger className="w-[200px] hidden md:flex">
+                  <SelectTrigger className="w-full md:w-[260px]">
                     <SelectValue placeholder="Chat auswählen" />
                   </SelectTrigger>
                   <SelectContent>
@@ -465,29 +465,28 @@ export default function Chats() {
                 </Select>
               )}
 
-              <Button variant="outline" size="sm" onClick={handleNewChat}>
-                <Plus className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">Neuer Chat</span>
-              </Button>
-
-              {messages.length > 0 && (
-                <Button variant="ghost" size="sm" onClick={handleExportPDF}>
-                  <Download className="h-4 w-4" />
+              <div className="flex items-center gap-2 md:justify-end">
+                <Button variant="outline" size="sm" onClick={handleNewChat}>
+                  <Plus className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Neuer Chat</span>
                 </Button>
-              )}
+
+                {messages.length > 0 && (
+                  <Button variant="ghost" size="sm" onClick={handleExportPDF}>
+                    <Download className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Chat Messages - Centered */}
         <ScrollArea ref={scrollRef} className="flex-1">
-          <div className="container max-w-3xl mx-auto px-4 py-8">
+          <div className="container max-w-3xl mx-auto px-4 py-8 pb-48">
             {messages.length === 0 && !streamingMessage && (
               <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in duration-500">
                 <div className="text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] mb-4 shadow-lg shadow-[#FF6B9D]/20 animate-in zoom-in duration-300">
-                    <Brain className="w-10 h-10 text-white" />
-                  </div>
                   <h2
                     className="text-2xl md:text-3xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-300"
                     style={{
@@ -587,9 +586,9 @@ export default function Chats() {
           </div>
         </ScrollArea>
 
-        {/* Input Area - Centered */}
-        <div className="border-t border-border/50 dark:border-white/10 bg-background/95 dark:bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:backdrop-blur-xl">
-          <div className="container max-w-3xl mx-auto px-4 py-4 space-y-3">
+        {/* Input Area - Fixed Bottom */}
+        <div className="sticky bottom-0 border-t border-border/60 dark:border-white/10 bg-gradient-to-t from-background via-background/95 to-background/60 backdrop-blur-2xl supports-[backdrop-filter]:backdrop-blur-xl shadow-[0_-10px_40px_rgba(15,23,42,0.25)]">
+          <div className="container max-w-3xl mx-auto px-4 py-5 space-y-3">
             {/* Quick Chips - Show when there are messages */}
             {messages.length > 0 && !isStreaming && (
               <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
@@ -605,8 +604,8 @@ export default function Chats() {
               </div>
             )}
 
-            <div className="flex gap-2">
-              <Input
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={(e) => {
@@ -617,8 +616,10 @@ export default function Chats() {
                 }}
                 placeholder="Stelle Houston eine Frage zum Marketing..."
                 disabled={isStreaming || !activeSessionId}
+                rows={3}
+                aria-label="Nachricht an Houston"
                 className={cn(
-                  "flex-1 bg-background dark:bg-background border-border/50 dark:border-white/10 focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/30",
+                  "flex-1 resize-none min-h-[3.2rem] max-h-36 bg-background/90 dark:bg-background/90 border-border/50 dark:border-white/10 focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/30 rounded-2xl px-4 py-3 leading-relaxed",
                   "ai-gradient-input",
                   isStreaming && "ai-working",
                 )}
@@ -628,7 +629,7 @@ export default function Chats() {
                 disabled={isStreaming || !message.trim() || !activeSessionId}
                 variant="gradient"
                 className={cn(
-                  "transition-all duration-200 hover:scale-105 active:scale-95 relative",
+                  "sm:self-stretch sm:px-6 h-12 sm:h-full w-full sm:w-auto transition-all duration-200 hover:scale-105 active:scale-95 relative",
                   isStreaming && "ai-working ai-gradient-glow",
                 )}
               >

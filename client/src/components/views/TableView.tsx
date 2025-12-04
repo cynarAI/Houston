@@ -81,7 +81,7 @@ export default function TableView({
       <div className="rounded-lg border border-base-20 bg-base-0/50 backdrop-blur-xl overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="[&>th]:px-4">
               <TableHead
                 className="cursor-pointer"
                 onClick={() => handleSort("title")}
@@ -116,7 +116,7 @@ export default function TableView({
           </TableHeader>
           <TableBody>
             {sortedItems.length === 0 ? (
-              <TableRow>
+              <TableRow className="[&>td]:px-6">
                 <TableCell colSpan={6} className="py-12">
                   <div className="flex flex-col items-center justify-center text-center space-y-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6B9D]/10 via-[#C44FE2]/10 via-[#8B5CF6]/10 to-[#00D4FF]/10 flex items-center justify-center">
@@ -144,7 +144,10 @@ export default function TableView({
               </TableRow>
             ) : (
               sortedItems.map((goal) => (
-                <TableRow key={goal.id}>
+                <TableRow
+                  key={goal.id}
+                  className="[&>td]:px-4 [&>td]:py-4 text-sm"
+                >
                   <TableCell className="font-medium">{goal.title}</TableCell>
                   <TableCell className="max-w-xs truncate">
                     {goal.description}
@@ -197,7 +200,7 @@ export default function TableView({
     <div className="rounded-lg border border-base-20 bg-base-0/50 backdrop-blur-xl overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="[&>th]:px-4">
             <TableHead
               className="cursor-pointer"
               onClick={() => handleSort("title")}
@@ -232,7 +235,7 @@ export default function TableView({
         </TableHeader>
         <TableBody>
           {sortedItems.length === 0 ? (
-            <TableRow>
+            <TableRow className="[&>td]:px-6">
               <TableCell colSpan={6} className="py-12">
                 <div className="flex flex-col items-center justify-center text-center space-y-3">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6B9D]/10 via-[#C44FE2]/10 via-[#8B5CF6]/10 to-[#00D4FF]/10 flex items-center justify-center">
@@ -255,7 +258,10 @@ export default function TableView({
             </TableRow>
           ) : (
             sortedItems.map((task) => (
-              <TableRow key={task.id}>
+              <TableRow
+                key={task.id}
+                className="[&>td]:px-4 [&>td]:py-4 text-sm"
+              >
                 <TableCell className="font-medium">{task.title}</TableCell>
                 <TableCell className="max-w-xs truncate">
                   {task.description}

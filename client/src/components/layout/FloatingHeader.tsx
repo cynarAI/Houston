@@ -41,7 +41,7 @@ export function FloatingHeader({ onMenuClick }: FloatingHeaderProps) {
 
           <div className="flex flex-col">
             <span className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
-              Heute
+              Fortschritt
             </span>
             <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
               {title}

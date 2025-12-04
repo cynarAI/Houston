@@ -49,7 +49,6 @@ import type { Goal } from "@shared/types";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { handleMutationError, ErrorMessages } from "@/lib/errorHandling";
-import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
 import { GradientIcon } from "@/components/ui/gradient-icon";
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
@@ -320,26 +319,25 @@ export default function Goals() {
       <div className="container py-8 space-y-8">
         {/* Header */}
         <div className="space-y-6">
-          {/* Title & Description */}
-          <PageHeader
-            title="Ziele & Fortschritt"
-            description="Verfolge deine SMART-Ziele und messe deinen Erfolg."
-            className="mb-0"
-          />
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            Verfolge deine SMART-Ziele und messe deinen Erfolg.
+          </p>
 
           {/* Controls */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* View Switcher - Left */}
-            <ViewSwitcher
-              currentView={currentView}
-              onViewChange={handleViewChange}
-            />
+            <div className="w-full lg:w-auto">
+              <ViewSwitcher
+                currentView={currentView}
+                onViewChange={handleViewChange}
+              />
+            </div>
 
             {/* Filters & Actions - Right */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center w-full lg:w-auto">
               {/* Filter */}
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-full sm:w-[170px]">
                   <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Filter" />
                 </SelectTrigger>
@@ -353,7 +351,7 @@ export default function Goals() {
 
               {/* Sort */}
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-full sm:w-[170px]">
                   <ArrowUpDown className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Sortierung" />
                 </SelectTrigger>
@@ -369,6 +367,7 @@ export default function Goals() {
                 variant="outline"
                 onClick={handleExportPDF}
                 disabled={!goals || goals.length === 0}
+                className="w-full sm:w-auto"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export PDF

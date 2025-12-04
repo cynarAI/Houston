@@ -8,16 +8,27 @@ interface ViewSwitcherProps {
   onViewChange: (view: ViewType) => void;
 }
 
-export default function ViewSwitcher({ currentView, onViewChange }: ViewSwitcherProps) {
+export default function ViewSwitcher({
+  currentView,
+  onViewChange,
+}: ViewSwitcherProps) {
   const views: { type: ViewType; icon: React.ReactNode; label: string }[] = [
     { type: "table", icon: <List className="h-4 w-4" />, label: "Table" },
     { type: "board", icon: <LayoutGrid className="h-4 w-4" />, label: "Board" },
-    { type: "timeline", icon: <GanttChart className="h-4 w-4" />, label: "Timeline" },
-    { type: "calendar", icon: <Calendar className="h-4 w-4" />, label: "Calendar" },
+    {
+      type: "timeline",
+      icon: <GanttChart className="h-4 w-4" />,
+      label: "Timeline",
+    },
+    {
+      type: "calendar",
+      icon: <Calendar className="h-4 w-4" />,
+      label: "Calendar",
+    },
   ];
 
   return (
-    <div className="flex items-center gap-1 bg-base-10 rounded-lg p-1">
+    <div className="flex flex-wrap items-center gap-1 bg-base-10 rounded-lg p-1 w-full sm:w-auto">
       {views.map((view) => (
         <Button
           key={view.type}

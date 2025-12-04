@@ -120,12 +120,14 @@
     "nav": {
       "features": "Features",
       "howItWorks": "How it Works",
+      "stories": "Stories",
       "pricing": "Pricing",
       "faq": "FAQ",
       "login": "Login",
       "dashboard": "Go to Dashboard",
       "screenshots": "Screenshots",
-      "testimonials": "Testimonials"
+      "testimonials": "Testimonials",
+      "themeToggle": "Toggle theme"
     },
     "hero": {
       "badge": "AI Marketing Coach",
@@ -145,6 +147,16 @@
         "freeCredits": "50 credits free",
         "cancelAnytime": "Cancel anytime"
       }
+    },
+    "trustline": {
+      "title": "Strategy coaching meets automation",
+      "caption": "Trusted by founders, studios & local brands",
+      "labels": [
+        "Brand studios",
+        "Boutique agencies",
+        "Local stores",
+        "Startups"
+      ]
     },
     "howItWorks": {
       "title": {
@@ -207,23 +219,43 @@
         "description": "You want more customers, but marketing overwhelms you. Houston makes it simple."
       }
     },
+    "storySection": {
+      "label": "Real Use Cases",
+      "title": {
+        "part1": "Houston at",
+        "highlight": "Work"
+      },
+      "subtitle": "How coaches, agencies, and local stores ship marketing every day with Houston.",
+      "impact": "Impact",
+      "tagline": "Strategy, execution, coaching"
+    },
+    "storyHighlights": {
+      "persona1": "48 new leads in 6 weeks",
+      "persona2": "5 client workspaces, 1 cockpit",
+      "persona3": "+32% foot traffic in 3 months"
+    },
     "screenshots": {
       "title": {
         "part1": "Your",
         "highlight": "Mission Control"
       },
+      "sectionTitle": "Looks like software, sells like marketing",
+      "label": "Live",
       "subtitle": "Looks like a cockpit – but feels simple",
       "dashboard": {
         "title": "Dashboard & Insights",
-        "description": "Keep track of all important metrics and get personalized AI recommendations."
+        "description": "Keep track of all important metrics and get personalized AI recommendations.",
+        "alt": "Houston dashboard with KPI widgets"
       },
       "chat": {
         "title": "Chat with Houston",
-        "description": "Ask questions and get concrete marketing strategies and action items instantly."
+        "description": "Ask questions and get concrete marketing strategies and action items instantly.",
+        "alt": "Houston chat conversation with AI answers"
       },
       "goals": {
         "title": "Goals & Progress",
-        "description": "Create and track measurable marketing goals with visual progress indicators."
+        "description": "Create and track measurable marketing goals with visual progress indicators.",
+        "alt": "Houston goals board with progress indicators"
       },
       "strategy": {
         "title": "Strategy Planning",

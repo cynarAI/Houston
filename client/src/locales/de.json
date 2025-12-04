@@ -406,12 +406,14 @@
     "nav": {
       "features": "Funktionen",
       "howItWorks": "So funktioniert's",
+      "stories": "Stories",
       "pricing": "Preise",
       "faq": "FAQ",
       "login": "Anmelden",
       "dashboard": "Zum Dashboard",
       "screenshots": "Screenshots",
-      "testimonials": "Referenzen"
+      "testimonials": "Referenzen",
+      "themeToggle": "Theme wechseln"
     },
     "hero": {
       "badge": "KI-Marketing-Coach",
@@ -431,6 +433,16 @@
         "freeCredits": "50 Credits gratis",
         "cancelAnytime": "Jederzeit kündbar"
       }
+    },
+    "trustline": {
+      "title": "Strategieberatung trifft Automatisierung",
+      "caption": "Vertraut von Gründern, Studios & lokalen Marken",
+      "labels": [
+        "Brand Studios",
+        "Boutique-Agenturen",
+        "Lokale Stores",
+        "Startups"
+      ]
     },
     "howItWorks": {
       "title": {
@@ -493,23 +505,43 @@
         "description": "Du willst mehr Kunden, aber Marketing überfordert dich. Houston macht es einfach."
       }
     },
+    "storySection": {
+      "label": "Echte Einsätze",
+      "title": {
+        "part1": "Houston im",
+        "highlight": "Einsatz"
+      },
+      "subtitle": "So setzen Coaches, Agenturen und lokale Stores Houston jeden Tag ein.",
+      "impact": "Impact",
+      "tagline": "Strategie, Umsetzung, Coaching"
+    },
+    "storyHighlights": {
+      "persona1": "48 neue Leads in 6 Wochen",
+      "persona2": "5 Kunden-Workspaces, 1 Cockpit",
+      "persona3": "+32% Ladenbesuche in 3 Monaten"
+    },
     "screenshots": {
       "title": {
         "part1": "Deine",
         "highlight": "Mission Control"
       },
+      "sectionTitle": "Sieht aus wie Software, verkauft wie Marketing",
+      "label": "Live",
       "subtitle": "Sieht aus wie ein Cockpit – fühlt sich aber einfach an",
       "dashboard": {
         "title": "Dashboard & Insights",
-        "description": "Behalte alle wichtigen Metriken im Blick und erhalte personalisierte KI-Empfehlungen."
+        "description": "Behalte alle wichtigen Metriken im Blick und erhalte personalisierte KI-Empfehlungen.",
+        "alt": "Houston Dashboard mit KPI-Widgets"
       },
       "chat": {
         "title": "Chat mit Houston",
-        "description": "Stelle Fragen und erhalte sofort konkrete Marketing-Strategien und Handlungsempfehlungen."
+        "description": "Stelle Fragen und erhalte sofort konkrete Marketing-Strategien und Handlungsempfehlungen.",
+        "alt": "Houston Chat mit KI-Antworten"
       },
       "goals": {
         "title": "Ziele & Fortschritt",
-        "description": "Erstelle und verfolge messbare Marketing-Ziele mit visuellen Fortschrittsanzeigen."
+        "description": "Erstelle und verfolge messbare Marketing-Ziele mit visuellen Fortschrittsanzeigen.",
+        "alt": "Houston Ziele-Board mit Fortschrittsanzeigen"
       },
       "strategy": {
         "title": "Strategie-Planung",
