@@ -37,6 +37,7 @@ import { PlaybookDetailModal } from "@/components/PlaybookDetailModal";
 import { getSuggestedPlaybooks, type Playbook } from "@/data/playbooks";
 import { useLocation } from "wouter";
 import { CheckInModal } from "@/components/CheckInModal";
+import { cn } from "@/lib/utils";
 
 // Type for AI Insights recommendations
 interface InsightRecommendation {
@@ -193,6 +194,12 @@ export default function Dashboard() {
     });
   }, [activeGoals, strategy, todos]);
   const hasPlaybooks = suggestedPlaybooks.length > 0;
+  const recommendedGridCols =
+    suggestedPlaybooks.length <= 1
+      ? "grid-cols-1"
+      : suggestedPlaybooks.length === 2
+        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-2"
+        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
 
   const loadInsights = async () => {
     if (!currentWorkspace?.id) return;
@@ -506,7 +513,6 @@ export default function Dashboard() {
             <div className="flex flex-col md:flex-row gap-6 items-stretch">
               {/* Free Daily Tip */}
               <div className="flex-1 bg-card/50 border border-border/50 rounded-xl p-5 relative flex flex-col">
-                <div className="absolute -left-1 top-6 w-1 h-12 bg-gradient-to-b from-[#FF6B9D] via-[#C44FE2] to-[#00D4FF] rounded-r-full" />
                 <h4 className="text-[1.05rem] md:text-lg font-semibold mb-2 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-[#C44FE2]" />
                   {dailyTip.title}
@@ -604,7 +610,7 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className={cn("grid gap-4", recommendedGridCols)}>
                 {suggestedPlaybooks.map((playbook) => (
                   <PlaybookCard
                     key={playbook.id}

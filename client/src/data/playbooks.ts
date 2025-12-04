@@ -1,16 +1,21 @@
-import { 
-  FileText, 
-  Gift, 
-  Rocket, 
-  TrendingUp, 
-  Mail, 
-  Share2, 
-  Video, 
+import {
+  FileText,
+  Gift,
+  Rocket,
+  TrendingUp,
+  Mail,
+  Share2,
+  Video,
   Star,
-  type LucideIcon 
+  type LucideIcon,
 } from "lucide-react";
 
-export type PlaybookCategory = "content" | "leadgen" | "campaign" | "nurturing" | "social";
+export type PlaybookCategory =
+  | "content"
+  | "leadgen"
+  | "campaign"
+  | "nurturing"
+  | "social";
 export type PlaybookDifficulty = "easy" | "medium" | "advanced";
 
 export interface PlaybookStep {
@@ -51,7 +56,10 @@ export interface Playbook {
   tags: string[];
 }
 
-export const PLAYBOOK_CATEGORIES: Record<PlaybookCategory, { label: string; labelEn: string }> = {
+export const PLAYBOOK_CATEGORIES: Record<
+  PlaybookCategory,
+  { label: string; labelEn: string }
+> = {
   content: { label: "Content Marketing", labelEn: "Content Marketing" },
   leadgen: { label: "Lead-Generierung", labelEn: "Lead Generation" },
   campaign: { label: "Kampagnen", labelEn: "Campaigns" },
@@ -59,7 +67,10 @@ export const PLAYBOOK_CATEGORIES: Record<PlaybookCategory, { label: string; labe
   social: { label: "Social Media", labelEn: "Social Media" },
 };
 
-export const PLAYBOOK_DIFFICULTIES: Record<PlaybookDifficulty, { label: string; labelEn: string; color: string }> = {
+export const PLAYBOOK_DIFFICULTIES: Record<
+  PlaybookDifficulty,
+  { label: string; labelEn: string; color: string }
+> = {
   easy: { label: "Einfach", labelEn: "Easy", color: "green" },
   medium: { label: "Mittel", labelEn: "Medium", color: "yellow" },
   advanced: { label: "Fortgeschritten", labelEn: "Advanced", color: "red" },
@@ -72,7 +83,8 @@ export const playbooks: Playbook[] = [
     slug: "blog-funnel",
     title: "Blog-Funnel",
     subtitle: "Lead-Generierung durch SEO-Content",
-    description: "Baue einen nachhaltigen Content-Funnel auf, der organisch Leads generiert. Von der Keyword-Recherche über die Content-Erstellung bis zur Conversion-Optimierung.",
+    description:
+      "Baue einen nachhaltigen Content-Funnel auf, der organisch Leads generiert. Von der Keyword-Recherche über die Content-Erstellung bis zur Conversion-Optimierung.",
     icon: FileText,
     category: "content",
     difficulty: "medium",
@@ -88,47 +100,56 @@ export const playbooks: Playbook[] = [
       {
         id: "bf-1",
         title: "Keyword-Recherche durchführen",
-        description: "Identifiziere 20-30 relevante Keywords mit Suchvolumen und niedrigem Wettbewerb für deine Nische.",
+        description:
+          "Identifiziere 20-30 relevante Keywords mit Suchvolumen und niedrigem Wettbewerb für deine Nische.",
         duration: "3 Tage",
         todoTemplate: {
           title: "Keyword-Recherche abschließen",
-          description: "20-30 Keywords identifizieren mit Search Volume und Difficulty Score",
+          description:
+            "20-30 Keywords identifizieren mit Search Volume und Difficulty Score",
         },
       },
       {
         id: "bf-2",
         title: "Content-Cluster planen",
-        description: "Gruppiere Keywords in 3-5 Pillar-Themen und plane Cluster-Artikel drumherum.",
+        description:
+          "Gruppiere Keywords in 3-5 Pillar-Themen und plane Cluster-Artikel drumherum.",
         duration: "2 Tage",
         todoTemplate: {
           title: "Content-Cluster-Map erstellen",
-          description: "3-5 Pillar-Seiten und zugehörige Cluster-Artikel definieren",
+          description:
+            "3-5 Pillar-Seiten und zugehörige Cluster-Artikel definieren",
         },
       },
       {
         id: "bf-3",
         title: "Pillar-Content erstellen",
-        description: "Schreibe 3-5 ausführliche Pillar-Artikel (2000+ Wörter) zu deinen Hauptthemen.",
+        description:
+          "Schreibe 3-5 ausführliche Pillar-Artikel (2000+ Wörter) zu deinen Hauptthemen.",
         duration: "14 Tage",
         todoTemplate: {
           title: "Ersten Pillar-Artikel schreiben",
-          description: "Ausführlichen Artikel (2000+ Wörter) zum Hauptthema erstellen",
+          description:
+            "Ausführlichen Artikel (2000+ Wörter) zum Hauptthema erstellen",
         },
       },
       {
         id: "bf-4",
         title: "Cluster-Artikel produzieren",
-        description: "Erstelle 15-20 Cluster-Artikel, die intern auf Pillar-Content verlinken.",
+        description:
+          "Erstelle 15-20 Cluster-Artikel, die intern auf Pillar-Content verlinken.",
         duration: "30 Tage",
         todoTemplate: {
           title: "Wöchentlich 2-3 Cluster-Artikel",
-          description: "Regelmäßig Blog-Artikel veröffentlichen und intern verlinken",
+          description:
+            "Regelmäßig Blog-Artikel veröffentlichen und intern verlinken",
         },
       },
       {
         id: "bf-5",
         title: "Lead-Magneten integrieren",
-        description: "Füge relevante Lead-Magneten (Checklisten, Templates) in jeden Artikel ein.",
+        description:
+          "Füge relevante Lead-Magneten (Checklisten, Templates) in jeden Artikel ein.",
         duration: "7 Tage",
         todoTemplate: {
           title: "Lead-Magneten für jeden Cluster erstellen",
@@ -138,7 +159,8 @@ export const playbooks: Playbook[] = [
       {
         id: "bf-6",
         title: "Conversion-Rate optimieren",
-        description: "Teste verschiedene CTAs, Pop-ups und Exit-Intent-Formulare.",
+        description:
+          "Teste verschiedene CTAs, Pop-ups und Exit-Intent-Formulare.",
         duration: "14 Tage",
         todoTemplate: {
           title: "A/B-Tests für CTAs einrichten",
@@ -148,7 +170,8 @@ export const playbooks: Playbook[] = [
       {
         id: "bf-7",
         title: "Content-Performance analysieren",
-        description: "Überprüfe Rankings, Traffic und Conversions. Optimiere Top-Performer.",
+        description:
+          "Überprüfe Rankings, Traffic und Conversions. Optimiere Top-Performer.",
         duration: "Laufend",
         todoTemplate: {
           title: "Monatliches Content-Reporting",
@@ -160,7 +183,8 @@ export const playbooks: Playbook[] = [
       {
         title: "50 organische Leads pro Monat generieren",
         description: "Durch den Blog-Funnel nachhaltig Leads gewinnen",
-        specific: "50 qualifizierte Leads pro Monat über organischen Blog-Traffic",
+        specific:
+          "50 qualifizierte Leads pro Monat über organischen Blog-Traffic",
         measurable: "Tracking über Google Analytics und E-Mail-Signup-Rate",
         achievable: "Mit 20+ Artikeln und optimierten Lead-Magneten erreichbar",
         relevant: "Reduziert Abhängigkeit von bezahlter Werbung",
@@ -181,7 +205,8 @@ export const playbooks: Playbook[] = [
     slug: "leadmagnet",
     title: "Leadmagnet",
     subtitle: "E-Mail-Liste aufbauen mit Freebie",
-    description: "Erstelle einen unwiderstehlichen Lead-Magneten, der deine E-Mail-Liste explodieren lässt. Von der Idee bis zur Landing-Page.",
+    description:
+      "Erstelle einen unwiderstehlichen Lead-Magneten, der deine E-Mail-Liste explodieren lässt. Von der Idee bis zur Landing-Page.",
     icon: Gift,
     category: "leadgen",
     difficulty: "easy",
@@ -197,17 +222,20 @@ export const playbooks: Playbook[] = [
       {
         id: "lm-1",
         title: "Zielgruppen-Problem identifizieren",
-        description: "Finde das größte Problem deiner Zielgruppe, das du schnell lösen kannst.",
+        description:
+          "Finde das größte Problem deiner Zielgruppe, das du schnell lösen kannst.",
         duration: "1 Tag",
         todoTemplate: {
           title: "Top 3 Zielgruppen-Probleme auflisten",
-          description: "Die dringendsten Probleme der Zielgruppe identifizieren",
+          description:
+            "Die dringendsten Probleme der Zielgruppe identifizieren",
         },
       },
       {
         id: "lm-2",
         title: "Lead-Magnet-Format wählen",
-        description: "Entscheide: Checkliste, Template, E-Book, Mini-Kurs oder Tool?",
+        description:
+          "Entscheide: Checkliste, Template, E-Book, Mini-Kurs oder Tool?",
         duration: "1 Tag",
         todoTemplate: {
           title: "Lead-Magnet-Format festlegen",
@@ -217,27 +245,32 @@ export const playbooks: Playbook[] = [
       {
         id: "lm-3",
         title: "Lead-Magnet erstellen",
-        description: "Produziere den Inhalt mit Fokus auf Quick Wins für den Nutzer.",
+        description:
+          "Produziere den Inhalt mit Fokus auf Quick Wins für den Nutzer.",
         duration: "5 Tage",
         todoTemplate: {
           title: "Lead-Magnet-Inhalt erstellen",
-          description: "Hochwertigen Content mit schnellem Mehrwert produzieren",
+          description:
+            "Hochwertigen Content mit schnellem Mehrwert produzieren",
         },
       },
       {
         id: "lm-4",
         title: "Landing-Page bauen",
-        description: "Erstelle eine conversion-optimierte Landing-Page mit klarem CTA.",
+        description:
+          "Erstelle eine conversion-optimierte Landing-Page mit klarem CTA.",
         duration: "2 Tage",
         todoTemplate: {
           title: "Landing-Page erstellen",
-          description: "Seite mit Headline, Benefits, Social Proof und Formular",
+          description:
+            "Seite mit Headline, Benefits, Social Proof und Formular",
         },
       },
       {
         id: "lm-5",
         title: "E-Mail-Sequenz aufsetzen",
-        description: "Schreibe eine 5-teilige Willkommens-Sequenz für neue Subscriber.",
+        description:
+          "Schreibe eine 5-teilige Willkommens-Sequenz für neue Subscriber.",
         duration: "3 Tage",
         todoTemplate: {
           title: "Welcome-E-Mail-Serie schreiben",
@@ -247,7 +280,8 @@ export const playbooks: Playbook[] = [
       {
         id: "lm-6",
         title: "Promotion starten",
-        description: "Bewirb den Lead-Magneten über Social Media, Website und ggf. Ads.",
+        description:
+          "Bewirb den Lead-Magneten über Social Media, Website und ggf. Ads.",
         duration: "2 Tage",
         todoTemplate: {
           title: "Lead-Magnet-Promotion planen",
@@ -280,7 +314,8 @@ export const playbooks: Playbook[] = [
     slug: "launch-kampagne",
     title: "Launch-Kampagne",
     subtitle: "Produkt/Service erfolgreich launchen",
-    description: "Plane und führe einen erfolgreichen Produkt-Launch durch. Pre-Launch Hype, Launch-Woche und Post-Launch Follow-up.",
+    description:
+      "Plane und führe einen erfolgreichen Produkt-Launch durch. Pre-Launch Hype, Launch-Woche und Post-Launch Follow-up.",
     icon: Rocket,
     category: "campaign",
     difficulty: "advanced",
@@ -296,17 +331,20 @@ export const playbooks: Playbook[] = [
       {
         id: "lc-1",
         title: "Launch-Ziele definieren",
-        description: "Setze klare Umsatz- und Reichweiten-Ziele für den Launch.",
+        description:
+          "Setze klare Umsatz- und Reichweiten-Ziele für den Launch.",
         duration: "1 Tag",
         todoTemplate: {
           title: "Launch-KPIs festlegen",
-          description: "Umsatz, Verkäufe, Reach und Engagement-Ziele definieren",
+          description:
+            "Umsatz, Verkäufe, Reach und Engagement-Ziele definieren",
         },
       },
       {
         id: "lc-2",
         title: "Pre-Launch Content planen",
-        description: "Erstelle einen Content-Kalender für die Pre-Launch-Phase (14 Tage).",
+        description:
+          "Erstelle einen Content-Kalender für die Pre-Launch-Phase (14 Tage).",
         duration: "2 Tage",
         todoTemplate: {
           title: "Pre-Launch Content-Kalender",
@@ -316,7 +354,8 @@ export const playbooks: Playbook[] = [
       {
         id: "lc-3",
         title: "Waitlist aufbauen",
-        description: "Sammle E-Mail-Adressen von Interessenten mit Early-Bird-Angebot.",
+        description:
+          "Sammle E-Mail-Adressen von Interessenten mit Early-Bird-Angebot.",
         duration: "7 Tage",
         todoTemplate: {
           title: "Waitlist-Landing-Page erstellen",
@@ -326,7 +365,8 @@ export const playbooks: Playbook[] = [
       {
         id: "lc-4",
         title: "Launch-Assets vorbereiten",
-        description: "Erstelle alle Grafiken, Videos, E-Mails und Ads für die Launch-Woche.",
+        description:
+          "Erstelle alle Grafiken, Videos, E-Mails und Ads für die Launch-Woche.",
         duration: "7 Tage",
         todoTemplate: {
           title: "Launch-Grafiken erstellen",
@@ -336,7 +376,8 @@ export const playbooks: Playbook[] = [
       {
         id: "lc-5",
         title: "Launch-Woche durchführen",
-        description: "Führe den Launch mit täglichen Posts, E-Mails und Live-Events durch.",
+        description:
+          "Führe den Launch mit täglichen Posts, E-Mails und Live-Events durch.",
         duration: "7 Tage",
         todoTemplate: {
           title: "Launch-Woche starten",
@@ -346,7 +387,8 @@ export const playbooks: Playbook[] = [
       {
         id: "lc-6",
         title: "Post-Launch Follow-up",
-        description: "Sammle Testimonials, bearbeite Feedback und plane Re-Launch.",
+        description:
+          "Sammle Testimonials, bearbeite Feedback und plane Re-Launch.",
         duration: "6 Tage",
         todoTemplate: {
           title: "Testimonials sammeln",
@@ -379,7 +421,8 @@ export const playbooks: Playbook[] = [
     slug: "evergreen-ads",
     title: "Evergreen-Ads",
     subtitle: "Dauerhaft performante Werbung",
-    description: "Baue ein Evergreen-Ads-System auf, das kontinuierlich Leads und Sales generiert. Von der Zielgruppen-Definition bis zur Skalierung.",
+    description:
+      "Baue ein Evergreen-Ads-System auf, das kontinuierlich Leads und Sales generiert. Von der Zielgruppen-Definition bis zur Skalierung.",
     icon: TrendingUp,
     category: "campaign",
     difficulty: "medium",
@@ -405,17 +448,20 @@ export const playbooks: Playbook[] = [
       {
         id: "ea-2",
         title: "Zielgruppen recherchieren",
-        description: "Erstelle 3-5 Zielgruppen-Segmente mit Interessen und Demographics.",
+        description:
+          "Erstelle 3-5 Zielgruppen-Segmente mit Interessen und Demographics.",
         duration: "3 Tage",
         todoTemplate: {
           title: "Audience-Research durchführen",
-          description: "3-5 Zielgruppen mit Interessen und Merkmalen definieren",
+          description:
+            "3-5 Zielgruppen mit Interessen und Merkmalen definieren",
         },
       },
       {
         id: "ea-3",
         title: "Ad-Creatives erstellen",
-        description: "Produziere 5-10 verschiedene Ad-Varianten (Bilder, Videos, Copy).",
+        description:
+          "Produziere 5-10 verschiedene Ad-Varianten (Bilder, Videos, Copy).",
         duration: "7 Tage",
         todoTemplate: {
           title: "Ad-Creatives produzieren",
@@ -435,7 +481,8 @@ export const playbooks: Playbook[] = [
       {
         id: "ea-5",
         title: "Gewinner identifizieren",
-        description: "Analysiere die Daten und identifiziere die besten Kombinationen.",
+        description:
+          "Analysiere die Daten und identifiziere die besten Kombinationen.",
         duration: "7 Tage",
         todoTemplate: {
           title: "Kampagnen-Performance analysieren",
@@ -445,7 +492,8 @@ export const playbooks: Playbook[] = [
       {
         id: "ea-6",
         title: "Gewinner skalieren",
-        description: "Erhöhe das Budget für die performantesten Ads schrittweise.",
+        description:
+          "Erhöhe das Budget für die performantesten Ads schrittweise.",
         duration: "14 Tage",
         todoTemplate: {
           title: "Top-Performer skalieren",
@@ -455,7 +503,8 @@ export const playbooks: Playbook[] = [
       {
         id: "ea-7",
         title: "Optimieren & Iterieren",
-        description: "Kontinuierlich neue Creatives testen und Performance überwachen.",
+        description:
+          "Kontinuierlich neue Creatives testen und Performance überwachen.",
         duration: "Laufend",
         todoTemplate: {
           title: "Wöchentliches Ad-Reporting",
@@ -488,7 +537,8 @@ export const playbooks: Playbook[] = [
     slug: "newsletter-serie",
     title: "Newsletter-Serie",
     subtitle: "Nurturing-Sequenz erstellen",
-    description: "Erstelle eine automatisierte E-Mail-Serie, die neue Subscriber in Kunden verwandelt. Perfekt für Onboarding und Nurturing.",
+    description:
+      "Erstelle eine automatisierte E-Mail-Serie, die neue Subscriber in Kunden verwandelt. Perfekt für Onboarding und Nurturing.",
     icon: Mail,
     category: "nurturing",
     difficulty: "easy",
@@ -504,7 +554,8 @@ export const playbooks: Playbook[] = [
       {
         id: "ns-1",
         title: "Customer Journey mappen",
-        description: "Definiere die Reise vom Lead zum Kunden und die nötigen Touchpoints.",
+        description:
+          "Definiere die Reise vom Lead zum Kunden und die nötigen Touchpoints.",
         duration: "1 Tag",
         todoTemplate: {
           title: "Customer Journey skizzieren",
@@ -514,7 +565,8 @@ export const playbooks: Playbook[] = [
       {
         id: "ns-2",
         title: "E-Mail-Sequenz planen",
-        description: "Plane 5-7 E-Mails mit Timing und Hauptbotschaft pro Mail.",
+        description:
+          "Plane 5-7 E-Mails mit Timing und Hauptbotschaft pro Mail.",
         duration: "1 Tag",
         todoTemplate: {
           title: "E-Mail-Sequenz-Plan erstellen",
@@ -534,7 +586,8 @@ export const playbooks: Playbook[] = [
       {
         id: "ns-4",
         title: "Automation einrichten",
-        description: "Richte die E-Mail-Sequenz in deinem Tool ein (Trigger, Timing, Segmente).",
+        description:
+          "Richte die E-Mail-Sequenz in deinem Tool ein (Trigger, Timing, Segmente).",
         duration: "1 Tag",
         todoTemplate: {
           title: "E-Mail-Automation aufsetzen",
@@ -544,7 +597,8 @@ export const playbooks: Playbook[] = [
       {
         id: "ns-5",
         title: "Testen & Optimieren",
-        description: "Teste die Sequenz, analysiere Open/Click-Rates und optimiere.",
+        description:
+          "Teste die Sequenz, analysiere Open/Click-Rates und optimiere.",
         duration: "1 Tag",
         todoTemplate: {
           title: "E-Mail-Sequenz testen",
@@ -577,7 +631,8 @@ export const playbooks: Playbook[] = [
     slug: "social-media-30-tage",
     title: "Social Media 30-Tage",
     subtitle: "Konsistente Präsenz aufbauen",
-    description: "Baue in 30 Tagen eine konsistente Social-Media-Präsenz auf. Content-Plan, Posting-Routine und Community-Building.",
+    description:
+      "Baue in 30 Tagen eine konsistente Social-Media-Präsenz auf. Content-Plan, Posting-Routine und Community-Building.",
     icon: Share2,
     category: "social",
     difficulty: "easy",
@@ -593,11 +648,13 @@ export const playbooks: Playbook[] = [
       {
         id: "sm-1",
         title: "Plattform-Fokus setzen",
-        description: "Wähle 1-2 Plattformen, auf denen deine Zielgruppe aktiv ist.",
+        description:
+          "Wähle 1-2 Plattformen, auf denen deine Zielgruppe aktiv ist.",
         duration: "1 Tag",
         todoTemplate: {
           title: "Social-Media-Plattformen auswählen",
-          description: "1-2 Haupt-Plattformen basierend auf Zielgruppe festlegen",
+          description:
+            "1-2 Haupt-Plattformen basierend auf Zielgruppe festlegen",
         },
       },
       {
@@ -613,7 +670,8 @@ export const playbooks: Playbook[] = [
       {
         id: "sm-3",
         title: "30-Tage-Content-Plan erstellen",
-        description: "Plane 30 Tage Content mit Mix aus Formaten (Text, Bild, Video).",
+        description:
+          "Plane 30 Tage Content mit Mix aus Formaten (Text, Bild, Video).",
         duration: "2 Tage",
         todoTemplate: {
           title: "30-Tage Content-Kalender erstellen",
@@ -633,7 +691,8 @@ export const playbooks: Playbook[] = [
       {
         id: "sm-5",
         title: "Posting-Routine starten",
-        description: "Starte mit täglichem Posting und fixem Engagement-Zeitfenster.",
+        description:
+          "Starte mit täglichem Posting und fixem Engagement-Zeitfenster.",
         duration: "14 Tage",
         todoTemplate: {
           title: "Tägliches Posting starten",
@@ -643,7 +702,8 @@ export const playbooks: Playbook[] = [
       {
         id: "sm-6",
         title: "Community engagen",
-        description: "Antworte auf jeden Kommentar, kommentiere bei 10+ Accounts pro Tag.",
+        description:
+          "Antworte auf jeden Kommentar, kommentiere bei 10+ Accounts pro Tag.",
         duration: "Laufend",
         todoTemplate: {
           title: "Community-Engagement",
@@ -686,7 +746,8 @@ export const playbooks: Playbook[] = [
     slug: "webinar-funnel",
     title: "Webinar-Funnel",
     subtitle: "Leads über Live-Events gewinnen",
-    description: "Nutze Webinare als Hochkonversions-Tool für Lead-Generierung und Sales. Von der Planung bis zum Follow-up.",
+    description:
+      "Nutze Webinare als Hochkonversions-Tool für Lead-Generierung und Sales. Von der Planung bis zum Follow-up.",
     icon: Video,
     category: "leadgen",
     difficulty: "advanced",
@@ -702,7 +763,8 @@ export const playbooks: Playbook[] = [
       {
         id: "wf-1",
         title: "Webinar-Thema wählen",
-        description: "Wähle ein Thema, das ein akutes Problem löst und zu deinem Angebot führt.",
+        description:
+          "Wähle ein Thema, das ein akutes Problem löst und zu deinem Angebot führt.",
         duration: "1 Tag",
         todoTemplate: {
           title: "Webinar-Thema festlegen",
@@ -712,7 +774,8 @@ export const playbooks: Playbook[] = [
       {
         id: "wf-2",
         title: "Webinar-Struktur planen",
-        description: "Erstelle eine Agenda: Intro, Content, Pitch, Q&A (60-90 Min.).",
+        description:
+          "Erstelle eine Agenda: Intro, Content, Pitch, Q&A (60-90 Min.).",
         duration: "2 Tage",
         todoTemplate: {
           title: "Webinar-Agenda erstellen",
@@ -722,7 +785,8 @@ export const playbooks: Playbook[] = [
       {
         id: "wf-3",
         title: "Präsentation erstellen",
-        description: "Baue deine Slides mit Fokus auf Storytelling und Mehrwert.",
+        description:
+          "Baue deine Slides mit Fokus auf Storytelling und Mehrwert.",
         duration: "3 Tage",
         todoTemplate: {
           title: "Webinar-Slides erstellen",
@@ -742,7 +806,8 @@ export const playbooks: Playbook[] = [
       {
         id: "wf-5",
         title: "Promotion starten",
-        description: "Bewirb das Webinar über E-Mail, Social Media und ggf. Ads.",
+        description:
+          "Bewirb das Webinar über E-Mail, Social Media und ggf. Ads.",
         duration: "7 Tage",
         todoTemplate: {
           title: "Webinar-Promotion",
@@ -762,7 +827,8 @@ export const playbooks: Playbook[] = [
       {
         id: "wf-7",
         title: "Follow-up Sequenz",
-        description: "Sende Replay, zusätzliche Ressourcen und Angebots-Reminder.",
+        description:
+          "Sende Replay, zusätzliche Ressourcen und Angebots-Reminder.",
         duration: "5 Tage",
         todoTemplate: {
           title: "Webinar-Follow-up senden",
@@ -795,7 +861,8 @@ export const playbooks: Playbook[] = [
     slug: "testimonial-kampagne",
     title: "Testimonial-Kampagne",
     subtitle: "Social Proof sammeln und nutzen",
-    description: "Sammle systematisch Kundenstimmen und setze sie für maximale Wirkung ein. Von der Anfrage bis zur strategischen Platzierung.",
+    description:
+      "Sammle systematisch Kundenstimmen und setze sie für maximale Wirkung ein. Von der Anfrage bis zur strategischen Platzierung.",
     icon: Star,
     category: "campaign",
     difficulty: "easy",
@@ -811,7 +878,8 @@ export const playbooks: Playbook[] = [
       {
         id: "tc-1",
         title: "Kunden-Liste erstellen",
-        description: "Identifiziere 20-30 zufriedene Kunden, die du um Feedback bitten kannst.",
+        description:
+          "Identifiziere 20-30 zufriedene Kunden, die du um Feedback bitten kannst.",
         duration: "1 Tag",
         todoTemplate: {
           title: "Testimonial-Kandidaten identifizieren",
@@ -821,7 +889,8 @@ export const playbooks: Playbook[] = [
       {
         id: "tc-2",
         title: "Testimonial-Anfrage vorbereiten",
-        description: "Schreibe eine persönliche Anfrage-Mail mit klaren Fragen.",
+        description:
+          "Schreibe eine persönliche Anfrage-Mail mit klaren Fragen.",
         duration: "1 Tag",
         todoTemplate: {
           title: "Testimonial-Anfrage-Template erstellen",
@@ -831,7 +900,8 @@ export const playbooks: Playbook[] = [
       {
         id: "tc-3",
         title: "Anfragen versenden",
-        description: "Sende personalisierte Anfragen an alle Kunden auf der Liste.",
+        description:
+          "Sende personalisierte Anfragen an alle Kunden auf der Liste.",
         duration: "2 Tage",
         todoTemplate: {
           title: "Testimonial-Anfragen senden",
@@ -851,7 +921,8 @@ export const playbooks: Playbook[] = [
       {
         id: "tc-5",
         title: "Testimonials aufbereiten",
-        description: "Formatiere Testimonials für verschiedene Formate (Zitate, Videos, Case Studies).",
+        description:
+          "Formatiere Testimonials für verschiedene Formate (Zitate, Videos, Case Studies).",
         duration: "3 Tage",
         todoTemplate: {
           title: "Testimonial-Formate erstellen",
@@ -861,7 +932,8 @@ export const playbooks: Playbook[] = [
       {
         id: "tc-6",
         title: "Strategisch platzieren",
-        description: "Platziere Testimonials auf Website, Landing-Pages, Social Media und in E-Mails.",
+        description:
+          "Platziere Testimonials auf Website, Landing-Pages, Social Media und in E-Mails.",
         duration: "2 Tage",
         todoTemplate: {
           title: "Testimonials verteilen",
@@ -891,7 +963,7 @@ export const playbooks: Playbook[] = [
 
 // Helper function to get playbook by ID or slug
 export function getPlaybookById(idOrSlug: string): Playbook | undefined {
-  return playbooks.find(p => p.id === idOrSlug || p.slug === idOrSlug);
+  return playbooks.find((p) => p.id === idOrSlug || p.slug === idOrSlug);
 }
 
 // Helper function to filter playbooks
@@ -900,7 +972,7 @@ export function filterPlaybooks(options: {
   difficulty?: PlaybookDifficulty;
   maxDays?: number;
 }): Playbook[] {
-  return playbooks.filter(p => {
+  return playbooks.filter((p) => {
     if (options.category && p.category !== options.category) return false;
     if (options.difficulty && p.difficulty !== options.difficulty) return false;
     if (options.maxDays && p.durationDays > options.maxDays) return false;
@@ -916,7 +988,7 @@ export function getSuggestedPlaybooks(options: {
   hasEmailList: boolean;
 }): Playbook[] {
   const suggestions: Playbook[] = [];
-  
+
   // If no goals or strategy, suggest beginner-friendly playbooks
   if (!options.hasGoals && !options.hasStrategy) {
     suggestions.push(
@@ -924,7 +996,7 @@ export function getSuggestedPlaybooks(options: {
       getPlaybookById("social-media-30")!,
     );
   }
-  
+
   // If has goals but no strategy, suggest content playbooks
   if (options.hasGoals && !options.hasStrategy) {
     suggestions.push(
@@ -932,7 +1004,7 @@ export function getSuggestedPlaybooks(options: {
       getPlaybookById("newsletter-series")!,
     );
   }
-  
+
   // If has email list, suggest nurturing and advanced playbooks
   if (options.hasEmailList) {
     suggestions.push(
@@ -940,15 +1012,37 @@ export function getSuggestedPlaybooks(options: {
       getPlaybookById("launch-campaign")!,
     );
   }
-  
+
   // Always suggest testimonials if they have some traction
   if (options.hasGoals && options.hasTodos) {
     suggestions.push(getPlaybookById("testimonial-campaign")!);
   }
-  
+
   // Remove duplicates and limit to 3
-  const uniqueSuggestions = suggestions.filter((playbook, index, self) =>
-    index === self.findIndex((p) => p.id === playbook.id)
+  const uniqueSuggestions = suggestions.filter(
+    (playbook, index, self) =>
+      index === self.findIndex((p) => p.id === playbook.id),
   );
+
+  // Fallback: ensure at least two suggestions by filling with defaults
+  const fallbackOrder = [
+    "leadmagnet",
+    "blog-funnel",
+    "testimonial-campaign",
+    "social-media-30",
+  ];
+
+  for (const fallbackId of fallbackOrder) {
+    if (uniqueSuggestions.length >= 3) break;
+    const fallbackPlaybook = getPlaybookById(fallbackId);
+    if (!fallbackPlaybook) continue;
+    const alreadyIncluded = uniqueSuggestions.some(
+      (playbook) => playbook.id === fallbackPlaybook.id,
+    );
+    if (!alreadyIncluded) {
+      uniqueSuggestions.push(fallbackPlaybook);
+    }
+  }
+
   return uniqueSuggestions.slice(0, 3);
 }

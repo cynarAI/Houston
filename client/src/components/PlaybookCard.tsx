@@ -37,10 +37,10 @@ export function PlaybookCard({
             <Icon className="h-5 w-5 text-white" />
           </div>
           <div className="min-w-0 space-y-1">
-            <h3 className="font-semibold text-sm leading-tight truncate">
+            <h3 className="font-semibold text-[0.75rem] leading-tight truncate">
               {playbook.title}
             </h3>
-            <p className="text-xs text-muted-foreground/80 truncate">
+            <p className="text-[0.65rem] text-muted-foreground/80 truncate">
               {playbook.subtitle}
             </p>
           </div>
