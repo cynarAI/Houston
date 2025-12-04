@@ -6,11 +6,17 @@ ruleType: Always
 
 # Automatische App-Analyse bei Chat-Start
 
-**KRITISCH:** Diese Regel wird bei jedem Chat-Start automatisch ausgeführt. Sie stellt sicher, dass Cursor immer den aktuellen Zustand der App kennt, bevor eine Antwort gegeben wird.
+**Empfohlen, nicht verpflichtend:** Starte neue Chats mit einer **kurzen Kontextaufnahme**, wenn du unsicher bist, ob dein Wissen noch aktuell ist. Skaliere die Analyse nach gesundem Menschenverstand:
+
+- 🔎 **Quick Glance (Default):** Reicht für die meisten Fragen. Prüfe nur die 1-2 Dateien, die offensichtlich relevant sind.
+- 🧭 **Gezielte Analyse:** Wenn Unklarheiten bleiben, erweitere den Blick Schritt für Schritt.
+- 🚫 **Kein Overkill:** Vollständige Rundgänge durch das gesamte Repo sind nur nötig, wenn der User ausdrücklich nach einer breiten Codebewertung fragt.
 
 ## Analyse-Protokoll
 
-### Bei jedem Chat-Start MÜSSEN folgende Analysen durchgeführt werden:
+### Empfohlene Checks bei neuem Chat
+
+Nutze diese Liste als Spickzettel. Wähle nur die Punkte aus, die für die aktuelle Frage wichtig sind.
 
 #### 1. Projekt-Struktur & Architektur
 - ✅ Aktuelle Verzeichnisstruktur prüfen (`client/`, `server/`, `drizzle/`, `shared/`)
@@ -115,24 +121,18 @@ Nach der Analyse solltest du folgendes wissen:
 
 ## Wann die Analyse durchführen
 
-**IMMER bei Chat-Start:**
-- Bevor die erste Antwort gegeben wird
-- Automatisch, ohne explizite Aufforderung
-- Stillschweigend im Hintergrund
-
-**NICHT bei:**
-- Einfachen Fragen, die keine Code-Analyse benötigen
-- Fragen zu bereits analysierten Bereichen (innerhalb derselben Session)
+- ✅ **Mache einen Check**, wenn du bei einer Antwort unsicher bist, ob der aktuelle Codezustand bekannt ist.
+- ✅ **Vertiefe die Analyse**, sobald du merkst, dass du ohne zusätzliche Infos nur raten würdest.
+- ⏱️ **Überspringe den Check**, wenn die Frage rein konzeptionell ist oder du die betroffenen Dateien bereits im Blick hast.
 
 ## Analyse-Tiefe
 
 ### Minimal-Analyse (Standard)
-- Projekt-Struktur prüfen
-- Haupt-Module identifizieren
-- Kritische Services überprüfen
-- Aktuelle Änderungen erkennen
+- Höchstens zwei relevante Dateien überfliegen
+- Prüfen, ob offenliegende Änderungen den Kontext beeinflussen
+- Notieren, welche Fragen noch offen sind
 
-### Tiefe-Analyse (bei Bedarf)
+### Tiefe-Analyse (nur bei Bedarf)
 - Vollständige Codebase-Suche
 - Alle relevanten Dateien lesen
 - Detaillierte Architektur-Analyse
@@ -171,18 +171,11 @@ Nach der Analyse solltest du immer wissen:
 
 ## Zusammenfassung
 
-**Diese Regel stellt sicher, dass Cursor bei jedem Chat-Start:**
-- Den aktuellen Zustand der App kennt
-- Die Architektur versteht
-- Die Implementierung der Features kennt
-- Aktuelle Änderungen berücksichtigt
-- Kontextuell relevante Antworten geben kann
-
-**Ohne diese Analyse:** Cursor könnte veraltete Informationen haben oder wichtige Details übersehen.
-
-**Mit dieser Analyse:** Cursor ist immer auf dem neuesten Stand und kann präzise, kontextuell relevante Antworten geben.
+**Diese Regel soll dir helfen:**
+- Schnell einzuschätzen, wann zusätzliche Recherche nötig ist
+- Den Aufwand pro Frage bewusst zu dosieren
+- Trotzdem jederzeit belastbare, kontextuelle Antworten zu liefern
 
 ---
 
-**WICHTIG:** Diese Analyse wird automatisch bei jedem Chat-Start durchgeführt. Sie muss nicht explizit angefordert werden.
-
+**Hinweis:** Nutze diese Leitplanken situativ. Kein Schritt ist vorgeschrieben, solange deine Antwort fundiert und aktuell ist.

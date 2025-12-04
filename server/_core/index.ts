@@ -13,7 +13,7 @@ import { initSentry } from "./sentry";
 initSentry();
 
 function isPortAvailable(port: number): Promise<boolean> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const server = net.createServer();
     server.listen(port, () => {
       server.close(() => resolve(true));
@@ -34,12 +34,16 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  
+
   // Stripe webhook MUST be registered BEFORE express.json() middleware
   // to preserve raw body for signature verification
   const { handleStripeWebhook } = await import("../webhooks/stripe");
-  app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), handleStripeWebhook);
-  
+  app.post(
+    "/api/stripe/webhook",
+    express.raw({ type: "application/json" }),
+    handleStripeWebhook,
+  );
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -51,7 +55,7 @@ async function startServer() {
     createExpressMiddleware({
       router: appRouter,
       createContext,
-    })
+    }),
   );
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
@@ -60,7 +64,7 @@ async function startServer() {
     serveStatic(app);
   }
 
-  const preferredPort = parseInt(process.env.PORT || "3000");
+  const preferredPort = parseInt(process.env.PORT || "3005");
   const port = await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {

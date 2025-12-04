@@ -192,6 +192,7 @@ export default function Dashboard() {
       hasEmailList: false, // We don't track this yet
     });
   }, [activeGoals, strategy, todos]);
+  const hasPlaybooks = suggestedPlaybooks.length > 0;
 
   const loadInsights = async () => {
     if (!currentWorkspace?.id) return;
@@ -311,7 +312,7 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="container py-4 md:py-6 lg:py-8 space-y-4 md:space-y-6">
+      <div className="container pt-0 pb-4 md:pb-6 lg:pb-8 space-y-4 md:space-y-6">
         {/* Credit Banner - Shows when credits are low */}
         <CreditBanner threshold={20} />
 
@@ -326,7 +327,7 @@ export default function Dashboard() {
             <div className="flex flex-col md:flex-row md:items-center gap-6">
               {/* Left: Focus Content */}
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                <p className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
                   <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                   {getTimeGreeting()}, {user?.name?.split(" ")[0] || "Captain"}
                 </p>
@@ -334,9 +335,13 @@ export default function Dashboard() {
                 {/* Dynamic Focus Message */}
                 {openTodos > 0 ? (
                   <>
-                    <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                      {openTodos} {openTodos === 1 ? "Aufgabe" : "Aufgaben"}{" "}
-                      warten auf dich
+                    <h1 className="mb-3 leading-snug text-[clamp(1.15rem,1.8vw,1.55rem)] font-semibold text-foreground tracking-tight">
+                      <span className="text-[color:hsl(var(--text-strong))]">
+                        {openTodos} {openTodos === 1 ? "Aufgabe" : "Aufgaben"}
+                      </span>{" "}
+                      <span className="text-muted-foreground">
+                        wartet auf dich
+                      </span>
                     </h1>
                     <p className="text-muted-foreground mb-4 max-w-lg">
                       Schritt für Schritt zum Ziel. Houston hilft dir, wenn du
@@ -359,6 +364,7 @@ export default function Dashboard() {
                           size="lg"
                           className="w-full sm:w-auto"
                         >
+                          <MessageSquare className="w-4 h-4" />
                           Houston fragen
                         </Button>
                       </Link>
@@ -457,28 +463,6 @@ export default function Dashboard() {
                   </>
                 )}
               </div>
-
-              {/* Right: Quick Stats */}
-              <div className="flex gap-4 md:gap-6">
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text-aistronaut">
-                    {activeGoals}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Ziele</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text-aistronaut">
-                    {openTodos}
-                  </div>
-                  <div className="text-xs text-muted-foreground">To-dos</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text-aistronaut">
-                    {totalChatSessions}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Chats</div>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -506,7 +490,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#8B5CF6] via-[#C44FE2] to-[#00D4FF] shadow-lg shadow-purple-500/20">
+                <div className="brand-icon flex items-center justify-center w-10 h-10 rounded-2xl">
                   <Brain className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -519,11 +503,11 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div className="flex flex-col md:flex-row gap-6 items-stretch">
               {/* Free Daily Tip */}
-              <div className="flex-1 bg-card/50 border border-border/50 rounded-xl p-5 relative">
+              <div className="flex-1 bg-card/50 border border-border/50 rounded-xl p-5 relative flex flex-col">
                 <div className="absolute -left-1 top-6 w-1 h-12 bg-gradient-to-b from-[#FF6B9D] via-[#C44FE2] to-[#00D4FF] rounded-r-full" />
-                <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                <h4 className="text-[1.05rem] md:text-lg font-semibold mb-2 flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-[#C44FE2]" />
                   {dailyTip.title}
                 </h4>
@@ -533,10 +517,12 @@ export default function Dashboard() {
               </div>
 
               {/* Upsell / Deep Dive */}
-              <div className="flex-shrink-0 w-full md:w-auto flex flex-col gap-3 p-5 rounded-xl border border-[#C44FE2]/20 bg-gradient-to-br from-[#C44FE2]/5 to-[#8B5CF6]/5">
+              <div className="flex-shrink-0 w-full md:w-[320px] flex flex-col gap-3 p-5 rounded-xl border border-[#C44FE2]/20 bg-gradient-to-br from-[#C44FE2]/5 to-[#8B5CF6]/5">
                 <div className="flex items-center gap-2 mb-1">
                   <Target className="h-4 w-4 text-[#C44FE2]" />
-                  <h4 className="font-medium text-sm">Tiefer eintauchen?</h4>
+                  <p className="text-[1.05rem] font-semibold text-foreground">
+                    Tiefer eintauchen?
+                  </p>
                 </div>
                 <p className="text-xs text-muted-foreground max-w-[250px]">
                   Lass Houston dein Marketing analysieren und konkrete
@@ -544,7 +530,6 @@ export default function Dashboard() {
                 </p>
 
                 {insights ? (
-                  // If insights are already loaded, show them
                   <div className="space-y-3 mt-2">
                     {insights.recommendations.map(
                       (rec: InsightRecommendation, idx: number) => (
@@ -571,7 +556,7 @@ export default function Dashboard() {
                     size="sm"
                     onClick={loadInsights}
                     disabled={insightsLoading}
-                    className="w-full justify-between group border-[#C44FE2]/30 hover:border-[#C44FE2] hover:bg-[#C44FE2]/10"
+                    className="w-full justify-between group"
                   >
                     <span className="flex items-center gap-2">
                       {insightsLoading ? (
@@ -595,18 +580,18 @@ export default function Dashboard() {
         </Card>
 
         {/* Recommended Playbooks */}
-        {suggestedPlaybooks.length > 0 && (
+        {hasPlaybooks && (
           <Card className="glass border-border/50 backdrop-blur-xl bg-gradient-to-br from-[#FF6B9D]/3 via-transparent to-[#C44FE2]/3">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#FF6B9D] via-[#C44FE2] to-[#8B5CF6]">
+                  <div className="brand-icon flex items-center justify-center w-10 h-10 rounded-2xl">
                     <BookOpen className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <CardTitle>Empfohlene Playbooks</CardTitle>
                     <CardDescription>
-                      Bewährte Marketing-Strategien für deinen nächsten Schritt
+                      Bewährte Strategien für deinen nächsten Schritt
                     </CardDescription>
                   </div>
                 </div>
@@ -636,7 +621,7 @@ export default function Dashboard() {
         {/* Secondary Content Grid - Just 2 essential cards */}
         <div className="grid gap-4 md:gap-6 md:grid-cols-2">
           {/* Goals & Progress */}
-          <Card className="bg-gradient-to-br from-[#00D4FF]/3 via-transparent to-[#8B5CF6]/3">
+          <Card className="glass border-border/50 backdrop-blur-2xl relative overflow-hidden bg-[rgba(247,249,255,0.55)] dark:bg-white/10 transition-colors duration-500">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="space-y-1">
                 <CardTitle>Ziele & Fortschritt</CardTitle>
@@ -667,22 +652,22 @@ export default function Dashboard() {
                   {goals?.slice(0, 2).map((goal: Goal) => (
                     <div
                       key={goal.id}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 cursor-pointer hover:bg-[#00D4FF]/20 transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-lg bg-[#00D4FF]/10 dark:bg-[#1E40AF]/8 border border-[#00D4FF]/20 dark:border-[#1E40AF]/15 cursor-pointer hover:bg-[#00D4FF]/20 dark:hover:bg-[#1E40AF]/12 transition-colors"
                       onClick={() => handleCheckIn(goal)}
                     >
-                      <Target className="h-5 w-5 text-[#00D4FF] shrink-0" />
+                      <Target className="h-5 w-5 text-[#00D4FF] dark:text-[#1E40AF]/80 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between mb-1">
                           <p className="text-sm font-medium truncate">
                             {goal.title}
                           </p>
-                          <span className="text-xs text-[#00D4FF] font-bold">
+                          <span className="text-xs text-[#00D4FF] dark:text-[#1E40AF]/80 font-bold">
                             {goal.progress}%
                           </span>
                         </div>
-                        <div className="h-1.5 w-full bg-[#00D4FF]/10 rounded-full overflow-hidden">
+                        <div className="h-1.5 w-full bg-[#00D4FF]/10 dark:bg-[#1E40AF]/8 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-[#00D4FF] to-[#8B5CF6] rounded-full"
+                            className="h-full bg-gradient-to-r from-[#00D4FF] dark:from-[#1E40AF] to-[#8B5CF6] dark:to-[#6D28D9] rounded-full"
                             style={{ width: `${goal.progress}%` }}
                           />
                         </div>
@@ -729,7 +714,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Recent Conversations with Houston */}
-          <Card className="bg-gradient-to-br from-[#FF6B9D]/3 via-transparent to-[#C44FE2]/3">
+          <Card className="glass border-border/50 backdrop-blur-2xl relative overflow-hidden bg-[rgba(247,249,255,0.55)] dark:bg-white/10 transition-colors duration-500">
             <CardHeader>
               <CardTitle>Gespräche mit Houston</CardTitle>
               <CardDescription>Dein Chat-Verlauf</CardDescription>
@@ -737,8 +722,8 @@ export default function Dashboard() {
             <CardContent>
               {totalChatSessions > 0 ? (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-[#FF6B9D]/10 border border-[#FF6B9D]/20">
-                    <MessageSquare className="h-5 w-5 text-[#FF6B9D]" />
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-[#FF6B9D]/10 dark:bg-[#FF6B9D]/6 border border-[#FF6B9D]/20 dark:border-[#FF6B9D]/12">
+                    <MessageSquare className="h-5 w-5 text-[#FF6B9D] dark:text-[#FF6B9D]/70" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">
                         {totalChatSessions}{" "}

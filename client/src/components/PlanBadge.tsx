@@ -13,11 +13,11 @@ export function PlanBadge({ plan, className }: PlanBadgeProps) {
       <Badge
         variant="outline"
         className={cn(
-          "gap-1 text-muted-foreground border-muted-foreground/30",
+          "gap-1.5 px-3 py-1 text-xs font-medium text-muted-foreground bg-transparent border-0 [&>svg]:w-4 [&>svg]:h-4",
           className,
         )}
       >
-        <Sparkles className="w-3 h-3" />
+        <Sparkles className="w-4 h-4" />
         <span>Starter</span>
       </Badge>
     );
@@ -27,19 +27,24 @@ export function PlanBadge({ plan, className }: PlanBadgeProps) {
     return (
       <Badge
         className={cn(
-          "gap-1 bg-gradient-to-r from-[#FF6B9D] via-[#C44FE2] via-[#8B5CF6] to-[#00D4FF] border-0 text-white shadow-md shadow-purple-500/20",
+          "gap-1.5 px-3 py-1 text-xs font-medium bg-primary/12 text-primary border-0",
           className,
         )}
       >
-        <Rocket className="w-3 h-3 fill-current" />
+        <Rocket className="w-4 h-4 fill-current" />
         <span>Houston Pro</span>
       </Badge>
     );
   }
 
   return (
-    <Badge className={cn("gap-1 bg-blue-600 text-white border-0", className)}>
-      <Brain className="w-3 h-3" />
+    <Badge
+      className={cn(
+        "gap-1.5 px-3 py-1 text-xs font-medium bg-primary text-primary-foreground border-0",
+        className,
+      )}
+    >
+      <Brain className="w-4 h-4" />
       <span>Enterprise</span>
     </Badge>
   );

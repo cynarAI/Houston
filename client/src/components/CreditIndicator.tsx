@@ -59,25 +59,24 @@ export const CreditIndicator = memo(function CreditIndicator({
         aria-label={ariaLabel}
         className={`
           inline-flex items-center gap-2 px-3 py-1.5 rounded-full
-          font-semibold text-sm transition-all duration-300
+          text-sm font-medium transition-colors
           ${
             isEmpty
-              ? "bg-red-500/20 border-2 border-red-500/50 text-red-400 hover:bg-red-500/30 animate-pulse"
+              ? "bg-red-500/15 text-red-500"
               : isLow
-                ? "bg-orange-500/20 border-2 border-orange-500/50 text-orange-400 hover:bg-orange-500/30"
-                : "glass border-white/10 text-white hover:bg-white/10 hover:border-white/20"
+                ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                : "bg-foreground/5 text-muted-foreground hover:text-foreground"
           }
-          hover:scale-105 hover:shadow-glow
         `}
       >
         {isEmpty ? (
           <AlertTriangle
-            className="w-4 h-4 animate-bounce text-red-400"
+            className="w-4 h-4 animate-bounce"
             aria-hidden="true"
           />
         ) : (
           <Zap
-            className={`w-4 h-4 ${isLow ? "animate-pulse text-orange-400" : "text-yellow-400 fill-yellow-400"}`}
+            className={`w-4 h-4 ${isLow ? "animate-pulse" : ""}`}
             aria-hidden="true"
           />
         )}

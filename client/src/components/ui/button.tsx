@@ -6,33 +6,35 @@ import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   // Mobile-first: Touch-optimized (min 44x44px), larger on mobile, refined on desktop
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive touch-manipulation",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring/40 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive touch-manipulation overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground active:bg-primary/80 md:hover:bg-primary/90",
+          "bg-[linear-gradient(135deg,#1c2055_0%,#2f3bff_55%,#7c59ff_100%)] text-white shadow-[0_5px_14px_rgba(35,64,255,0.18)] active:scale-[0.99] before:absolute before:inset-0 before:content-[''] before:bg-white/10 before:opacity-0 md:hover:before:opacity-100 before:transition-opacity",
         destructive:
           "bg-destructive text-white active:bg-destructive/80 md:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-transparent shadow-xs active:bg-accent md:hover:bg-accent dark:bg-transparent dark:border-input dark:active:bg-input/50 md:dark:hover:bg-input/50",
+          "border border-border bg-transparent text-foreground hover:bg-foreground/5 active:bg-foreground/10 dark:hover:bg-white/10",
         secondary:
-          "bg-secondary text-secondary-foreground active:bg-secondary/70 md:hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground active:bg-secondary/80 md:hover:bg-secondary/90",
         ghost:
-          "active:bg-accent md:hover:bg-accent dark:active:bg-accent/50 md:dark:hover:bg-accent/50",
+          "text-foreground/80 hover:text-foreground bg-transparent active:bg-foreground/5 md:hover:bg-foreground/5 dark:text-foreground dark:active:bg-white/10 md:dark:hover:bg-white/10",
         link: "text-primary underline-offset-4 active:underline md:hover:underline",
         gradient:
-          "ai-gradient-bg text-white border-none shadow-lg shadow-[#FF6B9D]/20 active:scale-[0.98] active:shadow-md md:hover:shadow-[0_10px_30px_rgba(255,107,157,0.35),0_5px_15px_rgba(196,79,226,0.25),0_0_40px_rgba(0,212,255,0.2)] md:hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700",
+          "text-white border border-white/15 shadow-none active:scale-[0.99] transition-all duration-200 bg-[linear-gradient(120deg,#1b1e4b_0%,#2f3bff_50%,#9d5dff_100%)] bg-[length:200%_200%] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-r before:from-transparent before:via-white/18 before:to-transparent before:translate-x-[-120%] hover:before:translate-x-[110%] before:transition-transform before:duration-700",
+        "gradient-purple":
+          "text-white border border-white/15 shadow-none active:scale-[0.99] transition-all duration-200 bg-[linear-gradient(125deg,#2b0f4d_0%,#5a1a82_40%,#a146ff_75%,#ff73d1_100%)] bg-[length:220%_220%] before:absolute before:inset-0 before:content-[''] before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent before:translate-x-[-120%] hover:before:translate-x-[110%] before:transition-transform before:duration-700",
       },
       size: {
         // Mobile-first: Larger touch targets on mobile (min 44px), refined on desktop
         default:
-          "h-11 md:h-9 px-5 md:px-4 py-2.5 md:py-2 has-[>svg]:px-4 md:has-[>svg]:px-3 min-w-[44px]",
-        sm: "h-10 md:h-8 rounded-md gap-1.5 px-4 md:px-3 has-[>svg]:px-3 md:has-[>svg]:px-2.5 min-w-[44px]",
-        lg: "h-12 md:h-10 rounded-md px-7 md:px-6 has-[>svg]:px-5 md:has-[>svg]:px-4 min-w-[44px]",
-        icon: "size-11 md:size-9 min-w-[44px] min-h-[44px]",
-        "icon-sm": "size-10 md:size-8 min-w-[44px] min-h-[44px]",
-        "icon-lg": "size-12 md:size-10 min-w-[44px] min-h-[44px]",
+          "h-11 md:h-10 px-6 md:px-5 py-2.5 md:py-2 has-[>svg]:px-5 md:has-[>svg]:px-4 min-w-[44px]",
+        sm: "h-10 md:h-9 rounded-xl gap-1.5 px-4 md:px-3.5 has-[>svg]:px-3 md:has-[>svg]:px-2.5 min-w-[44px]",
+        lg: "h-12 md:h-11 rounded-2xl px-8 md:px-6 has-[>svg]:px-6 md:has-[>svg]:px-5 min-w-[44px]",
+        icon: "size-11 md:size-10 min-w-[44px] min-h-[44px]",
+        "icon-sm": "size-10 md:size-9 min-w-[44px] min-h-[44px]",
+        "icon-lg": "size-12 md:size-11 min-w-[44px] min-h-[44px]",
       },
     },
     defaultVariants: {

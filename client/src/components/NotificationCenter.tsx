@@ -19,7 +19,7 @@ export function NotificationCenter() {
     undefined,
     {
       refetchInterval: 30000, // Poll every 30 seconds
-    }
+    },
   );
 
   // Get all notifications when dropdown opens
@@ -27,7 +27,7 @@ export function NotificationCenter() {
     { limit: 50 },
     {
       enabled: open,
-    }
+    },
   );
 
   const markAllAsRead = trpc.notifications.markAllAsRead.useMutation({
@@ -55,25 +55,31 @@ export function NotificationCenter() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative h-9 w-9 rounded-lg"
-          aria-label={buttonAriaLabel}
-          aria-haspopup="true"
-          aria-expanded={open}
-        >
-          <Bell className="h-5 w-5" aria-hidden="true" />
-          {unreadCount && unreadCount > 0 && (
+        <div className="relative">
+          {unreadCount && unreadCount > 0 ? (
             <Badge
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-[#ffb606] text-black border-0"
-              variant="default"
-              aria-hidden="true"
+              variant="outline"
+              className="gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground border border-white/50 dark:border-white/30 rounded-full cursor-pointer hover:bg-accent hover:text-accent-foreground transition-all [&>svg]:w-4 [&>svg]:h-4"
+              aria-label={buttonAriaLabel}
+              aria-haspopup="true"
+              aria-expanded={open}
             >
-              {unreadCount > 9 ? "9+" : unreadCount}
+              <Bell className="w-4 h-4" aria-hidden="true" />
+              <span>{unreadCount > 9 ? "9+" : unreadCount}</span>
             </Badge>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-lg"
+              aria-label={buttonAriaLabel}
+              aria-haspopup="true"
+              aria-expanded={open}
+            >
+              <Bell className="h-4 w-4" aria-hidden="true" />
+            </Button>
           )}
-        </Button>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -82,7 +88,9 @@ export function NotificationCenter() {
         aria-label="Benachrichtigungen"
       >
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <h3 className="font-semibold" id="notifications-heading">Benachrichtigungen</h3>
+          <h3 className="font-semibold" id="notifications-heading">
+            Benachrichtigungen
+          </h3>
           {unreadCount && unreadCount > 0 && (
             <Button
               variant="ghost"

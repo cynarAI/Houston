@@ -5,15 +5,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 const cardVariants = cva(
   // Mobile-first: Base styles, padding handled by CardContent/Header/Footer
-  "bg-card text-card-foreground flex flex-col rounded-xl border overflow-hidden",
+  "relative bg-card text-card-foreground flex flex-col rounded-2xl border overflow-hidden transition-colors duration-500",
   {
     variants: {
       variant: {
         default: "shadow-sm",
         elevated:
           "shadow-[0_2px_4px_-1px_rgba(0,0,0,0.1)] md:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] transition-all duration-300 active:scale-[0.98] md:hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.2),0_10px_10px_-5px_rgba(0,0,0,0.1)] md:hover:-translate-y-0.5",
-        glass:
-          "glass-modern bg-card/50 backdrop-blur-xl border-border/50 dark:border-border/50 shadow-sm",
+        glass: "glass-panel rounded-[var(--radius-xl)] border-none shadow-none",
       },
     },
     defaultVariants: {
@@ -23,8 +22,7 @@ const cardVariants = cva(
 );
 
 export interface CardProps
-  extends React.ComponentProps<"div">,
-    VariantProps<typeof cardVariants> {}
+  extends React.ComponentProps<"div">, VariantProps<typeof cardVariants> {}
 
 function Card({ className, variant, ...props }: CardProps) {
   return (
@@ -54,7 +52,10 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn(
+        "leading-tight font-semibold text-[1.4rem] md:text-2xl",
+        className,
+      )}
       {...props}
     />
   );
