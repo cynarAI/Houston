@@ -106,7 +106,7 @@ export function FloatingSidebar({ className }: { className?: string }) {
               <Sparkles className="w-6 h-6 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.35)]" />
             </div>
             <div>
-              <span className="text-[1.75rem] font-semibold tracking-tight text-[#101225]">
+              <span className="text-[1.75rem] font-semibold tracking-tight text-[#101225] dark:text-white/90">
                 Houston
               </span>
             </div>
@@ -187,14 +187,16 @@ export function FloatingSidebar({ className }: { className?: string }) {
             <DropdownMenuContent
               align="start"
               side="right"
-              className="w-60 mb-2 ml-2 rounded-2xl border border-border/70 bg-background/90 backdrop-blur-2xl"
+              className="w-60 mb-2 ml-2 rounded-2xl border border-border/70 bg-background/90 backdrop-blur-2xl p-3 space-y-2"
             >
-              <DropdownMenuLabel>Mein Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="px-2 pt-1 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+                Mein Account
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="mx-2" />
 
               <DropdownMenuItem
                 onClick={() => setLocation("/app/settings")}
-                className="cursor-pointer"
+                className="cursor-pointer rounded-xl px-3 py-2"
               >
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Einstellungen</span>
@@ -202,13 +204,13 @@ export function FloatingSidebar({ className }: { className?: string }) {
 
               <DropdownMenuItem
                 onClick={() => setLocation("/app/credits")}
-                className="cursor-pointer"
+                className="cursor-pointer rounded-xl px-3 py-2"
               >
                 <Sparkles className="mr-2 h-4 w-4 text-[#FF6B9D]" />
                 <span>Credits verwalten</span>
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="mx-2" />
 
               {/* Quick Settings */}
               <div className="p-2 flex gap-2">
@@ -236,11 +238,11 @@ export function FloatingSidebar({ className }: { className?: string }) {
                 </Button>
               </div>
 
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="mx-2" />
 
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="cursor-pointer text-destructive focus:text-destructive"
+                className="cursor-pointer text-destructive focus:text-destructive rounded-xl px-3 py-2"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Abmelden</span>

@@ -17,7 +17,11 @@ const difficultyColors: Record<PlaybookDifficulty, string> = {
   advanced: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
-export function PlaybookCard({ playbook, onSelect, compact = false }: PlaybookCardProps) {
+export function PlaybookCard({
+  playbook,
+  onSelect,
+  compact = false,
+}: PlaybookCardProps) {
   const Icon = playbook.icon;
   const difficulty = PLAYBOOK_DIFFICULTIES[playbook.difficulty];
 
@@ -25,16 +29,20 @@ export function PlaybookCard({ playbook, onSelect, compact = false }: PlaybookCa
     return (
       <GlassCard
         variant="default"
-        className="group cursor-pointer hover:scale-[1.02] transition-all duration-300"
+        className="group w-full cursor-pointer hover:scale-[1.02] transition-all duration-300"
         onClick={() => onSelect(playbook)}
       >
-        <div className="p-4 flex items-center gap-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] shrink-0">
-            <Icon className="h-6 w-6 text-white" />
+        <div className="grid grid-cols-[auto,1fr,auto] items-center gap-4 px-5 py-4">
+          <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] shrink-0 shadow-[0_10px_30px_rgba(255,107,157,0.25)]">
+            <Icon className="h-5 w-5 text-white" />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-base truncate">{playbook.title}</h3>
-            <p className="text-sm text-muted-foreground truncate">{playbook.subtitle}</p>
+          <div className="min-w-0 space-y-1">
+            <h3 className="font-semibold text-sm leading-tight truncate">
+              {playbook.title}
+            </h3>
+            <p className="text-xs text-muted-foreground/80 truncate">
+              {playbook.subtitle}
+            </p>
           </div>
           <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
         </div>
@@ -54,7 +62,10 @@ export function PlaybookCard({ playbook, onSelect, compact = false }: PlaybookCa
           <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--color-gradient-pink)] to-[var(--color-gradient-purple)] shadow-lg shadow-purple-500/20">
             <Icon className="h-7 w-7 text-white" />
           </div>
-          <Badge variant="outline" className={difficultyColors[playbook.difficulty]}>
+          <Badge
+            variant="outline"
+            className={difficultyColors[playbook.difficulty]}
+          >
             {difficulty.label}
           </Badge>
         </div>
@@ -63,7 +74,9 @@ export function PlaybookCard({ playbook, onSelect, compact = false }: PlaybookCa
         <h3 className="font-bold text-xl mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-[var(--color-gradient-pink)] group-hover:to-[var(--color-gradient-purple)] group-hover:bg-clip-text transition-all">
           {playbook.title}
         </h3>
-        <p className="text-muted-foreground text-sm mb-4">{playbook.subtitle}</p>
+        <p className="text-muted-foreground text-sm mb-4">
+          {playbook.subtitle}
+        </p>
 
         {/* Description */}
         <p className="text-sm text-muted-foreground/80 mb-4 flex-grow line-clamp-3">

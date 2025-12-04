@@ -285,7 +285,7 @@ export default function DashboardLayout({
             </div>
 
             {/* Scrollable Content Area - Symmetrisches Padding */}
-            <div className="flex-1 pt-6 pb-32 md:pb-40 relative bg-[#f3f5fb] dark:bg-white/5">
+            <div className="flex-1 pt-6 pb-6 md:pb-8 relative bg-[#f3f5fb] dark:bg-white/5">
               <div className="max-w-7xl mx-auto h-full px-6 pr-8">
                 {children}
               </div>

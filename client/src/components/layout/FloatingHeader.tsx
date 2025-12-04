@@ -19,9 +19,12 @@ export function FloatingHeader({ onMenuClick }: FloatingHeaderProps) {
         location.startsWith(item.path) && item.path !== "/app/dashboard",
     );
 
-  const title = currentItem
-    ? currentItem.labelDe || currentItem.label
-    : "Heute";
+  const isPersonalView = currentItem?.path === "/app/dashboard";
+  const title = isPersonalView
+    ? "Für dich"
+    : currentItem
+      ? currentItem.labelDe || currentItem.label
+      : "Für dich";
 
   return (
     <header className="px-4 md:px-8 py-4">

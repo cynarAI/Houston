@@ -312,7 +312,7 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="container pt-0 pb-4 md:pb-6 lg:pb-8 space-y-4 md:space-y-6">
+      <div className="container pt-0 pb-0 space-y-4 md:space-y-6">
         {/* Credit Banner - Shows when credits are low */}
         <CreditBanner threshold={20} />
 
@@ -335,14 +335,14 @@ export default function Dashboard() {
                 {/* Dynamic Focus Message */}
                 {openTodos > 0 ? (
                   <>
-                    <h1 className="mb-3 leading-snug text-[clamp(1.15rem,1.8vw,1.55rem)] font-semibold text-foreground tracking-tight">
+                    <p className="mb-3 leading-snug text-4xl sm:text-5xl font-semibold text-foreground tracking-tight">
                       <span className="text-[color:hsl(var(--text-strong))]">
                         {openTodos} {openTodos === 1 ? "Aufgabe" : "Aufgaben"}
                       </span>{" "}
                       <span className="text-muted-foreground">
                         wartet auf dich
                       </span>
-                    </h1>
+                    </p>
                     <p className="text-muted-foreground mb-4 max-w-lg">
                       Schritt für Schritt zum Ziel. Houston hilft dir, wenn du
                       nicht weiter weißt.
