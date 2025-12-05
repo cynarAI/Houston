@@ -57,19 +57,16 @@ export default function Landing() {
         icon: Target,
         title: t("landing.benefits.benefit1.title"),
         description: t("landing.benefits.benefit1.description"),
-        image: "/images/new/feature-goals.png",
       },
       {
         icon: Sparkles,
         title: t("landing.benefits.benefit2.title"),
         description: t("landing.benefits.benefit2.description"),
-        image: "/images/new/icon-ai.png",
       },
       {
         icon: Zap,
         title: t("landing.benefits.benefit3.title"),
         description: t("landing.benefits.benefit3.description"),
-        image: "/images/new/feature-analytics.png",
       },
     ],
     [t],
@@ -89,19 +86,19 @@ export default function Landing() {
   const personaStories = useMemo(
     () => [
       {
-        image: "/images/new/feature-goals.png",
+        image: "/images/landing-hero-1.png",
         title: t("landing.forWhom.persona1.title"),
         description: t("landing.forWhom.persona1.description"),
         highlight: t("landing.storyHighlights.persona1"),
       },
       {
-        image: "/images/new/feature-chat.png",
+        image: "/images/landing-usecase-1.png",
         title: t("landing.forWhom.persona2.title"),
         description: t("landing.forWhom.persona2.description"),
         highlight: t("landing.storyHighlights.persona2"),
       },
       {
-        image: "/images/new/feature-analytics.png",
+        image: "/images/landing-usecase-3.png",
         title: t("landing.forWhom.persona3.title"),
         description: t("landing.forWhom.persona3.description"),
         highlight: t("landing.storyHighlights.persona3"),
@@ -113,19 +110,19 @@ export default function Landing() {
   const screenshotCards = useMemo(
     () => [
       {
-        image: "/images/new/feature-goals.png",
+        image: "/screenshot-dashboard.png",
         title: t("landing.screenshots.dashboard.title"),
         description: t("landing.screenshots.dashboard.description"),
         alt: t("landing.screenshots.dashboard.alt"),
       },
       {
-        image: "/images/new/feature-analytics.png",
+        image: "/screenshot-goals.png",
         title: t("landing.screenshots.goals.title"),
         description: t("landing.screenshots.goals.description"),
         alt: t("landing.screenshots.goals.alt"),
       },
       {
-        image: "/images/new/feature-chat.png",
+        image: "/screenshot-chat.png",
         title: t("landing.screenshots.chat.title"),
         description: t("landing.screenshots.chat.description"),
         alt: t("landing.screenshots.chat.alt"),
@@ -154,6 +151,11 @@ export default function Landing() {
     "technical",
   ] as const;
 
+  const heroImages = [
+    "/images/landing-hero-1.png",
+    "/images/landing-hero-2.png",
+    "/images/landing-usecase-2.png",
+  ];
   const trustLabels = t("landing.trustline.labels", {
     returnObjects: true,
   }) as string[];
@@ -171,7 +173,7 @@ export default function Landing() {
           className="container-premium mx-auto"
           aria-label={t("landing.nav.features")}
         >
-          <div className="flex items-center justify-between h-16 px-4 md:px-0">
+          <div className="flex items-center justify-between h-16">
             <Link
               href="/"
               className="flex items-center gap-2 font-semibold tracking-tight"
@@ -248,9 +250,8 @@ export default function Landing() {
 
             <button
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="md:hidden p-2 rounded-lg border border-border min-h-[44px] min-w-[44px]"
+              className="md:hidden p-2 rounded-lg border border-border"
               aria-expanded={mobileMenuOpen}
-              aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? (
                 <X className="h-5 w-5" />
@@ -261,19 +262,19 @@ export default function Landing() {
           </div>
 
           {mobileMenuOpen && (
-            <div className="md:hidden border-t border-border/60 py-4 px-4 space-y-4 mobile-menu">
+            <div className="md:hidden border-t border-border/60 py-4 space-y-4">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="block text-base text-muted-foreground hover:text-foreground py-2 mobile-menu-item"
+                  className="block text-base text-muted-foreground hover:text-foreground"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.label}
                 </a>
               ))}
 
-              <div className="flex gap-2 pt-4">
+              <div className="flex gap-2">
                 {["de", "en"].map((lang) => (
                   <button
                     key={lang}
@@ -281,7 +282,7 @@ export default function Landing() {
                       changeLanguage(lang);
                       setMobileMenuOpen(false);
                     }}
-                    className={`flex-1 px-3 py-2 rounded border min-h-[44px] ${
+                    className={`flex-1 px-3 py-2 rounded border ${
                       i18n.language === lang
                         ? "border-foreground text-foreground"
                         : "border-border text-muted-foreground"
@@ -298,7 +299,7 @@ export default function Landing() {
                     toggleTheme?.();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg border border-border py-2 min-h-[44px]"
+                  className="w-full flex items-center justify-center gap-2 rounded-lg border border-border py-2"
                 >
                   {theme === "light" ? (
                     <>
@@ -315,14 +316,20 @@ export default function Landing() {
               )}
 
               {isAuthenticated ? (
-                <Link href="/app/dashboard" className="block">
-                  <Button variant="gradient" className="w-full cta-button">
+                <Link
+                  href="/app/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button variant="gradient" className="w-full">
                     {t("landing.nav.dashboard")}
                   </Button>
                 </Link>
               ) : (
-                <a href={getLoginUrl()} className="block">
-                  <Button variant="gradient" className="w-full cta-button">
+                <a
+                  href={getLoginUrl()}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button variant="gradient" className="w-full">
                     {t("landing.hero.cta.start")}
                   </Button>
                 </a>
@@ -332,171 +339,175 @@ export default function Landing() {
         </nav>
       </header>
 
-      <main>
-        {/* Hero Section - Mobile Optimized */}
-        <section className="landing-hero container-premium mx-auto pt-12 pb-16 md:pt-20 md:pb-24 px-4 md:px-0">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 mb-6 md:mb-8">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">
+      <main className="relative z-10">
+        <section className="container-premium mx-auto py-16 md:py-24" id="hero">
+          <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm font-medium mb-6">
+                <Sparkles className="h-4 w-4 text-primary" />
                 {t("landing.hero.badge")}
-              </span>
-            </div>
-
-            <h1 className="landing-hero-title text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground to-primary">
-              {t("landing.hero.title.part1")}{" "}
-              <span className="text-primary">
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+                {t("landing.hero.title.part1")}{" "}
                 {t("landing.hero.title.highlight")}
-              </span>{" "}
-              {t("landing.hero.title.part2")}
-            </h1>
-
-            <p className="landing-hero-subtitle text-lg md:text-xl text-muted-foreground mb-8 md:mb-10 max-w-2xl mx-auto">
-              {t("landing.hero.subtitle")}
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 md:mb-16">
-              <a href={getLoginUrl()}>
-                <Button
-                  variant="gradient"
-                  size="lg"
-                  className="cta-button w-full sm:w-auto"
-                >
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  {t("landing.hero.cta.start")}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </a>
-              <a href="#features">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto min-h-[44px]"
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8">
+                {t("landing.hero.subtitle")}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                {isAuthenticated ? (
+                  <Link href="/app/dashboard">
+                    <Button
+                      variant="gradient"
+                      size="lg"
+                      className="w-full sm:w-auto"
+                    >
+                      {t("landing.hero.cta.dashboard")}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <a href={getLoginUrl()}>
+                    <Button
+                      variant="gradient"
+                      size="lg"
+                      className="w-full sm:w-auto"
+                    >
+                      {t("landing.hero.cta.start")}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </a>
+                )}
+                <a
+                  href="#stories"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
                 >
                   {t("landing.hero.cta.learn")}
-                </Button>
-              </a>
-            </div>
-
-            {/* Hero Image - Mobile Optimized */}
-            <div className="relative rounded-3xl overflow-hidden border border-border/60 bg-card/40 shadow-2xl shadow-primary/10">
-              <img
-                src="/images/new/hero-main.png"
-                alt="Houston AI Coach Dashboard"
-                loading="eager"
-                className="w-full h-auto"
-                width="1200"
-                height="675"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-            </div>
-          </div>
-
-          {/* Trust Line - Mobile Optimized */}
-          <div className="mt-12 md:mt-16 flex flex-wrap items-center justify-center gap-4 md:gap-8 text-sm text-muted-foreground px-4">
-            {trustLabels.map((label, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-primary" />
-                <span>{label}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </a>
               </div>
-            ))}
+              <div className="mt-10 grid sm:grid-cols-3 gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  {t("landing.hero.trustBadges.noCard")}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="h-4 w-4 text-amber-400" />
+                  {t("landing.hero.trustBadges.freeCredits")}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-sky-500" />
+                  {t("landing.hero.trustBadges.cancelAnytime")}
+                </div>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 blur-3xl opacity-40 bg-gradient-to-br from-primary/40 via-purple-400/40 to-sky-400/40" />
+              <div className="relative grid grid-cols-2 gap-4">
+                {heroImages.map((src, index) => (
+                  <div
+                    key={src}
+                    className={`rounded-2xl overflow-hidden border border-border/60 bg-card shadow-lg shadow-primary/10 ${
+                      index === 0 ? "col-span-2" : ""
+                    }`}
+                  >
+                    <img
+                      src={src}
+                      alt="Houston use case"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+                <div className="col-span-2 rounded-2xl border border-border bg-card/80 p-6">
+                  <p className="text-sm text-muted-foreground mb-4 font-medium">
+                    {t("landing.trustline.title")}
+                  </p>
+                  <img
+                    src="/screenshot-dashboard.png"
+                    alt="Houston dashboard"
+                    className="w-full rounded-xl border border-border"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Features Section - Mobile Optimized */}
+        <section className="bg-card/60 border-y border-border/60 py-10">
+          <div className="container-premium mx-auto">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground text-center mb-4">
+              {t("landing.trustline.caption")}
+            </p>
+            <div className="flex flex-wrap justify-center gap-8 text-sm text-muted-foreground">
+              {trustLabels.map((label) => (
+                <span key={label} className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section
           id="features"
-          className="container-premium mx-auto py-12 md:py-20 px-4 md:px-0"
+          className="container-premium mx-auto py-16 md:py-24"
         >
-          <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
+          <div className="max-w-3xl mx-auto text-center mb-12">
             <p className="text-sm font-semibold text-primary mb-3">
-              {t("landing.benefits.label")}
+              {t("landing.howItWorks.title.highlight")}
             </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
               {t("landing.benefits.title.part1")}{" "}
-              <span className="text-primary">
-                {t("landing.benefits.title.highlight")}
-              </span>
+              {t("landing.benefits.title.highlight")}
             </h2>
-            <p className="text-base md:text-lg text-muted-foreground">
+            <p className="text-muted-foreground">
               {t("landing.benefits.subtitle")}
             </p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {featureCards.map((card) => (
               <div
                 key={card.title}
-                className="feature-card rounded-3xl border border-border bg-card/80 p-6 md:p-8 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300"
+                className="rounded-2xl border border-border bg-card/80 p-6 shadow-sm shadow-primary/5"
               >
-                <div className="mb-6 rounded-2xl overflow-hidden bg-muted/30 p-4">
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    loading="lazy"
-                    className="w-full h-auto"
-                    width="400"
-                    height="300"
-                  />
-                </div>
-                <div className="mb-4 p-3 rounded-2xl bg-primary/10 w-fit">
-                  <card.icon className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-xl md:text-2xl font-semibold mb-3">
-                  {card.title}
-                </h3>
-                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                <card.icon className="h-10 w-10 text-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
+                <p className="text-sm text-muted-foreground">
                   {card.description}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-16 grid md:grid-cols-4 gap-4">
+            {workflowSteps.map((step) => (
+              <div
+                key={step.title}
+                className="rounded-2xl border border-border bg-background/80 p-5"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                    {step.step}
+                  </div>
+                  <step.icon className="h-5 w-5 text-primary" />
+                </div>
+                <h4 className="font-semibold mb-2">{step.title}</h4>
+                <p className="text-sm text-muted-foreground">
+                  {step.description}
                 </p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* How It Works - Mobile Optimized */}
-        <section className="bg-muted/20 py-12 md:py-20 border-y border-border/60">
-          <div className="container-premium mx-auto px-4 md:px-0">
-            <div className="max-w-2xl mx-auto text-center mb-12 md:mb-16">
-              <p className="text-sm font-semibold text-primary mb-3">
-                {t("landing.howItWorks.label")}
-              </p>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                {t("landing.howItWorks.title")}
-              </h2>
-              <p className="text-base md:text-lg text-muted-foreground">
-                {t("landing.howItWorks.subtitle")}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              {workflowSteps.map((step, index) => (
-                <div
-                  key={step.title}
-                  className="relative rounded-3xl border border-border bg-card/80 p-6 md:p-8"
-                >
-                  <div className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-primary/10 border-4 border-background flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">
-                      {step.step}
-                    </span>
-                  </div>
-                  <div className="mb-4 p-3 rounded-2xl bg-primary/10 w-fit">
-                    <step.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-lg md:text-xl font-semibold mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm md:text-base text-muted-foreground">
-                    {step.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Stories Section - Mobile Optimized */}
-        <section id="stories" className="py-12 md:py-20">
-          <div className="container-premium mx-auto px-4 md:px-0">
+        <section
+          id="stories"
+          className="bg-muted/20 py-16 md:py-24 border-y border-border/60"
+        >
+          <div className="container-premium mx-auto">
             <div className="max-w-2xl mb-12">
               <p className="text-sm font-semibold text-primary mb-2">
                 {t("landing.storySection.label")}
@@ -505,24 +516,22 @@ export default function Landing() {
                 {t("landing.storySection.title.part1")}{" "}
                 {t("landing.storySection.title.highlight")}
               </h2>
-              <p className="text-base md:text-lg text-muted-foreground">
+              <p className="text-muted-foreground">
                 {t("landing.storySection.subtitle")}
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               {personaStories.map((story) => (
                 <div
                   key={story.title}
-                  className="story-card rounded-3xl overflow-hidden border border-border bg-card shadow-primary/10"
+                  className="rounded-3xl overflow-hidden border border-border bg-card shadow-primary/10"
                 >
-                  <div className="aspect-[4/3] overflow-hidden bg-muted/30">
+                  <div className="aspect-[4/3] overflow-hidden">
                     <img
                       src={story.image}
                       alt={story.title}
                       className="w-full h-full object-cover"
                       loading="lazy"
-                      width="400"
-                      height="300"
                     />
                   </div>
                   <div className="p-6">
@@ -549,12 +558,11 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Screenshots Section - Mobile Optimized */}
         <section
           id="screens"
-          className="container-premium mx-auto py-12 md:py-20 px-4 md:px-0"
+          className="container-premium mx-auto py-16 md:py-24"
         >
-          <div className="max-w-3xl mx-auto text-center mb-12 md:mb-14">
+          <div className="max-w-3xl mx-auto text-center mb-14">
             <p className="text-sm font-semibold text-primary mb-3">
               {t("landing.screenshots.title.part1")}{" "}
               {t("landing.screenshots.title.highlight")}
@@ -562,15 +570,15 @@ export default function Landing() {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               {t("landing.screenshots.sectionTitle")}
             </h2>
-            <p className="text-base md:text-lg text-muted-foreground">
+            <p className="text-muted-foreground">
               {t("landing.screenshots.subtitle")}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             {screenshotCards.map((card) => (
               <div
                 key={card.title}
-                className="screenshot-card rounded-3xl border border-border bg-card/80 overflow-hidden shadow-lg shadow-primary/10 flex flex-col"
+                className="rounded-3xl border border-border bg-card/80 overflow-hidden shadow-lg shadow-primary/10 flex flex-col"
               >
                 <div className="relative aspect-[4/3] bg-muted">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent rounded-b-[2.5rem]" />
@@ -579,8 +587,6 @@ export default function Landing() {
                     alt={card.alt}
                     loading="lazy"
                     className="w-full h-full object-cover"
-                    width="400"
-                    height="300"
                   />
                   <div className="absolute top-4 left-4 px-3 py-1 text-xs uppercase tracking-[0.4em] bg-background/70 backdrop-blur rounded-full border border-white/20 text-muted-foreground">
                     {t("landing.screenshots.label")}
@@ -597,11 +603,10 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Testimonials & Stats - Mobile Optimized */}
-        <section className="container-premium mx-auto py-12 md:py-20 px-4 md:px-0">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 md:gap-12">
-            <div className="rounded-3xl border border-border bg-card/80 p-6 md:p-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-3">
+        <section className="container-premium mx-auto py-16 md:py-24">
+          <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-12">
+            <div className="rounded-3xl border border-border bg-card/80 p-8">
+              <h2 className="text-2xl font-bold mb-3">
                 {t("landing.testimonials.title.part1")}{" "}
                 {t("landing.testimonials.title.highlight")}
               </h2>
@@ -610,13 +615,13 @@ export default function Landing() {
               </p>
               <div className="space-y-8">
                 {[1, 2, 3].map((num) => (
-                  <figure key={num} className="testimonial">
-                    <blockquote className="testimonial-quote text-base md:text-lg leading-relaxed text-foreground/90">
-                      "
+                  <figure key={num}>
+                    <blockquote className="text-lg leading-relaxed text-foreground/90">
+                      “
                       {t(
                         `landing.testimonials.testimonial${num}.quote` as const,
                       )}
-                      "
+                      ”
                     </blockquote>
                     <figcaption className="mt-4 text-sm text-muted-foreground">
                       <span className="font-semibold text-foreground">
@@ -633,27 +638,25 @@ export default function Landing() {
                 ))}
               </div>
             </div>
-            <div className="rounded-3xl border border-border bg-background/70 p-6 md:p-8">
-              <div className="stats-grid grid grid-cols-2 gap-4 md:gap-6">
+            <div className="rounded-3xl border border-border bg-background/70 p-8">
+              <div className="grid grid-cols-2 gap-6">
                 {stats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="stat-card rounded-2xl border border-border/70 p-4 md:p-5 bg-card/60"
+                    className="rounded-2xl border border-border/70 p-5 bg-card/60"
                   >
-                    <div className="stat-value text-2xl md:text-3xl font-bold mb-2">
-                      {stat.value}
-                    </div>
-                    <p className="text-xs md:text-sm text-muted-foreground">
+                    <div className="text-3xl font-bold mb-2">{stat.value}</div>
+                    <p className="text-sm text-muted-foreground">
                       {stat.label}
                     </p>
                   </div>
                 ))}
               </div>
-              <div className="mt-8 md:mt-10 rounded-2xl border border-dashed border-primary/40 p-6 text-center">
+              <div className="mt-10 rounded-2xl border border-dashed border-primary/40 p-6 text-center">
                 <p className="text-sm text-muted-foreground mb-3">
                   {t("landing.trust.security")}
                 </p>
-                <p className="text-xl md:text-2xl font-semibold mb-4">
+                <p className="text-2xl font-semibold mb-4">
                   {t("landing.trust.uptime")}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -664,26 +667,25 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Pricing Section - Mobile Optimized */}
         <section
           id="pricing"
-          className="bg-card/60 py-12 md:py-20 border-y border-border/60"
+          className="bg-card/60 py-16 md:py-24 border-y border-border/60"
         >
-          <div className="container-premium mx-auto px-4 md:px-0">
+          <div className="container-premium mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 {t("landing.pricing.title.part1")}{" "}
                 {t("landing.pricing.title.highlight")}
               </h2>
-              <p className="text-base md:text-lg text-muted-foreground">
+              <p className="text-muted-foreground">
                 {t("landing.pricing.subtitle")}
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               {(["starter", "solo", "team"] as const).map((planKey) => (
                 <div
                   key={planKey}
-                  className={`pricing-card rounded-3xl border bg-background/80 p-6 md:p-8 flex flex-col gap-6 ${
+                  className={`rounded-3xl border bg-background/80 p-8 flex flex-col gap-6 ${
                     planKey === "solo"
                       ? "border-primary/40 shadow-primary/20 shadow-xl"
                       : "border-border"
@@ -693,7 +695,7 @@ export default function Landing() {
                     <p className="text-sm font-semibold text-primary uppercase tracking-wide">
                       {t(`landing.pricing.${planKey}.name` as const)}
                     </p>
-                    <p className="price text-3xl md:text-4xl font-bold mt-2">
+                    <p className="text-4xl font-bold mt-2">
                       {t(`landing.pricing.${planKey}.price` as const)}
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -701,7 +703,7 @@ export default function Landing() {
                     </p>
                   </div>
                   <div className="rounded-2xl border border-dashed border-primary/30 p-4">
-                    <p className="text-base md:text-lg font-semibold">
+                    <p className="text-lg font-semibold">
                       {t(`landing.pricing.${planKey}.credits` as const)}
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -714,17 +716,17 @@ export default function Landing() {
                         key={featureIndex}
                         className="flex items-center gap-2 text-muted-foreground"
                       >
-                        <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
                         {t(
                           `landing.pricing.${planKey}.feature${featureIndex}` as const,
                         )}
                       </li>
                     ))}
                   </ul>
-                  <a href={getLoginUrl()} className="mt-auto">
+                  <a href={getLoginUrl()}>
                     <Button
                       variant={planKey === "solo" ? "gradient" : "outline"}
-                      className="w-full cta-button"
+                      className="w-full"
                     >
                       {t(`landing.pricing.${planKey}.cta` as const)}
                     </Button>
@@ -741,32 +743,26 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* FAQ Section - Mobile Optimized */}
-        <section
-          id="faq"
-          className="container-premium mx-auto py-12 md:py-20 px-4 md:px-0"
-        >
+        <section id="faq" className="container-premium mx-auto py-16 md:py-24">
           <div className="max-w-2xl mx-auto text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               {t("landing.faq.title.part1")} {t("landing.faq.title.highlight")}
             </h2>
-            <p className="text-base md:text-lg text-muted-foreground">
-              {t("landing.faq.subtitle")}
-            </p>
+            <p className="text-muted-foreground">{t("landing.faq.subtitle")}</p>
           </div>
-          <div className="max-w-3xl mx-auto space-y-4">
+          <div className="space-y-4">
             {faqKeys.map((key) => (
               <details
                 key={key}
-                className="rounded-2xl border border-border bg-card/80 p-4 md:p-6 group"
+                className="rounded-2xl border border-border bg-card/80 p-6 group"
               >
                 <summary className="flex items-center justify-between cursor-pointer list-none">
-                  <h3 className="text-base md:text-lg font-semibold pr-4">
+                  <h3 className="text-lg font-semibold pr-4">
                     {t(`landing.faq.${key}.question` as const)}
                   </h3>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-open:rotate-90 transition-transform flex-shrink-0" />
+                  <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-90" />
                 </summary>
-                <p className="mt-4 text-sm md:text-base text-muted-foreground leading-relaxed">
+                <p className="mt-4 text-muted-foreground">
                   {t(`landing.faq.${key}.answer` as const)}
                 </p>
               </details>
@@ -774,17 +770,16 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Final CTA - Mobile Optimized */}
-        <section className="container-premium mx-auto py-12 md:py-20 px-4 md:px-0">
-          <div className="rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-purple-600/10 to-sky-500/10 p-8 md:p-10 text-center">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+        <section className="container-premium mx-auto py-16 md:py-24">
+          <div className="rounded-3xl border border-primary/30 bg-gradient-to-r from-primary/10 via-purple-600/10 to-sky-500/10 p-10 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
               {t("landing.cta.final.title")}
             </h2>
-            <p className="text-base md:text-lg text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-6">
               {t("landing.cta.final.subtitle")}
             </p>
             <a href={getLoginUrl()}>
-              <Button variant="gradient" size="lg" className="cta-button">
+              <Button variant="gradient" size="lg">
                 <Sparkles className="mr-2 h-5 w-5" />
                 {t("landing.cta.final.button")}
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -794,9 +789,8 @@ export default function Landing() {
         </section>
       </main>
 
-      {/* Footer - Mobile Optimized */}
-      <footer className="border-t border-border/60 py-8 md:py-12">
-        <div className="container-premium mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-sm px-4 md:px-0">
+      <footer className="border-t border-border/60 py-12">
+        <div className="container-premium mx-auto grid md:grid-cols-4 gap-8 text-sm">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -856,17 +850,17 @@ export default function Landing() {
               <input
                 type="email"
                 placeholder={t("landing.newsletter.placeholder")}
-                className="px-4 py-2 rounded-lg border border-border bg-background min-h-[44px]"
+                className="px-4 py-2 rounded-lg border border-border bg-background"
               />
-              <Button variant="gradient" type="submit" className="min-h-[44px]">
+              <Button variant="gradient" type="submit">
                 {t("landing.newsletter.cta")}
               </Button>
             </form>
           </div>
         </div>
-        <div className="container-premium mx-auto mt-10 text-xs text-muted-foreground flex flex-col md:flex-row justify-between gap-4 px-4 md:px-0">
+        <div className="container-premium mx-auto mt-10 text-xs text-muted-foreground flex flex-col md:flex-row justify-between gap-4">
           <p>© 2024 Houston by AIstronaut. {t("landing.footer.rights")}</p>
-          <div className="flex flex-wrap gap-4 md:gap-6">
+          <div className="flex gap-6">
             <a href="#" className="hover:text-foreground">
               {t("landing.footer.privacy")}
             </a>

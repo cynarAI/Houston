@@ -1,0 +1,260 @@
+/* Critical Mobile Fixes for Onboarding Page */
+
+/* Fix Badge/Pill Button Issues on Mobile */
+@media (max-width: 768px) {
+  /* Prevent badge flickering and improve touch response */
+  [data-slot="badge"],
+  .cursor-pointer {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  /* Fix Badge Pills - Make them larger and more touch-friendly */
+  .cursor-pointer.hover\:bg-primary\/90 {
+    min-height: 44px;
+    min-width: 60px;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9375rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease-in-out;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+
+  /* Prevent double-tap zoom on badges */
+  .cursor-pointer {
+    touch-action: manipulation;
+  }
+
+  /* Fix Badge hover state for touch devices */
+  @media (hover: none) {
+    .cursor-pointer:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+    }
+  }
+
+  /* Onboarding Card - Better Mobile Spacing */
+  .max-w-3xl {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Card Content Padding */
+  [data-slot="card-content"] {
+    padding: 1.5rem 1rem !important;
+  }
+
+  /* Form Inputs - Prevent iOS Zoom */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+    min-height: 44px;
+  }
+
+  textarea {
+    min-height: 88px;
+  }
+
+  /* Button Spacing and Size */
+  button {
+    min-height: 44px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  /* Fix flex-wrap gap for pill buttons */
+  .flex-wrap {
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Label Spacing */
+  label {
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  /* Space between form fields */
+  .space-y-4 > * + * {
+    margin-top: 1.5rem !important;
+  }
+
+  /* Progress Bar */
+  [data-slot="progress"] {
+    height: 8px;
+  }
+
+  /* Card Header */
+  [data-slot="card-header"] {
+    padding: 1.5rem 1rem 1rem !important;
+  }
+
+  /* Fix Badge variant styling */
+  [data-variant="default"] {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  [data-variant="outline"] {
+    background: transparent;
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+
+  /* Prevent text selection on interactive elements */
+  .cursor-pointer,
+  button,
+  [role="button"] {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+
+  /* Fix animation performance on mobile */
+  .animate-in,
+  .transition-all {
+    will-change: transform, opacity;
+  }
+
+  /* Reduce animation complexity on mobile */
+  .animate-pulse {
+    animation-duration: 2s;
+  }
+
+  /* Fix button group spacing */
+  .flex.justify-between {
+    gap: 1rem;
+  }
+
+  .flex.justify-between > button {
+    flex: 1;
+    max-width: 48%;
+  }
+
+  /* Fix Card Title */
+  [data-slot="card-title"] {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  /* Fix Card Description */
+  [data-slot="card-description"] {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  /* SMART Goals Cards */
+  .space-y-4 > div[class*="rounded"] {
+    padding: 1rem;
+  }
+
+  /* Fix icon sizes in buttons */
+  button svg {
+    flex-shrink: 0;
+  }
+
+  /* Prevent layout shift during transitions */
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+
+  /* Fix scrolling on mobile */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Small Mobile Devices (< 375px) */
+@media (max-width: 374px) {
+  .cursor-pointer.hover\:bg-primary\/90 {
+    min-width: 50px;
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.875rem;
+  }
+
+  [data-slot="card-content"] {
+    padding: 1rem 0.75rem !important;
+  }
+
+  [data-slot="card-header"] {
+    padding: 1rem 0.75rem 0.75rem !important;
+  }
+
+  button {
+    font-size: 0.9375rem;
+    padding: 0.625rem 1.25rem;
+  }
+}
+
+/* Landscape Mode on Mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+  .min-h-screen {
+    min-height: auto;
+    padding: 1rem 0;
+  }
+
+  [data-slot="card-content"] {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+
+/* Fix for specific Badge component issues */
+@media (max-width: 768px) {
+  /* Ensure badges don't cause layout shifts */
+  .flex-wrap.gap-2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem !important;
+  }
+
+  /* Fix badge pointer events */
+  [data-slot="badge"] {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  /* Improve badge active state */
+  [data-slot="badge"]:active {
+    transform: scale(0.95);
+  }
+
+  /* Fix badge text wrapping */
+  [data-slot="badge"] {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 100%;
+  }
+}
+
+/* iOS Specific Fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix iOS Safari button rendering */
+  button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Fix iOS input rendering */
+  input,
+  textarea {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0.5rem;
+  }
+
+  /* Prevent iOS zoom on focus */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    font-size: 16px !important;
+  }
+}
