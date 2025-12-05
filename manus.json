@@ -1,0 +1,31 @@
+{
+  "name": "Houston AI",
+  "version": "1.0.0",
+  "type": "fullstack-app",
+  "domain": "houston.manus.space",
+  "repository": "https://github.com/cynarAI/Houston.git",
+  "branch": "main",
+  "runtime": "node",
+  "nodeVersion": "22",
+  "packageManager": "pnpm",
+  "buildCommand": "pnpm install && pnpm build",
+  "startCommand": "pnpm start",
+  "port": 3000,
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "database": {
+    "type": "mysql",
+    "managed": true
+  },
+  "features": {
+    "ssl": true,
+    "analytics": true,
+    "monitoring": true
+  },
+  "deployment": {
+    "autoPublish": true,
+    "healthCheck": "/api/health",
+    "rollbackOnError": true
+  }
+}
