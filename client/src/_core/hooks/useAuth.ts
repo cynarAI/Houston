@@ -9,6 +9,9 @@ type UseAuthOptions = {
 };
 
 export function useAuth(options?: UseAuthOptions) {
+  const isMockAuth =
+    import.meta.env.VITE_DEV_MOCK_AUTH === "true" ||
+    (import.meta.env.DEV && import.meta.env.VITE_DEV_MOCK_AUTH !== "false");
   const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
     options ?? {};
   const utils = trpc.useUtils();
@@ -16,6 +19,7 @@ export function useAuth(options?: UseAuthOptions) {
   const meQuery = trpc.auth.me.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
+    enabled: !isMockAuth,
   });
 
   const logoutMutation = trpc.auth.logout.useMutation({
@@ -44,6 +48,20 @@ export function useAuth(options?: UseAuthOptions) {
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
+    if (isMockAuth) {
+      return {
+        user: {
+          id: -1,
+          openId: "mock-user",
+          name: "Mock User",
+          email: "mock@example.com",
+        },
+        loading: false,
+        error: null,
+        isAuthenticated: true,
+      };
+    }
+
     // GDPR: Don't store personal user data in localStorage
     // User data is managed via server session only
     return {
@@ -53,6 +71,7 @@ export function useAuth(options?: UseAuthOptions) {
       isAuthenticated: Boolean(meQuery.data),
     };
   }, [
+    isMockAuth,
     meQuery.data,
     meQuery.error,
     meQuery.isLoading,
@@ -61,14 +80,16 @@ export function useAuth(options?: UseAuthOptions) {
   ]);
 
   useEffect(() => {
+    if (isMockAuth) return;
     if (!redirectOnUnauthenticated) return;
     if (meQuery.isLoading || logoutMutation.isPending) return;
     if (state.user) return;
     if (typeof window === "undefined") return;
     if (window.location.pathname === redirectPath) return;
 
-    window.location.href = redirectPath
+    window.location.href = redirectPath;
   }, [
+    isMockAuth,
     redirectOnUnauthenticated,
     redirectPath,
     logoutMutation.isPending,
@@ -78,7 +99,7 @@ export function useAuth(options?: UseAuthOptions) {
 
   return {
     ...state,
-    refresh: () => meQuery.refetch(),
-    logout,
+    refresh: () => (isMockAuth ? Promise.resolve() : meQuery.refetch()),
+    logout: isMockAuth ? async () => {} : logout,
   };
 }

@@ -1,5 +1,15 @@
 import { ENV } from "./env";
 import { LLMError } from "@shared/_core/errors";
+import { callText, configureRouter } from "../../packages/ai-core/router";
+import type {
+  ChatMessage as AiChatMessage,
+  TextRequest,
+} from "../../packages/ai-core/types";
+import { ManusEmbeddedAdapter } from "../../packages/ai-providers/manus-embedded";
+import { ManusApiAdapter } from "../../packages/ai-providers/manus-api";
+import { MockAiAdapter } from "../../packages/ai-providers/mock";
+import { TelemetryClient } from "../../packages/ai-telemetry";
+import { incrementUsageCounter, isUsageAllowed } from "../db";
 
 /**
  * LLM Configuration
@@ -14,6 +24,37 @@ const LLM_CONFIG = {
   /** Jitter factor for retry delay (0-1) */
   RETRY_JITTER: 0.2,
 } as const;
+
+const telemetry = new TelemetryClient();
+let routerConfigured = false;
+
+const ensureRouterConfigured = () => {
+  if (routerConfigured) return;
+  configureRouter({
+    providers: {
+      embedded: new ManusEmbeddedAdapter(),
+      manus_api: new ManusApiAdapter(),
+      mock: new MockAiAdapter(),
+    },
+    telemetry: {
+      beforeCall: ({ modality, provider }) =>
+        telemetry.recordUsage({
+          userId: "unknown",
+          modality,
+          provider,
+        }),
+    },
+    requestTimeoutMs: LLM_CONFIG.TIMEOUT_MS,
+    retryBackoffMs: LLM_CONFIG.BASE_RETRY_DELAY_MS,
+  });
+  if (
+    process.env.NODE_ENV === "production" &&
+    (process.env.HOUSTON_AI_PROVIDER ?? "").trim() === "mock"
+  ) {
+    console.warn("[AI Router] WARNING: provider=mock in production env");
+  }
+  routerConfigured = true;
+};
 
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
 
@@ -34,7 +75,12 @@ export type FileContent = {
   type: "file_url";
   file_url: {
     url: string;
-    mime_type?: "audio/mpeg" | "audio/wav" | "application/pdf" | "audio/mp4" | "video/mp4" ;
+    mime_type?:
+      | "audio/mpeg"
+      | "audio/wav"
+      | "application/pdf"
+      | "audio/mp4"
+      | "video/mp4";
   };
 };
 
@@ -71,6 +117,8 @@ export type ToolChoice =
   | ToolChoiceExplicit;
 
 export type InvokeParams = {
+  userId?: string;
+  sessionId?: string;
   messages: Message[];
   tools?: Tool[];
   toolChoice?: ToolChoice;
@@ -126,11 +174,11 @@ export type ResponseFormat =
   | { type: "json_schema"; json_schema: JsonSchema };
 
 const ensureArray = (
-  value: MessageContent | MessageContent[]
+  value: MessageContent | MessageContent[],
 ): MessageContent[] => (Array.isArray(value) ? value : [value]);
 
 const normalizeContentPart = (
-  part: MessageContent
+  part: MessageContent,
 ): TextContent | ImageContent | FileContent => {
   if (typeof part === "string") {
     return { type: "text", text: part };
@@ -156,7 +204,7 @@ const normalizeMessage = (message: Message) => {
 
   if (role === "tool" || role === "function") {
     const content = ensureArray(message.content)
-      .map(part => (typeof part === "string" ? part : JSON.stringify(part)))
+      .map((part) => (typeof part === "string" ? part : JSON.stringify(part)))
       .join("\n");
 
     return {
@@ -185,9 +233,29 @@ const normalizeMessage = (message: Message) => {
   };
 };
 
+const toAiMessage = (message: Message): AiChatMessage => {
+  const normalized = normalizeMessage(message);
+  const content =
+    typeof normalized.content === "string"
+      ? normalized.content
+      : Array.isArray(normalized.content)
+        ? normalized.content
+            .map((part) =>
+              typeof part === "string" ? part : JSON.stringify(part),
+            )
+            .join("\n")
+        : JSON.stringify(normalized.content);
+  return {
+    role: (normalized.role as AiChatMessage["role"]) ?? "user",
+    content,
+    name: normalized.name,
+    tool_call_id: (normalized as any).tool_call_id,
+  };
+};
+
 const normalizeToolChoice = (
   toolChoice: ToolChoice | undefined,
-  tools: Tool[] | undefined
+  tools: Tool[] | undefined,
 ): "none" | "auto" | ToolChoiceExplicit | undefined => {
   if (!toolChoice) return undefined;
 
@@ -198,13 +266,13 @@ const normalizeToolChoice = (
   if (toolChoice === "required") {
     if (!tools || tools.length === 0) {
       throw new Error(
-        "tool_choice 'required' was provided but no tools were configured"
+        "tool_choice 'required' was provided but no tools were configured",
       );
     }
 
     if (tools.length > 1) {
       throw new Error(
-        "tool_choice 'required' needs a single tool or specify the tool name explicitly"
+        "tool_choice 'required' needs a single tool or specify the tool name explicitly",
       );
     }
 
@@ -257,7 +325,7 @@ const normalizeResponseFormat = ({
       !explicitFormat.json_schema?.schema
     ) {
       throw new Error(
-        "responseFormat json_schema requires a defined schema object"
+        "responseFormat json_schema requires a defined schema object",
       );
     }
     return explicitFormat;
@@ -288,14 +356,14 @@ function isRetryableError(error: unknown, statusCode?: number): boolean {
   if (error instanceof TypeError && error.message.includes("fetch")) {
     return true;
   }
-  
+
   // Retry on specific HTTP status codes
   if (statusCode) {
     // 429 = Too Many Requests
     // 500, 502, 503, 504 = Server errors (often temporary)
     return [429, 500, 502, 503, 504].includes(statusCode);
   }
-  
+
   return false;
 }
 
@@ -309,146 +377,80 @@ function calculateRetryDelay(attempt: number): number {
 }
 
 /**
- * Invoke the LLM API with timeout, retry, and error handling
- * 
- * Features:
- * - 60-second timeout to prevent hanging requests
- * - Up to 3 retry attempts with exponential backoff for transient errors
- * - Proper error classification and logging
+ * Invoke the LLM using the provider-agnostic router.
  */
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
-  assertApiKey();
+  ensureRouterConfigured();
 
-  const {
-    messages,
-    tools,
-    toolChoice,
-    tool_choice,
-    outputSchema,
-    output_schema,
-    responseFormat,
-    response_format,
-  } = params;
-
-  const payload: Record<string, unknown> = {
-    model: "gemini-2.5-flash",
-    messages: messages.map(normalizeMessage),
+  const textRequest: TextRequest = {
+    userId: params.userId ?? "unknown",
+    sessionId: params.sessionId,
+    messages: params.messages.map(toAiMessage),
+    tools: params.tools as any,
+    toolChoice: (params.toolChoice || params.tool_choice) as any,
+    maxTokens: params.maxTokens ?? params.max_tokens,
+    temperature: params.temperature ?? 0.7,
+    timeoutMs: params.timeoutMs ?? LLM_CONFIG.TIMEOUT_MS,
   };
 
-  if (tools && tools.length > 0) {
-    payload.tools = tools;
-  }
-
-  const normalizedToolChoice = normalizeToolChoice(
-    toolChoice || tool_choice,
-    tools
-  );
-  if (normalizedToolChoice) {
-    payload.tool_choice = normalizedToolChoice;
-  }
-
-  payload.max_tokens = 32768;
-  payload.thinking = {
-    budget_tokens: 128,
-  };
-
-  const normalizedResponseFormat = normalizeResponseFormat({
-    responseFormat,
-    response_format,
-    outputSchema,
-    output_schema,
-  });
-
-  if (normalizedResponseFormat) {
-    payload.response_format = normalizedResponseFormat;
-  }
-
-  let lastError: Error | undefined;
-  
-  for (let attempt = 0; attempt < LLM_CONFIG.MAX_RETRIES; attempt++) {
-    try {
-      // Create AbortController for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), LLM_CONFIG.TIMEOUT_MS);
-
-      try {
-        const response = await fetch(resolveApiUrl(), {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            authorization: `Bearer ${ENV.forgeApiKey}`,
-          },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          const errorMessage = `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`;
-          
-          // Check if we should retry
-          if (isRetryableError(null, response.status) && attempt < LLM_CONFIG.MAX_RETRIES - 1) {
-            console.warn(`[LLM] Retryable error on attempt ${attempt + 1}: ${response.status}`);
-            lastError = new Error(errorMessage);
-            await sleep(calculateRetryDelay(attempt));
-            continue;
-          }
-          
-          // Non-retryable error or last attempt
-          console.error(`[LLM] Request failed: ${errorMessage}`);
-          throw LLMError(errorMessage);
-        }
-
-        const result = (await response.json()) as InvokeResult;
-        
-        // Log successful request (useful for debugging)
-        if (attempt > 0) {
-          console.log(`[LLM] Request succeeded after ${attempt + 1} attempts`);
-        }
-        
-        return result;
-      } finally {
-        clearTimeout(timeoutId);
-      }
-    } catch (error) {
-      // Handle abort (timeout)
-      if (error instanceof Error && error.name === "AbortError") {
-        console.error(`[LLM] Request timed out after ${LLM_CONFIG.TIMEOUT_MS}ms (attempt ${attempt + 1})`);
-        lastError = new Error(`LLM request timed out after ${LLM_CONFIG.TIMEOUT_MS}ms`);
-        
-        // Don't retry on timeout - the request might still be processing
-        if (attempt < LLM_CONFIG.MAX_RETRIES - 1) {
-          await sleep(calculateRetryDelay(attempt));
-          continue;
-        }
-      }
-      
-      // Handle network errors
-      if (isRetryableError(error) && attempt < LLM_CONFIG.MAX_RETRIES - 1) {
-        console.warn(`[LLM] Network error on attempt ${attempt + 1}:`, error);
-        lastError = error instanceof Error ? error : new Error(String(error));
-        await sleep(calculateRetryDelay(attempt));
-        continue;
-      }
-      
-      // Re-throw non-retryable errors
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error(String(error));
+  const numericUserId = Number(textRequest.userId);
+  if (!Number.isNaN(numericUserId)) {
+    const allowed = await isUsageAllowed({
+      userId: numericUserId,
+      modality: "text",
+    });
+    if (!allowed.allowed) {
+      throw LLMError("Tageslimit erreicht – bitte morgen erneut versuchen.");
     }
   }
 
-  // All retries exhausted
-  console.error(`[LLM] All ${LLM_CONFIG.MAX_RETRIES} attempts failed`);
-  throw LLMError(lastError?.message || "LLM request failed after all retries");
+  const res = await callText(textRequest);
+
+  if (!Number.isNaN(numericUserId)) {
+    const promptTokens =
+      (res.usage as any)?.promptTokens ?? (res.usage as any)?.prompt_tokens;
+    const completionTokens =
+      (res.usage as any)?.completionTokens ??
+      (res.usage as any)?.completion_tokens;
+
+    await incrementUsageCounter({
+      userId: numericUserId,
+      modality: "text",
+      delta: 1,
+      promptTokens,
+      completionTokens,
+    });
+  }
+
+  return {
+    id: res.trace.traceId,
+    created: Date.now(),
+    model: ENV.houstonEmbeddedModel,
+    choices: [
+      {
+        index: 0,
+        message: {
+          role: "assistant",
+          content: res.output,
+          tool_calls: res.toolCalls,
+        } as any,
+        finish_reason: null,
+      },
+    ],
+    usage: res.usage
+      ? {
+          prompt_tokens: res.usage.promptTokens ?? res.usage.prompt_tokens ?? 0,
+          completion_tokens:
+            res.usage.completionTokens ?? res.usage.completion_tokens ?? 0,
+          total_tokens: res.usage.totalTokens ?? res.usage.total_tokens ?? 0,
+        }
+      : undefined,
+  };
 }
 
 /**
  * Sleep for a specified number of milliseconds
  */
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

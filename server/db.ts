@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import * as schema from "../drizzle/schema";
 import {
@@ -22,6 +22,12 @@ import {
   InsertOnboardingData,
   contentLibrary,
   InsertContentLibraryItem,
+  aiTasks,
+  InsertAiTask,
+  usageCounters,
+  InsertUsageCounter,
+  assets,
+  InsertAsset,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -177,6 +183,133 @@ export async function deleteWorkspace(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(workspaces).where(eq(workspaces.id, id));
+}
+
+// ============ AI Tasks & Usage ============
+
+export async function upsertAiTask(task: InsertAiTask) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .insert(aiTasks)
+    .values(task)
+    .onDuplicateKeyUpdate({
+      set: {
+        status: task.status,
+        resultRef: task.resultRef,
+        errorCode: task.errorCode,
+        webhookPayload: task.webhookPayload,
+        updatedAt: new Date(),
+      },
+    });
+}
+
+type RateLimitPlan = "free" | "pro";
+const RATE_LIMITS: Record<
+  RateLimitPlan,
+  Record<string, { maxCalls: number }>
+> = {
+  free: {
+    text: { maxCalls: 50 },
+    image: { maxCalls: 10 },
+    tts: { maxCalls: 20 },
+    stt: { maxCalls: 20 },
+  },
+  pro: {
+    text: { maxCalls: 500 },
+    image: { maxCalls: 50 },
+    tts: { maxCalls: 200 },
+    stt: { maxCalls: 200 },
+  },
+};
+
+export async function getRateLimitPlan(userId: number): Promise<RateLimitPlan> {
+  const plan = await getPlanLimitByUserId(userId);
+  if (!plan) return "free";
+  return plan.plan === "rocket" ? "pro" : "free";
+}
+
+export async function isUsageAllowed(params: {
+  userId: number;
+  modality: InsertUsageCounter["modality"];
+  plan?: RateLimitPlan;
+  window?: string;
+}) {
+  const db = await getDb();
+  if (!db) return { allowed: true, remaining: undefined };
+  const window = params.window ?? new Date().toISOString().slice(0, 10);
+  const planKey = params.plan ?? (await getRateLimitPlan(params.userId));
+  const rule = RATE_LIMITS[planKey]?.[params.modality];
+  if (!rule) return { allowed: true, remaining: undefined };
+
+  const existing = await db
+    .select()
+    .from(usageCounters)
+    .where(
+      and(
+        eq(usageCounters.userId, params.userId),
+        eq(usageCounters.window, window),
+        eq(usageCounters.modality, params.modality),
+      ),
+    )
+    .limit(1);
+
+  const used = existing[0]?.count ?? 0;
+  const remaining = rule.maxCalls - used;
+  return { allowed: remaining > 0, remaining };
+}
+
+export async function incrementUsageCounter(params: {
+  userId: number;
+  modality: InsertUsageCounter["modality"];
+  delta?: number;
+  promptTokens?: number;
+  completionTokens?: number;
+  window?: string;
+}) {
+  const db = await getDb();
+  if (!db) return;
+  const window = params.window ?? new Date().toISOString().slice(0, 10);
+  const existing = await db
+    .select()
+    .from(usageCounters)
+    .where(
+      and(
+        eq(usageCounters.userId, params.userId),
+        eq(usageCounters.window, window),
+        eq(usageCounters.modality, params.modality),
+      ),
+    )
+    .limit(1);
+
+  if (existing.length === 0) {
+    await db.insert(usageCounters).values({
+      userId: params.userId,
+      modality: params.modality,
+      window,
+      count: params.delta ?? 1,
+      promptTokens: params.promptTokens,
+      completionTokens: params.completionTokens,
+    });
+    return;
+  }
+
+  const row = existing[0];
+  await db
+    .update(usageCounters)
+    .set({
+      count: row.count + (params.delta ?? 1),
+      promptTokens: (row.promptTokens ?? 0) + (params.promptTokens ?? 0),
+      completionTokens:
+        (row.completionTokens ?? 0) + (params.completionTokens ?? 0),
+    })
+    .where(eq(usageCounters.id, row.id));
+}
+
+export async function createAsset(asset: InsertAsset) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(assets).values(asset);
 }
 
 // ============ Goal Queries ============

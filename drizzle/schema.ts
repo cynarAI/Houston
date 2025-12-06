@@ -432,3 +432,74 @@ export const notifications = mysqlTable("notifications", {
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * AI tasks table - tracks async Manus API tasks
+ */
+export const aiTasks = mysqlTable("aiTasks", {
+  id: varchar("id", { length: 128 }).primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  modality: mysqlEnum("modality", [
+    "text",
+    "image",
+    "tts",
+    "stt",
+    "agent",
+  ]).notNull(),
+  provider: varchar("provider", { length: 32 }).notNull(),
+  status: mysqlEnum("status", ["queued", "running", "succeeded", "failed"])
+    .default("queued")
+    .notNull(),
+  resultRef: text("resultRef"),
+  errorCode: varchar("errorCode", { length: 64 }),
+  webhookPayload: text("webhookPayload"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AiTask = typeof aiTasks.$inferSelect;
+export type InsertAiTask = typeof aiTasks.$inferInsert;
+
+/**
+ * Generated assets (text/image/audio) metadata
+ */
+export const assets = mysqlTable("assets", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: mysqlEnum("type", ["text", "image", "audio"]).notNull(),
+  url: text("url"),
+  meta: text("meta"),
+  provider: varchar("provider", { length: 32 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Asset = typeof assets.$inferSelect;
+export type InsertAsset = typeof assets.$inferInsert;
+
+/**
+ * Usage counters per user/modality for lightweight rate limiting
+ */
+export const usageCounters = mysqlTable("usageCounters", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  window: varchar("window", { length: 32 }).notNull(), // e.g., '2025-12-06'
+  modality: mysqlEnum("modality", [
+    "text",
+    "image",
+    "tts",
+    "stt",
+    "agent",
+  ]).notNull(),
+  count: int("count").default(0).notNull(),
+  promptTokens: int("promptTokens"),
+  completionTokens: int("completionTokens"),
+});
+
+export type UsageCounter = typeof usageCounters.$inferSelect;
+export type InsertUsageCounter = typeof usageCounters.$inferInsert;

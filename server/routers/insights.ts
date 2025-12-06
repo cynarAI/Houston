@@ -9,16 +9,13 @@ export const insightsRouter = router({
     .input(z.object({ workspaceId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       // Charge 3 credits for AI insights generation
-      const result = await CreditService.charge(
-        ctx.user.id,
-        'AI_INSIGHTS',
-        3,
-        { workspaceId: input.workspaceId }
-      );
-      
+      const result = await CreditService.charge(ctx.user.id, "AI_INSIGHTS", 3, {
+        workspaceId: input.workspaceId,
+      });
+
       if (!result.success) {
         throw new Error(
-          `Not enough credits! AI Insights generation costs 3 credits. Current balance: ${result.newBalance} credits.`
+          `Not enough credits! AI Insights generation costs 3 credits. Current balance: ${result.newBalance} credits.`,
         );
       }
       // Fetch user's data
@@ -83,6 +80,7 @@ export const insightsRouter = router({
 Respond ONLY with valid JSON, no additional text.`;
 
       const response = await invokeLLM({
+        userId: String(ctx.user?.openId ?? ctx.user?.id ?? "unknown"),
         messages: [
           {
             role: "system",
@@ -107,11 +105,24 @@ Respond ONLY with valid JSON, no additional text.`;
                       title: { type: "string" },
                       description: { type: "string" },
                       action: { type: "string" },
-                      priority: { type: "string", enum: ["high", "medium", "low"] },
-                      category: { type: "string", enum: ["goals", "strategy", "tasks", "optimization"] },
+                      priority: {
+                        type: "string",
+                        enum: ["high", "medium", "low"],
+                      },
+                      category: {
+                        type: "string",
+                        enum: ["goals", "strategy", "tasks", "optimization"],
+                      },
                       link: { type: "string" },
                     },
-                    required: ["title", "description", "action", "priority", "category", "link"],
+                    required: [
+                      "title",
+                      "description",
+                      "action",
+                      "priority",
+                      "category",
+                      "link",
+                    ],
                     additionalProperties: false,
                   },
                 },
@@ -124,7 +135,9 @@ Respond ONLY with valid JSON, no additional text.`;
       });
 
       const content = response.choices[0].message.content;
-      const recommendations = JSON.parse(typeof content === 'string' ? content : "{}");
+      const recommendations = JSON.parse(
+        typeof content === "string" ? content : "{}",
+      );
 
       return recommendations;
     }),

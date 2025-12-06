@@ -404,10 +404,11 @@
   },
   "landing": {
     "nav": {
-      "features": "Funktionen",
-      "howItWorks": "So funktioniert's",
-      "stories": "Stories",
+      "features": "Outcomes",
+      "howItWorks": "Ablauf",
+      "personas": "Für wen",
       "pricing": "Preise",
+      "credits": "Credits",
       "faq": "FAQ",
       "login": "Anmelden",
       "dashboard": "Zum Dashboard",
@@ -416,22 +417,118 @@
       "themeToggle": "Theme wechseln"
     },
     "hero": {
-      "badge": "KI-Marketing-Coach",
-      "title": {
-        "part1": "Marketing",
-        "highlight": "das nicht liegen bleibt",
-        "part2": ""
-      },
-      "subtitle": "Houston ist dein KI-Marketing-Coach. Er versteht dein Business (oder das deiner Kunden), plant Strategien und sagt dir jeden Tag, was zu tun ist.",
+      "badge": "Next-Gen KI-Marketing",
+      "tagline": "Neu 2026",
+      "title": "Dein KI-Marketing-Copilot, der täglich mitarbeitet.",
+      "subtitle": "Houston plant Strategien, baut To-dos und begleitet dich jeden Tag – damit dein Marketing nicht liegen bleibt.",
       "cta": {
-        "start": "Kostenlos starten",
-        "learn": "Wie es funktioniert",
-        "dashboard": "Zum Dashboard"
+        "start": "Kostenlos starten mit 50 Credits",
+        "learn": "So funktioniert's"
       },
-      "trustBadges": {
-        "noCard": "Keine Kreditkarte",
-        "freeCredits": "50 Credits gratis",
-        "cancelAnytime": "Jederzeit kündbar"
+      "voice": {
+        "on": "Voice-Demo an",
+        "off": "Voice-Demo aus"
+      },
+      "personaLabel": "Zeig mir Houston für",
+      "personas": {
+        "solo": {
+          "label": "Solo & Coaching",
+          "headline": "Klare To-dos statt Grübeln",
+          "payoff": "3x schneller vom Impuls zur Kampagne.",
+          "proof": "Houston strukturiert deine Wochenplanung und erinnert dich an die nächsten Schritte."
+        },
+        "agency": {
+          "label": "Agentur & Freelancer",
+          "headline": "1 Cockpit für alle Kunden",
+          "payoff": "Strategien, Todos und Playbooks pro Workspace – ohne Tab-Chaos.",
+          "proof": "Houston skaliert deine Prozesse und hält Kunden-Workspaces synchron."
+        },
+        "local": {
+          "label": "Lokales Business",
+          "headline": "Mehr Buchungen, weniger Technik",
+          "payoff": "Houston übersetzt Ziele in einfache Aktionen – klar, lokal, umsetzbar.",
+          "proof": "Tägliche Hinweise, welche Maßnahme heute neue Kunden bringt."
+        }
+      },
+      "demoTitle": "Houston live erleben",
+      "demoSubtitle": "Persona-spezifische Antworten, fertig zum Testen.",
+      "demoRealtime": "Realtime KI",
+      "demo": {
+        "solo": [
+          {
+            "role": "ai",
+            "text": "Ich kenne dein Angebot als Coach. Lass uns ein Wochenformat aufsetzen, das Leads und Vertrauen aufbaut."
+          },
+          {
+            "role": "user",
+            "text": "Gib mir 3 Hooks für ein Reel und einen Newsletter-Snippet."
+          },
+          {
+            "role": "ai",
+            "text": "Reel-Hooks: 1) '3 Dinge, die ich bei meinen Kunden sofort streiche' 2) 'Der 15-Minuten-Plan, der immer funktioniert' 3) 'Warum du nicht jeden Tag posten musst, um Kunden zu gewinnen' \nNewsletter-Snippet: Einstieg mit einer Mini-Erfolgsgeschichte, CTA auf kostenloses Kennenlernen, PS: 2 freie Slots."
+          }
+        ],
+        "agency": [
+          {
+            "role": "ai",
+            "text": "Ich habe 4 aktive Kunden-Workspaces erkannt. Welche Accounts brauchen heute Priorität?"
+          },
+          {
+            "role": "user",
+            "text": "Mach mir ein Daily-Focus für SaaS-Kunde Nova."
+          },
+          {
+            "role": "ai",
+            "text": "Nova Daily Focus: 1) KPI-Check MQLs vs. Ziel (5 Min) 2) LinkedIn Thought-Leadership Post mit CTA auf Trial (15 Min) 3) Retargeting-Copy Variante B testen (10 Min). Kosten: 0 Credits, alles im Chat umsetzbar."
+          }
+        ],
+        "local": [
+          {
+            "role": "ai",
+            "text": "Dein Ziel: Mehr Buchungen am Wochenende. Ich nehme Standort + Öffnungszeiten mit rein."
+          },
+          { "role": "user", "text": "Was soll ich heute posten?" },
+          {
+            "role": "ai",
+            "text": "Post-Idee (30 Sek): Vorher/Nachher aus dem Salon, CTA 'Freitag 3 Slots frei'. Text und Hashtags fertig – willst du sie kopieren? (0 Credits)"
+          }
+        ]
+      },
+      "prompts": {
+        "title": "Fertige Prompts",
+        "items": [
+          {
+            "label": "Lead-Magnet in 15 Minuten",
+            "prompt": "Erstelle mir einen 3-Schritte-Lead-Magnet inkl. Hook, Offer, Follow-up.",
+            "persona": "solo"
+          },
+          {
+            "label": "Agentur Daily-Standup",
+            "prompt": "Gib mir einen täglichen Fokus-Plan für 4 Kunden-Workspaces.",
+            "persona": "agency"
+          },
+          {
+            "label": "Lokale Buchungen füllen",
+            "prompt": "Schreibe einen Post, der für dieses Wochenende 5 Buchungen bringt.",
+            "persona": "local"
+          }
+        ]
+      },
+      "dailyFocus": {
+        "title": "Daily Focus Beispiel",
+        "subtitle": "So sieht dein Tag mit Houston aus",
+        "items": [
+          "2-Minuten-Lagebericht: Ziele, Credits, offene Todos",
+          "Konkrete Handlung: 1 Content-Stück + 1 Conversion-Optimierung",
+          "Review: Houston bewertet den Impact und schlägt Optimierungen vor"
+        ]
+      },
+      "liveValue": {
+        "title": "Magic Moment",
+        "headline": "Houston liefert sofort verwertbare Antworten – ohne Setup.",
+        "point1": "Persona-aware Antworten (Business, Ziele, Workspace)",
+        "point2": "Voice/Prompt-Ready: Klick & Ausprobieren",
+        "point3": "Zeigt Kosten transparent vor jeder Aktion"
       }
     },
     "trustline": {
@@ -445,11 +542,9 @@
       ]
     },
     "howItWorks": {
-      "title": {
-        "part1": "So funktioniert",
-        "highlight": "Houston"
-      },
-      "subtitle": "In 4 einfachen Schritten zu deinem Marketing-Erfolg",
+      "label": "Ablauf",
+      "title": "So funktioniert Houston",
+      "subtitle": "In 4 klaren Schritten zu Ergebnissen",
       "step1": {
         "title": "Ziel erzählen",
         "description": "Sag Houston, was du erreichen willst – mehr Kunden, bessere Sichtbarkeit, oder eine neue Kampagne."
@@ -467,24 +562,27 @@
         "description": "Houston wertet deine Fortschritte aus und schlägt Verbesserungen vor."
       }
     },
-    "benefits": {
-      "title": {
-        "part1": "Das bringt dir",
-        "highlight": "Houston"
-      },
-      "subtitle": "Konkrete Ergebnisse statt leerer Versprechen",
-      "benefit1": {
-        "title": "Dein Marketing bleibt nicht mehr liegen",
-        "description": "Keine vergessenen Kampagnen mehr. Houston erinnert dich an nächste Schritte und hält dich auf Kurs."
-      },
-      "benefit2": {
-        "title": "Klarer Plan statt Überforderung",
-        "description": "Schluss mit Grübeln. Houston gibt dir jeden Tag konkrete Aufgaben, die zu deinen Zielen passen."
-      },
-      "benefit3": {
-        "title": "Weniger Grübeln, mehr Umsetzen",
-        "description": "Houston denkt mit – du setzt um. So sparst du Stunden an Planungszeit pro Woche."
-      }
+    "outcomes": {
+      "label": "Outcomes",
+      "title": "Marketing, das nicht liegen bleibt",
+      "subtitle": "Konkrete Ergebnisse statt Feature-Listen.",
+      "cards": [
+        {
+          "title": "Immer ein nächster Schritt",
+          "description": "Houston gibt dir täglich eine fokussierte Aufgabe – keine To-do-Wüste.",
+          "icon": "target"
+        },
+        {
+          "title": "KI, die dein Business kennt",
+          "description": "Persona-aware Antworten aus deinem Workspace, nicht aus der Luft gegriffen.",
+          "icon": "sparkles"
+        },
+        {
+          "title": "Transparente Credits",
+          "description": "Vor jeder Aktion siehst du Kosten und Nutzen. Chat bleibt kostenlos.",
+          "icon": "zap"
+        }
+      ]
     },
     "forWhom": {
       "title": {
@@ -549,17 +647,16 @@
       }
     },
     "creditsExplained": {
-      "title": {
-        "part1": "Credits",
-        "highlight": "einfach erklärt"
-      },
-      "subtitle": "Transparent und fair – du zahlst nur, was du nutzt",
+      "label": "Credits erklärt",
+      "title": "Credits, aber klar und fair",
+      "subtitle": "Chat ist gratis. Premium-Aktionen zeigen Kosten vor dem Klick.",
       "whatAreCredits": {
         "title": "Was sind Credits?",
-        "description": "Credits sind deine Währung für Premium-Features. Einfache Chats sind kostenlos, nur tiefere Analysen kosten Credits."
+        "description": "Credits sind deine Währung für Premium-Features. Einfache Chats sind kostenlos, nur tiefe Analysen kosten Credits."
       },
       "whatCanYouDo": {
         "title": "Was kannst du mit 50 Credits machen?",
+        "subtitle": "Starter-Pack direkt nach Sign-up",
         "examples": {
           "deepAnalysis": "~16 Tiefenanalysen",
           "aiInsights": "~16 KI-Empfehlungen",

@@ -300,7 +300,11 @@ IMPORTANT: Be a real coach, not a chatbot. The user should feel like they're tal
       ];
 
       // Get response from Manus 1.5
-      const response = await invokeLLM({ messages: llmMessages });
+      const response = await invokeLLM({
+        userId: String(ctx.user?.openId ?? ctx.user?.id ?? "unknown"),
+        sessionId: String(input.sessionId),
+        messages: llmMessages,
+      });
       const coachResponse =
         typeof response.choices[0]?.message?.content === "string"
           ? response.choices[0]?.message?.content
@@ -438,7 +442,11 @@ ${workspace?.targetAudience ? `- Target audience: ${workspace.targetAudience}` :
       ];
 
       // Get new response from Manus 1.5
-      const response = await invokeLLM({ messages: llmMessages });
+      const response = await invokeLLM({
+        userId: String(ctx.user?.openId ?? ctx.user?.id ?? "unknown"),
+        sessionId: String(input.sessionId),
+        messages: llmMessages,
+      });
       const coachResponse =
         typeof response.choices[0]?.message?.content === "string"
           ? response.choices[0]?.message?.content

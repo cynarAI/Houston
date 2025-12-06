@@ -118,38 +118,135 @@
   "appName": "Houston",
   "landing": {
     "nav": {
-      "features": "Features",
-      "howItWorks": "How it Works",
-      "stories": "Stories",
+      "features": "Outcomes",
+      "howItWorks": "How it works",
+      "personas": "Who it's for",
       "pricing": "Pricing",
+      "credits": "Credits",
       "faq": "FAQ",
       "login": "Login",
-      "dashboard": "Go to Dashboard",
+      "dashboard": "Dashboard",
       "screenshots": "Screenshots",
       "testimonials": "Testimonials",
       "themeToggle": "Toggle theme"
     },
     "hero": {
-      "badge": "AI Marketing Coach",
-      "title": {
-        "part1": "Marketing",
-        "highlight": "that gets done",
-        "part2": ""
-      },
-      "subtitle": "Houston is your AI marketing coach. He understands your business, plans your strategy, and tells you what to do every day.",
+      "badge": "Next-gen AI marketing",
+      "tagline": "New 2026",
+      "title": "Your AI marketing copilot that works every day.",
+      "subtitle": "Houston plans strategies, builds to-dos, and rides along daily—so your marketing never stalls.",
       "cta": {
-        "start": "Start Free",
-        "learn": "How it works",
-        "dashboard": "Go to Dashboard"
+        "start": "Start free with 50 credits",
+        "learn": "See how it works"
       },
-      "trustBadges": {
-        "noCard": "No credit card",
-        "freeCredits": "50 credits free",
-        "cancelAnytime": "Cancel anytime"
+      "voice": {
+        "on": "Voice demo on",
+        "off": "Voice demo off"
+      },
+      "personaLabel": "Show me Houston for",
+      "personas": {
+        "solo": {
+          "label": "Solo & Coaching",
+          "headline": "Clear to-dos, less overthinking",
+          "payoff": "3x faster from idea to campaign.",
+          "proof": "Houston structures your weekly plan and nudges the next steps."
+        },
+        "agency": {
+          "label": "Agency & Freelancer",
+          "headline": "One cockpit for every client",
+          "payoff": "Strategies, tasks, and playbooks per workspace—no tab chaos.",
+          "proof": "Houston scales your processes and keeps client workspaces in sync."
+        },
+        "local": {
+          "label": "Local business",
+          "headline": "More bookings, less tech",
+          "payoff": "Houston translates goals into simple actions—clear, local, doable.",
+          "proof": "Daily hints that drive bookings for this week, not next quarter."
+        }
+      },
+      "demoTitle": "See Houston live",
+      "demoSubtitle": "Persona-aware answers, ready to click.",
+      "demoRealtime": "Realtime AI",
+      "demo": {
+        "solo": [
+          {
+            "role": "ai",
+            "text": "I know your coaching offer. Let's set up a weekly format that builds trust and leads."
+          },
+          {
+            "role": "user",
+            "text": "Give me 3 hooks for a reel and a newsletter snippet."
+          },
+          {
+            "role": "ai",
+            "text": "Reel hooks: 1) \"3 things I cut from every client plan\" 2) \"The 15-minute plan that always works\" 3) \"Why you don't need to post daily to get clients\" \nNewsletter snippet: Start with a mini win, CTA to a free consult, PS: 2 slots left this week."
+          }
+        ],
+        "agency": [
+          {
+            "role": "ai",
+            "text": "I see 4 active client workspaces. Which accounts need priority today?"
+          },
+          {
+            "role": "user",
+            "text": "Make me a daily focus for SaaS client Nova."
+          },
+          {
+            "role": "ai",
+            "text": "Nova daily focus: 1) KPI check MQL vs. goal (5m) 2) LinkedIn thought-leadership post with trial CTA (15m) 3) Retargeting copy variant B test (10m). Cost: 0 credits, all in chat."
+          }
+        ],
+        "local": [
+          {
+            "role": "ai",
+            "text": "Goal: more weekend bookings. I'll factor in your location and hours."
+          },
+          { "role": "user", "text": "What should I post today?" },
+          {
+            "role": "ai",
+            "text": "Post idea (30s): Before/after from the shop, CTA 'Friday 3 slots left'. Caption and hashtags ready—want to copy? (0 credits)"
+          }
+        ]
+      },
+      "prompts": {
+        "title": "Ready-made prompts",
+        "items": [
+          {
+            "label": "Lead magnet in 15 minutes",
+            "prompt": "Create a 3-step lead magnet with hook, offer, and follow-up.",
+            "persona": "solo"
+          },
+          {
+            "label": "Agency daily standup",
+            "prompt": "Give me a daily focus plan for 4 client workspaces.",
+            "persona": "agency"
+          },
+          {
+            "label": "Fill local bookings",
+            "prompt": "Write a post that fills 5 weekend bookings.",
+            "persona": "local"
+          }
+        ]
+      },
+      "dailyFocus": {
+        "title": "Daily focus example",
+        "subtitle": "This is how a day with Houston feels",
+        "items": [
+          "2-minute status: goals, credits, open todos",
+          "One clear action: 1 content piece + 1 conversion lift",
+          "Review: Houston scores impact and suggests optimizations"
+        ]
+      },
+      "liveValue": {
+        "title": "Magic moment",
+        "headline": "Houston answers with context—no setup needed.",
+        "point1": "Persona-aware (business, goals, workspace)",
+        "point2": "Voice/Prompt ready: click & try",
+        "point3": "Transparent costs before every action"
       }
     },
     "trustline": {
-      "title": "Strategy coaching meets automation",
+      "title": "Strategy meets automation",
       "caption": "Trusted by founders, studios & local brands",
       "labels": [
         "Brand studios",
@@ -159,46 +256,47 @@
       ]
     },
     "howItWorks": {
-      "title": {
-        "part1": "How",
-        "highlight": "Houston Works"
-      },
-      "subtitle": "4 simple steps to marketing success",
+      "label": "Flow",
+      "title": "How Houston works",
+      "subtitle": "4 clear steps to outcomes",
       "step1": {
-        "title": "Share Your Goal",
-        "description": "Tell Houston what you want to achieve – more customers, better visibility, or a new campaign."
+        "title": "Tell your goal",
+        "description": "Tell Houston what you want to achieve—more customers, visibility, or a new campaign."
       },
       "step2": {
-        "title": "Get Your Plan",
+        "title": "Get a plan",
         "description": "Houston analyzes your situation and creates a strategy with concrete to-dos."
       },
       "step3": {
         "title": "Execute",
-        "description": "Work through the steps with Houston. He's always there when you have questions."
+        "description": "Work through the steps with Houston. It's always there for you."
       },
       "step4": {
         "title": "Optimize",
-        "description": "Houston evaluates your progress and suggests improvements."
+        "description": "Houston reviews progress and recommends improvements."
       }
     },
-    "benefits": {
-      "title": {
-        "part1": "What",
-        "highlight": "Houston Delivers"
-      },
-      "subtitle": "Real results, not empty promises",
-      "benefit1": {
-        "title": "Your marketing never falls behind",
-        "description": "No more forgotten campaigns. Houston reminds you of next steps and keeps you on track."
-      },
-      "benefit2": {
-        "title": "Clear plan instead of overwhelm",
-        "description": "No more overthinking. Houston gives you concrete daily tasks that fit your goals."
-      },
-      "benefit3": {
-        "title": "Less thinking, more doing",
-        "description": "Houston thinks ahead – you execute. Save hours of planning time every week."
-      }
+    "outcomes": {
+      "label": "Outcomes",
+      "title": "Marketing that never stalls",
+      "subtitle": "Real outcomes, not feature lists.",
+      "cards": [
+        {
+          "title": "Always a next step",
+          "description": "Houston hands you one focused task per day—no to-do desert.",
+          "icon": "target"
+        },
+        {
+          "title": "AI that knows your business",
+          "description": "Persona-aware answers from your workspace, not thin air.",
+          "icon": "sparkles"
+        },
+        {
+          "title": "Transparent credits",
+          "description": "See cost and value before you click. Chat stays free.",
+          "icon": "zap"
+        }
+      ]
     },
     "forWhom": {
       "title": {
@@ -263,17 +361,16 @@
       }
     },
     "creditsExplained": {
-      "title": {
-        "part1": "Credits",
-        "highlight": "Explained Simply"
-      },
-      "subtitle": "Transparent and fair – you only pay for what you use",
+      "label": "Credits explained",
+      "title": "Credits, but clear and fair",
+      "subtitle": "Chat is free. Premium actions show costs before you click.",
       "whatAreCredits": {
-        "title": "What are Credits?",
-        "description": "Credits are your currency for premium features. Basic chats are free, only deeper analyses cost credits."
+        "title": "What are credits?",
+        "description": "Credits are your currency for premium features. Basic chats are free; deep analysis costs credits."
       },
       "whatCanYouDo": {
-        "title": "What can you do with 50 Credits?",
+        "title": "What can you do with 50 credits?",
+        "subtitle": "Starter pack right after sign-up",
         "examples": {
           "deepAnalysis": "~16 deep analyses",
           "aiInsights": "~16 AI insights",
@@ -284,14 +381,14 @@
       "costs": {
         "chat": "Chat messages",
         "chatCost": "Free",
-        "deepAnalysis": "Deep Analysis",
-        "deepAnalysisCost": "3 Credits",
-        "aiInsights": "AI Insights",
-        "aiInsightsCost": "3 Credits",
-        "strategyAnalysis": "Strategy Analysis",
-        "strategyAnalysisCost": "8 Credits",
-        "pdfExport": "PDF Export",
-        "pdfExportCost": "2 Credits"
+        "deepAnalysis": "Deep analysis",
+        "deepAnalysisCost": "3 credits",
+        "aiInsights": "AI insights",
+        "aiInsightsCost": "3 credits",
+        "strategyAnalysis": "Strategy analysis",
+        "strategyAnalysisCost": "8 credits",
+        "pdfExport": "PDF export",
+        "pdfExportCost": "2 credits"
       }
     },
     "pricing": {

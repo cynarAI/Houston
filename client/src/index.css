@@ -323,6 +323,56 @@ details > summary:focus-visible {
   animation: ai-gradient-rotate 8s ease-in-out infinite;
 }
 
+/* Aurora & Premium motion for 2026 */
+.gradient-aurora {
+  background:
+    radial-gradient(
+      120% 120% at 20% 20%,
+      rgba(0, 212, 255, 0.22),
+      transparent 50%
+    ),
+    radial-gradient(
+      90% 90% at 80% 10%,
+      rgba(139, 92, 246, 0.18),
+      transparent 45%
+    ),
+    radial-gradient(
+      140% 140% at 50% 80%,
+      rgba(255, 107, 157, 0.15),
+      transparent 55%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  animation: aurora-shift 18s ease-in-out infinite;
+}
+
+.glass-strong {
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+}
+
+.tilt-3d {
+  transform-style: preserve-3d;
+  perspective: var(--perspective-3d);
+}
+
+@keyframes aurora-shift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    transform: translate3d(2%, -3%, 0) scale(1.03);
+    filter: hue-rotate(25deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: hue-rotate(0deg);
+  }
+}
+
 /* Premium Animations */
 @keyframes glow {
   0%,

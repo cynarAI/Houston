@@ -10,19 +10,20 @@ export const onboardingRouter = router({
       z.object({
         url: z.string().url(),
         language: z.enum(["de", "en"]).default("de"),
-      })
+      }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         // 1. Fetch website content
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-        
-        const response = await fetch(input.url, { 
+
+        const response = await fetch(input.url, {
           signal: controller.signal,
           headers: {
-            "User-Agent": "Mozilla/5.0 (compatible; HoustonBot/1.0; +https://houston.aistronaut.io)"
-          }
+            "User-Agent":
+              "Mozilla/5.0 (compatible; HoustonBot/1.0; +https://houston.aistronaut.io)",
+          },
         });
         clearTimeout(timeoutId);
 
@@ -43,8 +44,9 @@ export const onboardingRouter = router({
           .slice(0, 15000); // Limit to ~15k chars to fit in context
 
         // 3. Analyze with LLM
-        const systemPrompt = input.language === "de"
-          ? `Du bist ein KI-Marketing-Analyst. Analysiere den folgenden Website-Text und extrahiere Business-Informationen.
+        const systemPrompt =
+          input.language === "de"
+            ? `Du bist ein KI-Marketing-Analyst. Analysiere den folgenden Website-Text und extrahiere Business-Informationen.
              
              Antworte NUR mit einem JSON-Objekt:
              {
@@ -57,7 +59,7 @@ export const onboardingRouter = router({
                  "painPoints": "Vermutete Pain Points"
                }
              }`
-          : `You are an AI Marketing Analyst. Analyze the following website text and extract business information.
+            : `You are an AI Marketing Analyst. Analyze the following website text and extract business information.
              
              Respond ONLY with a JSON object:
              {
@@ -72,22 +74,28 @@ export const onboardingRouter = router({
              }`;
 
         const llmResponse = await invokeLLM({
+          userId: String(ctx.user?.openId ?? ctx.user?.id ?? "unknown"),
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: `Website URL: ${input.url}\n\nContent:\n${cleanText}` },
+            {
+              role: "user",
+              content: `Website URL: ${input.url}\n\nContent:\n${cleanText}`,
+            },
           ],
-          response_format: { type: "json_object" }
+          response_format: { type: "json_object" },
         });
 
-        const content = typeof llmResponse.choices[0]?.message?.content === "string"
-          ? llmResponse.choices[0]?.message?.content
-          : "{}";
+        const content =
+          typeof llmResponse.choices[0]?.message?.content === "string"
+            ? llmResponse.choices[0]?.message?.content
+            : "{}";
 
         return JSON.parse(content);
-
       } catch (error) {
         console.error("Website scan failed:", error);
-        throw new Error("Could not analyze website. Please enter data manually.");
+        throw new Error(
+          "Could not analyze website. Please enter data manually.",
+        );
       }
     }),
 
@@ -104,19 +112,21 @@ export const onboardingRouter = router({
         challenges: z.string(),
         mainGoals: z.string(),
         language: z.enum(["de", "en"]).default("de"),
-      })
+      }),
     )
-    .mutation(async ({ input }) => {
-      const systemPrompt = input.language === "de"
-        ? `Du bist der AIstronaut Marketing Coach. Fasse die folgenden Business-Informationen in 3-5 prägnanten Bulletpoints zusammen.
+    .mutation(async ({ input, ctx }) => {
+      const systemPrompt =
+        input.language === "de"
+          ? `Du bist der AIstronaut Marketing Coach. Fasse die folgenden Business-Informationen in 3-5 prägnanten Bulletpoints zusammen.
            Nutze eine freundliche Du-Form und konzentriere dich auf die wichtigsten Fakten.
            Format: Bulletpoints mit - am Anfang.`
-        : `You are the AIstronaut Marketing Coach. Summarize the following business information in 3-5 concise bullet points.
+          : `You are the AIstronaut Marketing Coach. Summarize the following business information in 3-5 concise bullet points.
            Use a friendly tone and focus on the most important facts.
            Format: Bullet points with - at the beginning.`;
 
-      const userPrompt = input.language === "de"
-        ? `Branche: ${input.industry}
+      const userPrompt =
+        input.language === "de"
+          ? `Branche: ${input.industry}
 Unternehmensgröße: ${input.companySize}
 Zielgruppe: ${input.targetAudience}
 Produkte/Dienstleistungen: ${input.products}
@@ -124,7 +134,7 @@ Marketingkanäle: ${input.marketingChannels}
 Monatliches Budget: ${input.monthlyBudget}
 Herausforderungen: ${input.challenges}
 Hauptziele: ${input.mainGoals}`
-        : `Industry: ${input.industry}
+          : `Industry: ${input.industry}
 Company size: ${input.companySize}
 Target audience: ${input.targetAudience}
 Products/Services: ${input.products}
@@ -134,15 +144,17 @@ Challenges: ${input.challenges}
 Main goals: ${input.mainGoals}`;
 
       const response = await invokeLLM({
+        userId: String(ctx.user?.openId ?? ctx.user?.id ?? "unknown"),
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
       });
 
-      const summary = typeof response.choices[0]?.message?.content === "string"
-        ? response.choices[0]?.message?.content
-        : "Zusammenfassung konnte nicht generiert werden.";
+      const summary =
+        typeof response.choices[0]?.message?.content === "string"
+          ? response.choices[0]?.message?.content
+          : "Zusammenfassung konnte nicht generiert werden.";
 
       return { summary };
     }),
@@ -160,11 +172,12 @@ Main goals: ${input.mainGoals}`;
         challenges: z.string(),
         mainGoals: z.string(),
         language: z.enum(["de", "en"]).default("de"),
-      })
+      }),
     )
-    .mutation(async ({ input }) => {
-      const systemPrompt = input.language === "de"
-        ? `Du bist der AIstronaut Marketing Coach. Generiere 3 SMART-Ziele (Specific, Measurable, Achievable, Relevant, Time-bound) basierend auf den Business-Informationen.
+    .mutation(async ({ input, ctx }) => {
+      const systemPrompt =
+        input.language === "de"
+          ? `Du bist der AIstronaut Marketing Coach. Generiere 3 SMART-Ziele (Specific, Measurable, Achievable, Relevant, Time-bound) basierend auf den Business-Informationen.
            
            Antworte NUR mit einem JSON-Array in folgendem Format (ohne zusätzlichen Text):
            [
@@ -178,7 +191,7 @@ Main goals: ${input.mainGoals}`;
                "timeBound": "Bis wann soll es erreicht werden?"
              }
            ]`
-        : `You are the AIstronaut Marketing Coach. Generate 3 SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound) based on the business information.
+          : `You are the AIstronaut Marketing Coach. Generate 3 SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound) based on the business information.
            
            Respond ONLY with a JSON array in the following format (without additional text):
            [
@@ -193,8 +206,9 @@ Main goals: ${input.mainGoals}`;
              }
            ]`;
 
-      const userPrompt = input.language === "de"
-        ? `Branche: ${input.industry}
+      const userPrompt =
+        input.language === "de"
+          ? `Branche: ${input.industry}
 Unternehmensgröße: ${input.companySize}
 Zielgruppe: ${input.targetAudience}
 Produkte/Dienstleistungen: ${input.products}
@@ -202,7 +216,7 @@ Marketingkanäle: ${input.marketingChannels}
 Monatliches Budget: ${input.monthlyBudget}
 Herausforderungen: ${input.challenges}
 Hauptziele: ${input.mainGoals}`
-        : `Industry: ${input.industry}
+          : `Industry: ${input.industry}
 Company size: ${input.companySize}
 Target audience: ${input.targetAudience}
 Products/Services: ${input.products}
@@ -212,6 +226,7 @@ Challenges: ${input.challenges}
 Main goals: ${input.mainGoals}`;
 
       const response = await invokeLLM({
+        userId: String(ctx.user?.openId ?? ctx.user?.id ?? "unknown"),
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -237,7 +252,15 @@ Main goals: ${input.mainGoals}`;
                       relevant: { type: "string" },
                       timeBound: { type: "string" },
                     },
-                    required: ["title", "description", "specific", "measurable", "achievable", "relevant", "timeBound"],
+                    required: [
+                      "title",
+                      "description",
+                      "specific",
+                      "measurable",
+                      "achievable",
+                      "relevant",
+                      "timeBound",
+                    ],
                     additionalProperties: false,
                   },
                 },
@@ -249,9 +272,10 @@ Main goals: ${input.mainGoals}`;
         },
       });
 
-      const content = typeof response.choices[0]?.message?.content === "string"
-        ? response.choices[0]?.message?.content
-        : "{}";
+      const content =
+        typeof response.choices[0]?.message?.content === "string"
+          ? response.choices[0]?.message?.content
+          : "{}";
 
       let goals;
       try {
@@ -285,22 +309,36 @@ Main goals: ${input.mainGoals}`;
         // Step 1: Company Info
         companyName: z.string().optional(),
         industry: z.string().optional(),
-        companySize: z.enum(["1-10", "11-50", "51-200", "201-1000", "1000+"]).optional(),
+        companySize: z
+          .enum(["1-10", "11-50", "51-200", "201-1000", "1000+"])
+          .optional(),
         website: z.string().optional(),
         // Step 2: Marketing Goals
-        primaryGoal: z.enum(["brand_awareness", "lead_generation", "sales_conversion", "customer_retention", "market_expansion"]).optional(),
+        primaryGoal: z
+          .enum([
+            "brand_awareness",
+            "lead_generation",
+            "sales_conversion",
+            "customer_retention",
+            "market_expansion",
+          ])
+          .optional(),
         secondaryGoals: z.array(z.string()).optional(),
-        monthlyBudget: z.enum(["<1000", "1000-5000", "5000-10000", "10000-50000", "50000+"]).optional(),
+        monthlyBudget: z
+          .enum(["<1000", "1000-5000", "5000-10000", "10000-50000", "50000+"])
+          .optional(),
         // Step 3: Target Audience
-        targetAudience: z.object({
-          demographics: z.string().optional(),
-          painPoints: z.string().optional(),
-          channels: z.array(z.string()).optional(),
-        }).optional(),
+        targetAudience: z
+          .object({
+            demographics: z.string().optional(),
+            painPoints: z.string().optional(),
+            channels: z.array(z.string()).optional(),
+          })
+          .optional(),
         currentChallenges: z.array(z.string()).optional(),
         // Completion flag
         completed: z.boolean().optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const existing = await db.getOnboardingDataByUserId(ctx.user.id);
@@ -312,18 +350,20 @@ Main goals: ${input.mainGoals}`;
         companySize: input.companySize || existing?.companySize || null,
         website: input.website || existing?.website || null,
         primaryGoal: input.primaryGoal || existing?.primaryGoal || null,
-        secondaryGoals: input.secondaryGoals 
-          ? JSON.stringify(input.secondaryGoals) 
+        secondaryGoals: input.secondaryGoals
+          ? JSON.stringify(input.secondaryGoals)
           : existing?.secondaryGoals || null,
         monthlyBudget: input.monthlyBudget || existing?.monthlyBudget || null,
-        targetAudience: input.targetAudience 
-          ? JSON.stringify(input.targetAudience) 
+        targetAudience: input.targetAudience
+          ? JSON.stringify(input.targetAudience)
           : existing?.targetAudience || null,
-        currentChallenges: input.currentChallenges 
-          ? JSON.stringify(input.currentChallenges) 
+        currentChallenges: input.currentChallenges
+          ? JSON.stringify(input.currentChallenges)
           : existing?.currentChallenges || null,
-        completed: input.completed ? 1 : (existing?.completed || 0),
-        completedAt: input.completed ? new Date() : existing?.completedAt || null,
+        completed: input.completed ? 1 : existing?.completed || 0,
+        completedAt: input.completed
+          ? new Date()
+          : existing?.completedAt || null,
       };
 
       if (existing) {
@@ -378,9 +418,9 @@ Main goals: ${input.mainGoals}`;
             achievable: z.string(),
             relevant: z.string(),
             timeBound: z.string(),
-          })
+          }),
         ),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       // Update workspace with onboarding data

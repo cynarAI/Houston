@@ -50,7 +50,8 @@ export async function setupVite(app: Express, server: Server) {
 export function serveStatic(app: Express) {
   // serveStatic is only called in production mode
   // The build output is always in dist/public (from vite build)
-  const distPath = path.resolve(import.meta.dirname, "../..", "dist", "public");
+  // Use process.cwd so the path is stable after esbuild bundling
+  const distPath = path.resolve(process.cwd(), "dist", "public");
   if (!fs.existsSync(distPath)) {
     console.error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`,

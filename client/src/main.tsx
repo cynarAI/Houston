@@ -19,9 +19,14 @@ import { initAnalytics } from "./lib/analytics";
 initSentry();
 initAnalytics();
 
+const isMockAuth =
+  import.meta.env.VITE_DEV_MOCK_AUTH === "true" ||
+  (import.meta.env.DEV && import.meta.env.VITE_DEV_MOCK_AUTH !== "false");
+
 const queryClient = new QueryClient();
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
+  if (isMockAuth) return;
   if (!(error instanceof TRPCClientError)) return;
   if (typeof window === "undefined") return;
 
