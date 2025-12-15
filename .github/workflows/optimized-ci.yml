@@ -159,7 +159,7 @@ jobs:
           ref: ${{ github.sha }}  # EXPLIZIT: Verwende den aktuellen Commit SHA
 
       - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: dist-${{ github.sha }}
           path: dist/
