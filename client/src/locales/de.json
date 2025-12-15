@@ -417,13 +417,13 @@
       "themeToggle": "Theme wechseln"
     },
     "hero": {
-      "badge": "Next-Gen KI-Marketing",
+      "badge": "KI, die dir den nächsten schritt liefert",
       "tagline": "Neu 2026",
-      "title": "Dein KI-Marketing-Copilot, der täglich mitarbeitet.",
-      "subtitle": "Houston plant Strategien, baut To-dos und begleitet dich jeden Tag – damit dein Marketing nicht liegen bleibt.",
+      "title": "Dein KI-Copilot, der marketing wirklich erledigt.",
+      "subtitle": "Sag Houston, was du willst (mehr anfragen, buchungen, verkäufe). Er macht daraus klare nächste schritte, fertige texte und täglichen fokus – ohne buzzwords.",
       "cta": {
-        "start": "Kostenlos starten mit 50 Credits",
-        "learn": "So funktioniert's"
+        "start": "Kostenlos starten (50 credits)",
+        "learn": "In action ansehen"
       },
       "voice": {
         "on": "Voice-Demo an",
@@ -432,26 +432,44 @@
       "personaLabel": "Zeig mir Houston für",
       "personas": {
         "solo": {
-          "label": "Solo & Coaching",
-          "headline": "Klare To-dos statt Grübeln",
-          "payoff": "3x schneller vom Impuls zur Kampagne.",
-          "proof": "Houston strukturiert deine Wochenplanung und erinnert dich an die nächsten Schritte."
+          "label": "Solo / Coaching",
+          "headline": "kunden gewinnen ohne marketing-kopfweh",
+          "payoff": "vom gedanken zum posten in minuten.",
+          "proof": "Houston schreibt posts, e-mails und einen einfachen wochenplan, den du wirklich umsetzt."
         },
         "agency": {
-          "label": "Agentur & Freelancer",
-          "headline": "1 Cockpit für alle Kunden",
-          "payoff": "Strategien, Todos und Playbooks pro Workspace – ohne Tab-Chaos.",
-          "proof": "Houston skaliert deine Prozesse und hält Kunden-Workspaces synchron."
+          "label": "Agentur / Freelancer",
+          "headline": "jeder kunde bleibt auf kurs",
+          "payoff": "ein cockpit pro kunde – weniger chaos, mehr output.",
+          "proof": "Houston macht aus zielen einen plan + to-dos, die du umsetzen oder delegieren kannst."
         },
         "local": {
-          "label": "Lokales Business",
-          "headline": "Mehr Buchungen, weniger Technik",
-          "payoff": "Houston übersetzt Ziele in einfache Aktionen – klar, lokal, umsetzbar.",
-          "proof": "Tägliche Hinweise, welche Maßnahme heute neue Kunden bringt."
+          "label": "Lokaler dienstleister",
+          "headline": "kalender füllen – diese woche",
+          "payoff": "posts & angebote, die buchungen bringen – fertig zum kopieren.",
+          "proof": "Houston sagt dir, was du heute posten sollst – und schreibt es in deinem ton."
+        },
+        "ecommerce": {
+          "label": "Onlineshop",
+          "headline": "mehr verkäufe, weniger raten",
+          "payoff": "produkt-hooks, ads, e-mails – erledigt.",
+          "proof": "Houston macht aus produkten kampagnen und tägliche optimierungen."
+        },
+        "realestate": {
+          "label": "Immobilien",
+          "headline": "mehr anfragen für exposés",
+          "payoff": "texte, follow-ups, lokaler content – fertig.",
+          "proof": "Houston hilft dir, objekte zu vermarkten und interessenten warm zu halten."
+        },
+        "retail": {
+          "label": "Handel",
+          "headline": "mehr frequenz & stammkunden",
+          "payoff": "aktionen, events & social posts – einfach.",
+          "proof": "Houston plant wöchentliche schritte, die kunden wirklich merken."
         }
       },
       "demoTitle": "Houston live erleben",
-      "demoSubtitle": "Persona-spezifische Antworten, fertig zum Testen.",
+      "demoSubtitle": "antworten passend zu deinem business – fertig zum testen.",
       "demoRealtime": "Realtime KI",
       "demo": {
         "solo": [
@@ -492,6 +510,48 @@
             "role": "ai",
             "text": "Post-Idee (30 Sek): Vorher/Nachher aus dem Salon, CTA 'Freitag 3 Slots frei'. Text und Hashtags fertig – willst du sie kopieren? (0 Credits)"
           }
+        ],
+        "ecommerce": [
+          {
+            "role": "ai",
+            "text": "Ziel: mehr verkäufe mit deinem bestseller.\nIch baue dir eine simple 3-schritte-kampagne (0 setup)."
+          },
+          {
+            "role": "user",
+            "text": "Schreib mir einen Insta-Post + 2 Ad-Angles."
+          },
+          {
+            "role": "ai",
+            "text": "Post: problem → lösung → proof → CTA (copy-paste ready).\nAd-Angles: 1) problem-solver 2) before/after. lieber kurz oder premium-ton?"
+          }
+        ],
+        "realestate": [
+          {
+            "role": "ai",
+            "text": "Ziel: mehr anfragen für ein objekt.\nIch mache exposé-text + follow-up messages."
+          },
+          {
+            "role": "user",
+            "text": "Schreib exposé-text und 2 follow-ups für interessenten."
+          },
+          {
+            "role": "ai",
+            "text": "Exposé: headline, highlights, lage, CTA.\nFollow-up: tag 1 + tag 3, freundlich und direkt."
+          }
+        ],
+        "retail": [
+          {
+            "role": "ai",
+            "text": "Ziel: mehr frequenz im shop diese woche.\nlass uns einen einfachen weekend-push machen."
+          },
+          {
+            "role": "user",
+            "text": "Gib mir einen weekend-promo post + plakat-text."
+          },
+          {
+            "role": "ai",
+            "text": "Promo post: offer + urgency + CTA.\nPlakat: headline + 3 bullets + QR/CTA."
+          }
         ]
       },
       "prompts": {
@@ -511,6 +571,21 @@
             "label": "Lokale Buchungen füllen",
             "prompt": "Schreibe einen Post, der für dieses Wochenende 5 Buchungen bringt.",
             "persona": "local"
+          },
+          {
+            "label": "Onlineshop Quick Win",
+            "prompt": "Mach aus meinem bestseller 3 Ad-Angles + 1 E-Mail.",
+            "persona": "ecommerce"
+          },
+          {
+            "label": "Immobilien Listing Kit",
+            "prompt": "Schreib exposé-text + 2 follow-ups für anfragen.",
+            "persona": "realestate"
+          },
+          {
+            "label": "Handel Weekend Promo",
+            "prompt": "Erstelle einen weekend-promo post + plakat-copy.",
+            "persona": "retail"
           }
         ]
       },
@@ -518,27 +593,29 @@
         "title": "Daily Focus Beispiel",
         "subtitle": "So sieht dein Tag mit Houston aus",
         "items": [
-          "2-Minuten-Lagebericht: Ziele, Credits, offene Todos",
-          "Konkrete Handlung: 1 Content-Stück + 1 Conversion-Optimierung",
-          "Review: Houston bewertet den Impact und schlägt Optimierungen vor"
+          "2-minuten check-in: ziel, offene tasks, quick win",
+          "eine klare aktion: 1 ding veröffentlichen, das kunden bringt",
+          "review: Houston schlägt den nächsten schritt vor (ohne buzzwords)"
         ]
       },
       "liveValue": {
         "title": "Magic Moment",
         "headline": "Houston liefert sofort verwertbare Antworten – ohne Setup.",
-        "point1": "Persona-aware Antworten (Business, Ziele, Workspace)",
-        "point2": "Voice/Prompt-Ready: Klick & Ausprobieren",
-        "point3": "Zeigt Kosten transparent vor jeder Aktion"
+        "point1": "kennt business-typ + ziel",
+        "point2": "copy-paste ready output",
+        "point3": "zeigt kosten transparent vor jeder aktion"
       }
     },
     "trustline": {
-      "title": "Strategieberatung trifft Automatisierung",
-      "caption": "Vertraut von Gründern, Studios & lokalen Marken",
+      "title": "klarheit trifft umsetzung",
+      "caption": "für solo-selbstständige, agenturen & lokale teams",
       "labels": [
-        "Brand Studios",
-        "Boutique-Agenturen",
-        "Lokale Stores",
-        "Startups"
+        "Coaches",
+        "Onlineshops",
+        "Immobilien",
+        "Lokale Services",
+        "Agenturen",
+        "Handel"
       ]
     },
     "howItWorks": {
@@ -564,17 +641,17 @@
     },
     "outcomes": {
       "label": "Outcomes",
-      "title": "Marketing, das nicht liegen bleibt",
-      "subtitle": "Konkrete Ergebnisse statt Feature-Listen.",
+      "title": "marketing, das sich leicht anfühlt",
+      "subtitle": "klare nächste schritte. fertige texte. keine buzzwords.",
       "cards": [
         {
-          "title": "Immer ein nächster Schritt",
-          "description": "Houston gibt dir täglich eine fokussierte Aufgabe – keine To-do-Wüste.",
+          "title": "tägliche klarheit",
+          "description": "jeden tag ein fokussierter nächster schritt – damit du wirklich umsetzt.",
           "icon": "target"
         },
         {
-          "title": "KI, die dein Business kennt",
-          "description": "Persona-aware Antworten aus deinem Workspace, nicht aus der Luft gegriffen.",
+          "title": "texte, die du posten kannst",
+          "description": "posts, ads, e-mails, landing-snippets – copy-paste ready.",
           "icon": "sparkles"
         },
         {
@@ -589,7 +666,7 @@
         "part1": "Für wen ist",
         "highlight": "Houston?"
       },
-      "subtitle": "Houston ist für alle, die Marketing machen müssen – aber keine eigene Marketingabteilung haben",
+      "subtitle": "Für alle, die kunden gewinnen wollen – ohne dass marketing zum nebenjob wird.",
       "persona1": {
         "title": "Solo-Coach & Berater",
         "description": "Du hast viele Ideen, aber keine Zeit für Marketingplanung. Houston hilft dir, fokussiert zu bleiben."
@@ -614,9 +691,9 @@
       "tagline": "Strategie, Umsetzung, Coaching"
     },
     "storyHighlights": {
-      "persona1": "48 neue Leads in 6 Wochen",
-      "persona2": "5 Kunden-Workspaces, 1 Cockpit",
-      "persona3": "+32% Ladenbesuche in 3 Monaten"
+      "persona1": "ein klarer wochenplan",
+      "persona2": "ein cockpit für alle kunden",
+      "persona3": "mehr anfragen diesen monat"
     },
     "screenshots": {
       "title": {

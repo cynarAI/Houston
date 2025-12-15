@@ -131,13 +131,13 @@
       "themeToggle": "Toggle theme"
     },
     "hero": {
-      "badge": "Next-gen AI marketing",
+      "badge": "AI that ships your next step",
       "tagline": "New 2026",
-      "title": "Your AI marketing copilot that works every day.",
-      "subtitle": "Houston plans strategies, builds to-dos, and rides along daily—so your marketing never stalls.",
+      "title": "Your AI copilot that gets marketing done.",
+      "subtitle": "Tell Houston what you want (more inquiries, bookings, sales). It turns it into clear next steps, ready-to-use copy, and daily focus—without jargon.",
       "cta": {
-        "start": "Start free with 50 credits",
-        "learn": "See how it works"
+        "start": "Start free (50 credits)",
+        "learn": "See it in action"
       },
       "voice": {
         "on": "Voice demo on",
@@ -146,26 +146,44 @@
       "personaLabel": "Show me Houston for",
       "personas": {
         "solo": {
-          "label": "Solo & Coaching",
-          "headline": "Clear to-dos, less overthinking",
-          "payoff": "3x faster from idea to campaign.",
-          "proof": "Houston structures your weekly plan and nudges the next steps."
+          "label": "Solo / Coaching",
+          "headline": "Get clients without the marketing headache",
+          "payoff": "From idea to publish in minutes.",
+          "proof": "Houston writes posts, emails, and a simple weekly plan you can actually follow."
         },
         "agency": {
-          "label": "Agency & Freelancer",
-          "headline": "One cockpit for every client",
-          "payoff": "Strategies, tasks, and playbooks per workspace—no tab chaos.",
-          "proof": "Houston scales your processes and keeps client workspaces in sync."
+          "label": "Agency / Freelancer",
+          "headline": "Keep every client on track",
+          "payoff": "One cockpit per client—less chaos, more output.",
+          "proof": "Houston turns goals into plans + to-dos you can execute or hand off."
         },
         "local": {
-          "label": "Local business",
-          "headline": "More bookings, less tech",
-          "payoff": "Houston translates goals into simple actions—clear, local, doable.",
-          "proof": "Daily hints that drive bookings for this week, not next quarter."
+          "label": "Local service",
+          "headline": "Fill your calendar this week",
+          "payoff": "Posts & offers that drive bookings—ready to copy.",
+          "proof": "Houston suggests what to post today and writes it in your tone."
+        },
+        "ecommerce": {
+          "label": "E-commerce",
+          "headline": "Sell more with less guessing",
+          "payoff": "Product hooks, ads, emails—done.",
+          "proof": "Houston turns products into campaigns and daily optimizations."
+        },
+        "realestate": {
+          "label": "Real estate",
+          "headline": "More inquiries for listings",
+          "payoff": "Listing texts, follow-ups, local content—ready.",
+          "proof": "Houston helps you market objects and keep leads warm."
+        },
+        "retail": {
+          "label": "Retail",
+          "headline": "More foot traffic & repeat buyers",
+          "payoff": "Promos, events, and social posts—simple.",
+          "proof": "Houston plans weekly actions customers actually notice."
         }
       },
       "demoTitle": "See Houston live",
-      "demoSubtitle": "Persona-aware answers, ready to click.",
+      "demoSubtitle": "Answers tailored to your business—ready to click.",
       "demoRealtime": "Realtime AI",
       "demo": {
         "solo": [
@@ -206,6 +224,48 @@
             "role": "ai",
             "text": "Post idea (30s): Before/after from the shop, CTA 'Friday 3 slots left'. Caption and hashtags ready—want to copy? (0 credits)"
           }
+        ],
+        "ecommerce": [
+          {
+            "role": "ai",
+            "text": "Goal: more sales from your top product.\nI'll build a simple 3-step campaign (0 setup)."
+          },
+          {
+            "role": "user",
+            "text": "Write an Instagram post + 2 ad angles for my bestseller."
+          },
+          {
+            "role": "ai",
+            "text": "Post: pain → promise → proof → CTA (ready to copy).\nAd angles: 1) problem-solver 2) before/after. Want short or premium tone?"
+          }
+        ],
+        "realestate": [
+          {
+            "role": "ai",
+            "text": "Goal: more inquiries for a listing.\nI'll craft listing copy + follow-up messages."
+          },
+          {
+            "role": "user",
+            "text": "Write a listing text and a 2-message follow-up sequence."
+          },
+          {
+            "role": "ai",
+            "text": "Listing: headline, highlights, neighborhood, CTA.\nFollow-up: day 1 + day 3, friendly and direct."
+          }
+        ],
+        "retail": [
+          {
+            "role": "ai",
+            "text": "Goal: bring more people into the store this week.\nLet's run a simple weekend push."
+          },
+          {
+            "role": "user",
+            "text": "Give me a weekend promo post + in-store poster text."
+          },
+          {
+            "role": "ai",
+            "text": "Promo post: offer + urgency + CTA.\nPoster: headline + 3 bullets + QR/CTA."
+          }
         ]
       },
       "prompts": {
@@ -225,6 +285,21 @@
             "label": "Fill local bookings",
             "prompt": "Write a post that fills 5 weekend bookings.",
             "persona": "local"
+          },
+          {
+            "label": "E-commerce quick win",
+            "prompt": "Turn my bestseller into 3 ad angles + 1 email.",
+            "persona": "ecommerce"
+          },
+          {
+            "label": "Real estate listing kit",
+            "prompt": "Write listing copy + 2 follow-up messages for inquiries.",
+            "persona": "realestate"
+          },
+          {
+            "label": "Retail weekend promo",
+            "prompt": "Create a weekend promo post + poster copy.",
+            "persona": "retail"
           }
         ]
       },
@@ -232,27 +307,29 @@
         "title": "Daily focus example",
         "subtitle": "This is how a day with Houston feels",
         "items": [
-          "2-minute status: goals, credits, open todos",
-          "One clear action: 1 content piece + 1 conversion lift",
-          "Review: Houston scores impact and suggests optimizations"
+          "2-minute check-in: goal, open tasks, quick win",
+          "One clear action: publish 1 thing that brings customers",
+          "Review: Houston suggests the next step (no jargon)"
         ]
       },
       "liveValue": {
         "title": "Magic moment",
         "headline": "Houston answers with context—no setup needed.",
-        "point1": "Persona-aware (business, goals, workspace)",
-        "point2": "Voice/Prompt ready: click & try",
+        "point1": "Knows your business type + goal",
+        "point2": "Copy-paste ready output",
         "point3": "Transparent costs before every action"
       }
     },
     "trustline": {
-      "title": "Strategy meets automation",
-      "caption": "Trusted by founders, studios & local brands",
+      "title": "Clarity meets execution",
+      "caption": "For solo founders, agencies & local teams",
       "labels": [
-        "Brand studios",
-        "Boutique agencies",
-        "Local stores",
-        "Startups"
+        "Coaches",
+        "E-commerce",
+        "Real estate",
+        "Local services",
+        "Agencies",
+        "Retail"
       ]
     },
     "howItWorks": {
@@ -278,17 +355,17 @@
     },
     "outcomes": {
       "label": "Outcomes",
-      "title": "Marketing that never stalls",
-      "subtitle": "Real outcomes, not feature lists.",
+      "title": "Marketing that feels easy",
+      "subtitle": "Clear next steps. Ready-to-use copy. No buzzwords.",
       "cards": [
         {
-          "title": "Always a next step",
-          "description": "Houston hands you one focused task per day—no to-do desert.",
+          "title": "Daily clarity",
+          "description": "One focused next step per day—so you actually ship.",
           "icon": "target"
         },
         {
-          "title": "AI that knows your business",
-          "description": "Persona-aware answers from your workspace, not thin air.",
+          "title": "Copy you can publish",
+          "description": "Posts, ads, emails, landing snippets—ready to copy.",
           "icon": "sparkles"
         },
         {
@@ -303,7 +380,7 @@
         "part1": "Who is",
         "highlight": "Houston for?"
       },
-      "subtitle": "Houston is for everyone who needs to do marketing – but doesn't have a marketing department",
+      "subtitle": "For anyone who needs customers—without turning marketing into a second job.",
       "persona1": {
         "title": "Solo Coach & Consultant",
         "description": "You have many ideas but no time for marketing planning. Houston helps you stay focused."
@@ -328,9 +405,9 @@
       "tagline": "Strategy, execution, coaching"
     },
     "storyHighlights": {
-      "persona1": "48 new leads in 6 weeks",
-      "persona2": "5 client workspaces, 1 cockpit",
-      "persona3": "+32% foot traffic in 3 months"
+      "persona1": "A clear weekly plan",
+      "persona2": "One cockpit for all clients",
+      "persona3": "More inquiries this month"
     },
     "screenshots": {
       "title": {
