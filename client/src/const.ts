@@ -20,11 +20,27 @@ export const getLoginUrl = () => {
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
   const state = btoa(redirectUri);
 
-  const url = new URL(`${oauthPortalUrl}/app-auth`);
-  url.searchParams.set("appId", appId);
-  url.searchParams.set("redirectUri", redirectUri);
-  url.searchParams.set("state", state);
-  url.searchParams.set("type", "signIn");
+  try {
+    // Be tolerant: some environments provide host without scheme ("portal.example.com")
+    // and URL() would throw. Normalize to https:// by default.
+    const normalizedBase = /^https?:\/\//i.test(oauthPortalUrl)
+      ? oauthPortalUrl
+      : `https://${oauthPortalUrl.replace(/^\/+/, "")}`;
 
-  return url.toString();
+    const url = new URL("/app-auth", normalizedBase);
+    url.searchParams.set("appId", appId);
+    url.searchParams.set("redirectUri", redirectUri);
+    url.searchParams.set("state", state);
+    url.searchParams.set("type", "signIn");
+
+    return url.toString();
+  } catch (error) {
+    console.warn(
+      "[Login] Invalid VITE_OAUTH_PORTAL_URL. Falling back to dashboard.",
+      { oauthPortalUrl, error },
+    );
+    return "/app/dashboard";
+  }
+
+  // unreachable
 };
