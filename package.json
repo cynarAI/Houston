@@ -136,7 +136,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "pnpm": "^10.26.0",
+    "pnpm": "^10.26.1",
     "postcss": "^8.4.47",
     "prettier": "^3.7.4",
     "storybook": "^10.1.9",
