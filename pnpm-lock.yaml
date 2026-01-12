@@ -113,8 +113,8 @@ importers:
         specifier: ^10.32.1
         version: 10.32.1(react@19.2.3)
       '@stripe/stripe-js':
-        specifier: ^8.6.0
-        version: 8.6.0
+        specifier: ^8.6.1
+        version: 8.6.1
       '@tanstack/react-query':
         specifier: ^5.90.16
         version: 5.90.16(react@19.2.3)
@@ -2496,8 +2496,8 @@ packages:
     peerDependencies:
       storybook: ^8.6.14
 
-  '@stripe/stripe-js@8.6.0':
-    resolution: {integrity: sha512-EB0/GGgs4hfezzkiMkinlRgWtjz8fSdwVQhwYS7Sg/RQrSvuNOz+ssPjD+lAzqaYTCB0zlbrt0fcqVziLJrufQ==}
+  '@stripe/stripe-js@8.6.1':
+    resolution: {integrity: sha512-UJ05U2062XDgydbUcETH1AoRQLNhigQ2KmDn1BG8sC3xfzu6JKg95Qt6YozdzFpxl1Npii/02m2LEWFt1RYjVA==}
     engines: {node: '>=12.16'}
 
   '@tailwindcss/node@4.1.18':
@@ -8211,7 +8211,7 @@ snapshots:
       '@vitest/spy': 2.0.5
       storybook: 10.1.11(@testing-library/dom@10.4.0)(prettier@3.7.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
 
-  '@stripe/stripe-js@8.6.0': {}
+  '@stripe/stripe-js@8.6.1': {}
 
   '@tailwindcss/node@4.1.18':
     dependencies:
