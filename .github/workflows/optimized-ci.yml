@@ -124,7 +124,7 @@ jobs:
 
       - name: 📤 Upload build artifacts
         # Artefakte werden sofort hochgeladen, damit Deployment früher starten kann
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-${{ github.sha }}
           path: dist/
