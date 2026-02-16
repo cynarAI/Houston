@@ -49,7 +49,7 @@ jobs:
           echo "path=$STORE_PATH" >> $GITHUB_OUTPUT
 
       - name: 🗄️ Cache pnpm store
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.pnpm-store.outputs.path }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -62,7 +62,7 @@ jobs:
       # KEIN Cache für dist/ - wir wollen immer frisch bauen um sicherzustellen dass der aktuelle Stand deployed wird
       # Cache nur für node_modules/.vite (Vite's interne Cache)
       - name: 🗄️ Cache Vite internal cache only
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules/.vite
